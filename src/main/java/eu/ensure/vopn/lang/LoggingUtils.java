@@ -30,15 +30,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.Appender;
 import org.apache.logging.log4j.core.LifeCycle;
-import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.ConfigurationSource;
 import org.apache.logging.log4j.core.config.Configurator;
-import org.apache.logging.log4j.status.StatusLogger;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
@@ -79,14 +74,7 @@ public class LoggingUtils {
         CREATE_FROM_TEMPLATE
     }
 
-    /**
-     * Initializes (and sets up) logging.
-     * <p>
-     * @param clazz
-     * @param resourceName
-     * @return
-     */
-    public static Logger setupLoggingFor(Class clazz, String resourceName) {
+    private static ConfigurationSource getConfigurationSource(Class clazz, String resourceName, PrintWriter pw) {
 
         // --------- Determine name of log configuration file ---------
         Collection<ConfigurationTool.ConfigurationResolver> resolvers =
@@ -111,47 +99,46 @@ public class LoggingUtils {
         if (configFile.exists() && configFile.canRead()) {
             // Configuration file exists in file system - use it.
             strategy = ConfigurationOption.PULL_FROM_FILE_ON_DISK;
-        }
-        else {
+        } else {
             // Configuration file does not exist in file system (yet?)
             if (configFile.isAbsolute()) {
                 strategy = ConfigurationOption.CREATE_FROM_TEMPLATE;
-            }
-            else {
+            } else {
                 // If configuration.file() returns a single name without File.separator ('/')
                 // then we will just try to pull it from clazz' resources.
                 // If configuration.file() contains separators (even if relative) but does not exist
                 // on disk, then we will try to write to it using the template from clazz' resources.
                 if (fileName.contains(File.separator)) {
                     strategy = ConfigurationOption.CREATE_FROM_TEMPLATE;
-                }
-                else {
+                } else {
                     strategy = ConfigurationOption.PULL_FROM_RESOURCES;
                 }
             }
         }
 
         // Changes as per http://stackoverflow.com/questions/21083834/load-log4j2-configuration-file-programmatically
-        Logger log = null;
+        ConfigurationSource source = null;
         try {
-            ConfigurationSource source = null;
-            InputStream config = null;
+            InputStream is = null;
             try {
                 switch (strategy) {
                     case CREATE_FROM_TEMPLATE:
                         try (InputStream sourceConfig = clazz.getResourceAsStream(resourceName)) {
                             configFile = FileIO.writeToFile(sourceConfig, configFile);
-                            config = new FileInputStream(configFile);
-                            source = new ConfigurationSource(config, configFile);
+                            is = new FileInputStream(configFile);
 
-                            System.out.println("Pulling log configuration from file: " + configFile.getAbsolutePath());
+                            // We need to consume the whole stream right away, before we
+                            // close the configuration input stream
+                            source = new ConfigurationSource(new ByteArrayInputStream(consumeInputStream(is)), configFile);
+
+                            pw.println("Pulling log configuration from file: " + configFile.getAbsolutePath());
                             break;
 
                         } catch (Exception e) {
                             String info = "Failed to create log configuration file from internal template: ";
                             info += e.getMessage();
                             info += " - [falling back on default configuration]";
-                            System.out.println(info);
+                            pw.println(info);
 
                             //----------------------------------------------------------------------
                             // OBSERVE!
@@ -160,50 +147,24 @@ public class LoggingUtils {
                         }
 
                     case PULL_FROM_RESOURCES:
-                        config = clazz.getResourceAsStream(resourceName);
-                        source = new ConfigurationSource(config);
+                        is = clazz.getResourceAsStream(resourceName);
 
-                        System.out.println("Pulling log configuration from resources (default): " + clazz.getName() + "#" + fileName);
+                        // We need to consume the whole stream right away, before we
+                        // close the configuration input stream
+                        source = new ConfigurationSource(new ByteArrayInputStream(consumeInputStream(is)));
+
+                        pw.println("Pulling log configuration from resources (default): " + clazz.getName() + "#" + fileName);
                         break;
 
                     case PULL_FROM_FILE_ON_DISK:
-                        config = new FileInputStream(configFile);
-                        source = new ConfigurationSource(config, configFile);
+                        is = new FileInputStream(configFile);
 
-                        System.out.println("Pulling log configuration from file: " + configFile.getAbsolutePath());
+                        // We need to consume the whole stream right away, before we
+                        // close the configuration input stream
+                        source = new ConfigurationSource(new ByteArrayInputStream(consumeInputStream(is)), configFile);
+
+                        pw.println("Pulling log configuration from file: " + configFile.getAbsolutePath());
                         break;
-                }
-
-                synchronized (lock) {
-                    // Load new and restart
-                    Logger rootLogger = LogManager.getRootLogger();
-                    if (null != rootLogger) {
-                        // Need the core Logger in order to extract a LoggerContext
-                        org.apache.logging.log4j.core.LoggerContext context =
-                                ((org.apache.logging.log4j.core.Logger) rootLogger).getContext();
-
-                        if (context.getState() == LifeCycle.State.STARTED) {
-                            org.apache.logging.log4j.core.config.Configuration _configuration = context.getConfiguration();
-                            System.out.print("Log4j2 is already running a configuration (");
-                            System.out.print(_configuration.getName());
-                            System.out.print(") with these appenders:");
-
-                            Map<String, Appender> appenders = _configuration.getAppenders();
-                            if (null != appenders) {
-                                for (Appender appender : appenders.values()) {
-                                    System.out.print(" " + appender.getName());
-                                }
-                            }
-                            System.out.println();
-
-                            context.stop();
-                        }
-
-                        context = Configurator.initialize(/* class loader */ null, source, context);
-                        log = context.getLogger(clazz.getName());
-                        String info = "Logging initiated (by " + clazz.getCanonicalName() + ")...";
-                        System.out.println(info);
-                    }
                 }
             } catch (IOException ioe) {
                 String info = "Could not load logging configuration from resource \"" + resourceName + "\" ";
@@ -211,20 +172,162 @@ public class LoggingUtils {
                 Throwable t = Stacktrace.getBaseCause(ioe);
                 info += t.getMessage();
 
-                System.out.println(info);
+                pw.println(info);
                 throw new RuntimeException(info, t);
+
             } finally {
-                if (null != config) config.close();
+                if (null != is) is.close();
             }
         } catch (Exception e) {
             String info = "Could not setup xml-reader for logging configuration: ";
             Throwable t = Stacktrace.getBaseCause(e);
             info += t.getMessage();
 
-            System.out.println(info);
-            e.printStackTrace();
+            pw.println(info);
             throw new RuntimeException(info, t);
         }
+        return source;
+    }
+
+    /**
+     * Initializes (and sets up) logging.
+     * <p/>
+     * These are class loader hierarchies as seen from different containers
+     * --------------------------------------------------------------------------------------
+     *     Servlet container
+     * --------------------------------------------------------------------------------------
+     *   1: org.apache.catalina.loader.WebappClassLoader@4465BAF
+     *   2: java.net.URLClassLoader@38AF3868
+     *   3: sun.misc.Launcher.AppClassLoader@764C12B6
+     *   4: sun.misc.Launcher.ExtClassLoader@5F2050F6
+     *
+     * --------------------------------------------------------------------------------------
+     *     Axis2 service container
+     * --------------------------------------------------------------------------------------
+     *   1: org.apache.axis2.deployment.DeploymentClassLoader@582FEEFE
+     *   2: org.apache.axis2.classloader.JarFileClassLoader@557D9535
+     *   3: sun.misc.Launcher.AppClassLoader@764C12B6
+     *   4: sun.misc.Launcher.ExtClassLoader@5F2050F6
+     *
+     * Class loader 2 is parent of 1 and so forth.
+     *
+     * If we want to share a common logger context between these containers, we need to
+     * find a common ground -- a common ancestor class loader. This is the reason we
+     * take the third parameter, which basically is the class name of the shared
+     * class loader.
+     *
+     * We will search up the class loader hierarchy untill we find a common ancestor, into
+     * which we place our common LoggerContext.
+     *
+     * <p/>
+     * @param clazz - the class requesting a Logger
+     * @param resourceName - name of parameter holding name of Log4j2 configuration
+     * @param classLoaderType - name of common class loader ancestor (or null if we don't care)
+     * @return
+     */
+    public static Logger setupLoggingFor(Class clazz, String resourceName, String classLoaderType, Writer reporter) {
+        Logger log = null;
+
+        boolean hasSpecifiedClassLoader = null != classLoaderType && classLoaderType.length() > 0;
+
+        ClassLoader classLoader;
+        if (hasSpecifiedClassLoader) {
+            classLoader = getTypedClassLoader(clazz.getClassLoader(), classLoaderType);
+        } else {
+            classLoader = clazz.getClassLoader();
+        }
+
+        PrintWriter pw;
+        if (null != reporter) {
+            pw = new PrintWriter(reporter);
+        } else {
+            pw = new PrintWriter(System.out);
+        }
+
+        pw.print("Classloader: " + classLoader.getClass().getCanonicalName());
+        pw.println("@" + String.format("%X", classLoader.hashCode()));
+
+        synchronized (lock) {
+            org.apache.logging.log4j.spi.LoggerContext _context =
+                    LogManager.getContext(classLoader, !hasSpecifiedClassLoader);
+
+            if (null != _context) {
+                pw.print("LoggerContext: " + _context.getClass().getCanonicalName());
+                pw.println("@" + String.format("%X", _context.hashCode()));
+
+                org.apache.logging.log4j.core.LoggerContext context =
+                        (org.apache.logging.log4j.core.LoggerContext) _context;
+
+                if (context.getState() == LifeCycle.State.STARTED) {
+                    org.apache.logging.log4j.core.config.Configuration _configuration =
+                            context.getConfiguration();
+
+                    pw.print("Log4j2 is running a configuration (");
+                    pw.print(_configuration.getName());
+                    pw.print(") with these appenders:");
+
+                    Map<String, Appender> appenders = _configuration.getAppenders();
+                    if (null != appenders) {
+                        for (Appender appender : appenders.values()) {
+                            pw.print(" " + appender.getName());
+                        }
+                    }
+                    pw.println();
+
+                    context.stop();
+                } else {
+                    pw.println("No Log4j2 configuration yet running");
+                }
+
+                ConfigurationSource source = getConfigurationSource(clazz, resourceName, pw);
+                context = Configurator.initialize(classLoader, source, context);
+                context.start();
+
+                log = context.getLogger(clazz.getName());
+
+                String info = "Logging initiated (by " + clazz.getCanonicalName() + ")...";
+                pw.println(info);
+                log.info(info);
+            }
+        }
+
         return log;
+    }
+
+    public static Logger setupLoggingFor(Class clazz, String resourceName, String classLoaderType) {
+        return setupLoggingFor(clazz, resourceName, classLoaderType, null);
+    }
+
+    public static Logger setupLoggingFor(Class clazz, String resourceName) {
+        return setupLoggingFor(clazz, resourceName, null, null);
+    }
+
+    private static byte[] consumeInputStream(java.io.InputStream is) throws IOException {
+        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+
+        int nRead;
+        byte[] data = new byte[0x4000];
+
+        while ((nRead = is.read(data, 0, data.length)) != -1) {
+            buffer.write(data, 0, nRead);
+        }
+
+        buffer.flush();
+
+        return buffer.toByteArray();
+    }
+
+    private static ClassLoader getTypedClassLoader(ClassLoader classLoader, String requestedClassName) {
+        String className = classLoader.getClass().getCanonicalName();
+        if (requestedClassName.equals(className)) {
+            return classLoader;
+        }
+
+        ClassLoader parent = classLoader.getParent();
+        if (null != parent) {
+            return getTypedClassLoader(parent, requestedClassName);
+        }
+
+        return null;
     }
 }
