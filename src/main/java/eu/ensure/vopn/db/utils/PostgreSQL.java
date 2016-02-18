@@ -17,10 +17,9 @@
 package eu.ensure.vopn.db.utils;
 
 import eu.ensure.vopn.db.Database;
+import eu.ensure.vopn.db.DatabaseException;
 
 import javax.sql.DataSource;
-import java.sql.DriverManager;
-import java.sql.SQLException;
 import java.util.Properties;
 
 /**
@@ -43,5 +42,24 @@ public class PostgreSQL extends Manager {
 
         // Always print database name to stdout.
         System.out.println("Target database: PostgreSQL");
+    }
+
+    public static DataSource getDataSource(
+            String applicationName,
+            Database.Configuration config
+    ) throws DatabaseException, ClassCastException {
+
+        DataSource dataSource = Database.getDataSource(config);
+
+        org.postgresql.ds.PGPoolingDataSource ds = (org.postgresql.ds.PGPoolingDataSource) dataSource;
+        ds.setApplicationName(applicationName);
+        ds.setDatabaseName(config.database());
+        ds.setUser(config.user());
+        ds.setPassword(config.password());
+        ds.setServerName(config.server());
+        ds.setPortNumber(config.port());
+        ds.setMaxConnections(10);
+
+        return dataSource;
     }
 }

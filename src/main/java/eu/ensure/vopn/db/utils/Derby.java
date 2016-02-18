@@ -26,6 +26,7 @@
 package eu.ensure.vopn.db.utils;
 
 import eu.ensure.vopn.db.Database;
+import eu.ensure.vopn.db.DatabaseException;
 
 import javax.sql.DataSource;
 import java.sql.DriverManager;
@@ -77,5 +78,22 @@ public class Derby extends Manager {
             }
             System.err.println(info);
         }
-    }    
+    }
+
+    public static DataSource getDataSource(
+            String applicationName,
+            Database.Configuration config
+    ) throws DatabaseException, ClassCastException {
+
+        DataSource dataSource = Database.getDataSource(config);
+
+        org.apache.derby.jdbc.EmbeddedDataSource ds = (org.apache.derby.jdbc.EmbeddedDataSource) dataSource;
+        ds.setDescription(applicationName);
+        ds.setDatabaseName(config.database());
+        ds.setUser(config.user());  // Not really needed since we are running Derby embedded
+        ds.setPassword(config.password());  // Not really needed since we are running Derby embedded
+        ds.setCreateDatabase("create");  // Create database if it does not exist
+
+        return dataSource;
+    }
 }
