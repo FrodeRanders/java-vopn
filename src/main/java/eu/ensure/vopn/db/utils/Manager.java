@@ -54,7 +54,6 @@ public abstract class Manager {
     protected static final boolean BREAK_ON_FAILURE = false;
 
     //
-    private Properties properties = null;
     private Options options = null;
 
     //
@@ -64,7 +63,6 @@ public abstract class Manager {
     protected Characteristics characteristics = null;
 
     private Manager(PrepareDataSource preparer, Properties properties, Options options) throws DatabaseException {
-        this.properties = properties;
         this.options = options;
 
         Database.Configuration configuration = Database.getConfiguration(properties);
@@ -103,7 +101,6 @@ public abstract class Manager {
                     String batchSeparator, boolean ignoreCase, boolean separatorAloneOnLine) {
         this.dataSource = dataSource;
         this.options = options;
-        this.properties = new Properties(); // empty and will not be used
 
         characteristics = new Characteristics(batchSeparator, ignoreCase, separatorAloneOnLine);
     }
@@ -116,7 +113,6 @@ public abstract class Manager {
                     String batchSeparator) {
         this.dataSource = dataSource;
         this.options = options;
-        this.properties = new Properties(); // empty and will not be used
 
         characteristics = new Characteristics(batchSeparator);
     }

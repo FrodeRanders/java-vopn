@@ -246,6 +246,7 @@ public class LoggingUtils {
 
         pw.print("Classloader: " + classLoader.getClass().getCanonicalName());
         pw.println("@" + String.format("%X", classLoader.hashCode()));
+        pw.flush();
 
         synchronized (lock) {
             org.apache.logging.log4j.spi.LoggerContext _context =
@@ -254,6 +255,7 @@ public class LoggingUtils {
             if (null != _context) {
                 pw.print("LoggerContext: " + _context.getClass().getCanonicalName());
                 pw.println("@" + String.format("%X", _context.hashCode()));
+                pw.flush();
 
                 org.apache.logging.log4j.core.LoggerContext context =
                         (org.apache.logging.log4j.core.LoggerContext) _context;
@@ -273,6 +275,7 @@ public class LoggingUtils {
                         }
                     }
                     pw.println();
+                    pw.flush();
 
                     context.stop();
                 } else {
@@ -287,6 +290,8 @@ public class LoggingUtils {
 
                 String info = "Logging initiated (by " + clazz.getCanonicalName() + ")...";
                 pw.println(info);
+                pw.flush();
+
                 log.info(info);
             }
         }

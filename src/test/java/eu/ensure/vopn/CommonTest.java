@@ -29,20 +29,18 @@ import eu.ensure.vopn.lang.LoggingUtils;
 import eu.ensure.vopn.lang.TimeDelta;
 import eu.ensure.vopn.statistics.MovingAverage;
 import junit.framework.TestCase;
+import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.Test;
 
 import java.math.BigInteger;
-import java.security.Provider;
-import java.security.Security;
-import java.util.Enumeration;
 
 /**
  * <p>
  * Created by Frode Randers at 2012-10-23 11:00
  */
 public class CommonTest extends TestCase {
-    private static final Logger log = LoggingUtils.setupLoggingFor(CommonTest.class, "log4j2.xml");
+    private static final Logger log = LogManager.getLogger(CommonTest.class);
 
     @Test
     public void testTimeDelta() {
@@ -106,6 +104,8 @@ public class CommonTest extends TestCase {
             assertEquals(22.0, ma2.getAverage());
             assertEquals(samples.length, ma2.getCount());
             assertEquals(stdDev, ma2.getStdDev(), /* acceptable delta */ 1E-13);
+
+            log.debug("average=" + average + " stddev=" + stdDev);
         }
         {
             double sum = 0.0;

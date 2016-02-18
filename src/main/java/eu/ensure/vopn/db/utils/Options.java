@@ -35,6 +35,12 @@ public class Options {
     public boolean debug = false;
     public boolean sqlLogWriter = false;
 
+    public static final Options DEFAULT = new Options();
+
     public Options() {
+    }
+
+    public static Options getDefault() {
+        return DEFAULT;
     }
 }

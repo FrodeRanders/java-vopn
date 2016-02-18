@@ -69,6 +69,13 @@ public class Database {
 
         @Configurable(value = "temporary-db")
         String database();
+
+        @Configurable(value = "localhost")
+        String server();
+
+        /* {PostgreSQL, 5432} */
+        @Configurable
+        int port();
     }
 
     // 
@@ -115,7 +122,7 @@ public class Database {
      *     ds.setPassword(config.password()); // std
      *
      *     ds.setServerName(config.server());  // jtds specific
-     *     ds.setPortNumber(Integer.parseInt(config.port())); // jtds specific
+     *     ds.setPortNumber(config.port()); // jtds specific
      * }
      * else if (driver.equals("org.apache.derby.jdbc.EmbeddedDataSource")) {
      *     org.apache.derby.jdbc.EmbeddedDataSource ds = (org.apache.derby.jdbc.EmbeddedDataSource)dataSource;
