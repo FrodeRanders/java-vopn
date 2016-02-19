@@ -30,11 +30,9 @@ import eu.ensure.vopn.db.DatabaseException;
 
 import javax.sql.DataSource;
 import java.io.File;
+import java.io.PrintWriter;
 import java.io.Reader;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.List;
 import java.util.Properties;
 
@@ -128,8 +126,8 @@ public abstract class Manager {
     /**
      * Executes any SQL script file
      */
-    public void execute(String name, Reader sqlCode) throws Exception {
-        runScript(name, sqlCode);
+    public void execute(String name, Reader sqlCode, PrintWriter out) throws Exception {
+        runScript(name, sqlCode, out);
     }
 
     /**
@@ -143,28 +141,27 @@ public abstract class Manager {
 
     /**
      */
-    protected void runScript(String name, Reader sqlCode) throws Exception {
-        //Exception here = new Exception("synthetic");
-        //here.printStackTrace();
-        
+    protected void runScript(String name, Reader sqlCode, PrintWriter out) throws Exception {
         try {
             BatchReader batch = new BatchReader(options, characteristics);
             List<String> sqls = batch.readFile(sqlCode);
 
-            System.out.println("Running script \"" + name + "\"...");
+            out.println("Running script \"" + name + "\"...");
+            out.flush();
             for (String sql : sqls) {
-                execute(sql, ACCEPT_FAILURE); // or BREAK_ON_FAILURE?
+                execute(sql, out, ACCEPT_FAILURE); // or BREAK_ON_FAILURE?
             }
         } catch (SQLException sqle) {
-            System.out.println(" - Script failed");
+            out.println(" - Script failed");
+            out.flush();
 
             if (options.debug) {
-                System.out.println(Database.squeeze(sqle));
+                out.println(Database.squeeze(sqle));
             }
             throw new Exception("Caught exception when running script\n" + sqle.toString());
 
         } catch (Exception e) {
-            e.printStackTrace();
+            e.printStackTrace(out);
             throw new Exception("Caught exception when running script\n" + e.toString());
         }
     }
@@ -177,90 +174,91 @@ public abstract class Manager {
      * @param sqlStatement
      * @throws Exception
      */
-    protected void execute(String sqlStatement, boolean acceptFailure) throws Exception {
-        Connection conn = null;
-        Statement stmt = null;
-        try {
-            conn = dataSource.getConnection();
-            stmt = conn.createStatement();
-            boolean success = execute(stmt, sqlStatement, acceptFailure);
+    protected void execute(String sqlStatement, PrintWriter out, boolean acceptFailure) throws Exception {
 
-            // Loop over all kinds of results.
-            while (success) { /* 'success' is not modified below this line */
-                int rowCount = stmt.getUpdateCount();
+        try (Connection conn = dataSource.getConnection()) {
+            try (Statement stmt = conn.createStatement()) {
 
-                if (rowCount > 0) {
-                    // --------------------------------------------------
-                    // Result of successful INSERT or UPDATE or the like
-                    // --------------------------------------------------
-                    if (options.debug)
-                        System.out.println("Rows affected: " + rowCount);
+                boolean success = execute(stmt, sqlStatement, out, acceptFailure);
 
-                    if (stmt.getMoreResults()) {
-                        continue;
-                    }
+                // Loop over all kinds of results.
+                while (success) { /* 'success' is not modified below this line */
+                    int rowCount = stmt.getUpdateCount();
 
-                } else if (rowCount == 0) {
-                    // --------------------------------------------------
-                    // Either a DDL command or 0 updates
-                    // --------------------------------------------------
-                    if (options.debug)
-                        System.out.println("No rows affected or statement was DDL command");
-
-                    boolean moreResults = false;
-                    try {
-                        moreResults = stmt.getMoreResults();
-                    } catch (SQLException sqle) {
-
-                        // State: 24000 - Invalid cursor state
-                        //  [Teradata: Continue request submitted but no response to return]
-                        if (sqle.getSQLState().startsWith("24")) {
-                            break;
-
-                        } else {
-                            throw sqle;
+                    if (rowCount > 0) {
+                        // --------------------------------------------------
+                        // Result of successful INSERT or UPDATE or the like
+                        // --------------------------------------------------
+                        if (options.debug) {
+                            out.println("Rows affected: " + rowCount);
+                            out.flush();
                         }
-                    }
-                    if (moreResults) {
-                        continue;
-                    }
-
-                } else { // rowCount < 0
-                    // --------------------------------------------------
-                    // Either we have a result set or no more results...
-                    // --------------------------------------------------
-                    ResultSet rs = stmt.getResultSet();
-                    if (null != rs) {
-                        // Ignore resultset
-                        rs.close();
 
                         if (stmt.getMoreResults()) {
                             continue;
                         }
-                    }
-                }
 
-                // No more results
-                break;
+                    } else if (rowCount == 0) {
+                        // --------------------------------------------------
+                        // Either a DDL command or 0 updates
+                        // --------------------------------------------------
+                        if (options.debug) {
+                            out.println("No rows affected or statement was DDL command");
+                            out.flush();
+                        }
+
+                        boolean moreResults;
+                        try {
+                            moreResults = stmt.getMoreResults();
+                        } catch (SQLException sqle) {
+
+                            // State: 24000 - Invalid cursor state
+                            //  [Teradata: Continue request submitted but no response to return]
+                            if (sqle.getSQLState().startsWith("24")) {
+                                break;
+
+                            } else {
+                                throw sqle;
+                            }
+                        }
+                        if (moreResults) {
+                            continue;
+                        }
+
+                    } else { // rowCount < 0
+                        // --------------------------------------------------
+                        // Either we have a result set or no more results...
+                        // --------------------------------------------------
+                        ResultSet rs = stmt.getResultSet();
+                        if (null != rs) {
+                            // Ignore resultset
+                            rs.close();
+
+                            if (stmt.getMoreResults()) {
+                                continue;
+                            }
+                        }
+                    }
+
+                    // No more results
+                    break;
+                }
             }
         } catch (SQLException sqle) {
-            System.out.println("Failed to execute statement: \n" + sqlStatement);
-            System.out.println("\n\nDescription of failure: \n" + Database.squeeze(sqle));
+            out.println("Failed to execute statement: \n" + sqlStatement);
+            out.println("\n\nDescription of failure: \n" + Database.squeeze(sqle));
+            out.flush();
             throw sqle;
 
         } catch (Exception e) {
-            System.out.println("Failed to execute statement: \n" + sqlStatement);
-            System.out.println("\n\nDescription of failure: \n" + e.getMessage());
+            out.println("Failed to execute statement: \n" + sqlStatement);
+            out.println("\n\nDescription of failure: \n" + e.getMessage());
+            out.flush();
             throw e;
-
-        } finally {
-            // Cleanup
-            if (null != stmt) stmt.close();
-            if (null != conn) conn.close();
         }
     }
 
-    protected boolean execute(Statement stmt, String sqlStatement, boolean acceptFailure) throws SQLException {
+    protected boolean execute(Statement stmt, String sqlStatement, PrintWriter out, boolean acceptFailure) throws SQLException {
         int i = 20; // number of retries (see variable info below)
 
         try {
@@ -277,7 +275,8 @@ public abstract class Manager {
                     // State: 40001 - Deadlock
                     if (sqle.getSQLState().startsWith("40")) {
                         if (options.debug) {
-                            System.out.println("Deadlock detected in database, retrying " + (i - 1) + " times...");
+                            out.println("Deadlock detected in database, retrying " + (i - 1) + " times...");
+                            out.flush();
                         }
                         try {
                             Thread.sleep(200 /* ms to sleep */);
@@ -288,17 +287,19 @@ public abstract class Manager {
                 }
             } while (--i > 0);
             String info = "Giving up on deadlock after 20 retries";
-            System.out.println(info);
+            out.println(info);
+            out.flush();
 
             throw last;
 
         } catch (SQLException sqle) {
             if (!acceptFailure) {
-                System.err.println("-------------------------------------------------------------------------");
-                System.err.println(Database.squeeze(sqle));
-                System.err.println("Incorrect statement was: ");
-                System.err.println(sqlStatement);
-                System.err.println("-------------------------------------------------------------------------");
+                out.println("-------------------------------------------------------------------------");
+                out.println(Database.squeeze(sqle));
+                out.println("Incorrect statement was: ");
+                out.println(sqlStatement);
+                out.println("-------------------------------------------------------------------------");
+                out.flush();
             }
             
             if (acceptFailure) {
@@ -306,9 +307,10 @@ public abstract class Manager {
                 //  [SQL Server: Object already exists]
                 if (sqle.getSQLState().equals("01000")) {
                     if (options.debug) {
-                        System.out.println("Statement: " + sqlStatement);
-                        System.out.println(Database.squeeze(sqle));
-                        System.out.println("\n[OK]: Object already exists - ACCEPTED!");
+                        out.println("Statement: " + sqlStatement);
+                        out.println(Database.squeeze(sqle));
+                        out.println("\n[OK]: Object already exists - ACCEPTED!");
+                        out.flush();
                     }
                     return false; // no success - but acceptable
                 }
@@ -317,9 +319,10 @@ public abstract class Manager {
                 //  [Oracle:     Data already exists]
                 else if (sqle.getSQLState().startsWith("23")) {
                     if (options.debug) {
-                        System.out.println("Statement: " + sqlStatement);
-                        System.out.println(Database.squeeze(sqle));
-                        System.out.println("\n[OK]: Data already exists - ACCEPTED!");
+                        out.println("Statement: " + sqlStatement);
+                        out.println(Database.squeeze(sqle));
+                        out.println("\n[OK]: Data already exists - ACCEPTED!");
+                        out.flush();
                     }
                     return false; // no success - but acceptable
                 }
@@ -328,9 +331,10 @@ public abstract class Manager {
                 //  [Oracle: Table or view does not exist]
                 else if (sqle.getSQLState().startsWith("42")) {
                     if (options.debug) {
-                        System.out.println("Statement: " + sqlStatement);
-                        System.out.println(Database.squeeze(sqle));
-                        System.out.println("\n[OK]: Either object already exists or it does not exist - ACCEPTED!");
+                        out.println("Statement: " + sqlStatement);
+                        out.println(Database.squeeze(sqle));
+                        out.println("\n[OK]: Either object already exists or it does not exist - ACCEPTED!");
+                        out.flush();
                     }
                     return false; // no success - but acceptable
                 }
@@ -338,9 +342,10 @@ public abstract class Manager {
                 // [Oracle: such column list already indexed]
                 else if (sqle.getSQLState().startsWith("72")) {
                     if (options.debug) {
-                        System.out.println("Statement: " + sqlStatement);
-                        System.out.println(Database.squeeze(sqle));
-                        System.out.println("\n[OK]: An index covering these columns already exists - ACCEPTED!");
+                        out.println("Statement: " + sqlStatement);
+                        out.println(Database.squeeze(sqle));
+                        out.println("\n[OK]: An index covering these columns already exists - ACCEPTED!");
+                        out.flush();
                     }
                     return false; // no success - but acceptable
                 }
@@ -348,9 +353,10 @@ public abstract class Manager {
                 //  [Teradata: Macro 'xyz' does not exist] - when dropping objects
                 else if (sqle.getSQLState().equalsIgnoreCase("S0002")) {
                     if (options.debug) {
-                        System.out.println("Statement: " + sqlStatement);
-                        System.out.println(Database.squeeze(sqle));
-                        System.out.println("\n[OK]: Object does not exist - ACCEPTED!");
+                        out.println("Statement: " + sqlStatement);
+                        out.println(Database.squeeze(sqle));
+                        out.println("\n[OK]: Object does not exist - ACCEPTED!");
+                        out.flush();
                     }
                     return false; // no success - but acceptable
                 }
@@ -360,9 +366,10 @@ public abstract class Manager {
                 //  [Derby: PROCEDURE 'XYZ' already exists.]
                 else if (sqle.getSQLState().startsWith("X0Y")) {
                     if (options.debug) {
-                        System.out.println("Statement: " + sqlStatement);
-                        System.out.println(Database.squeeze(sqle));
-                        System.out.println("\n[OK]: Object already exists - ACCEPTED!");
+                        out.println("Statement: " + sqlStatement);
+                        out.println(Database.squeeze(sqle));
+                        out.println("\n[OK]: Object already exists - ACCEPTED!");
+                        out.flush();
                     }
                     return false; // no success - but acceptable
                 }
@@ -375,5 +382,9 @@ public abstract class Manager {
     }
 
     public void shutdown() {}
+
+    public Shell getShell() {
+        return new Shell(this);
+    }
 }
 
