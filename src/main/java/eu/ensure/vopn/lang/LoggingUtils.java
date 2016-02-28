@@ -30,8 +30,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.Appender;
 import org.apache.logging.log4j.core.LifeCycle;
+import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.ConfigurationSource;
 import org.apache.logging.log4j.core.config.Configurator;
+import org.apache.logging.log4j.core.config.xml.XmlConfiguration;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -244,46 +246,49 @@ public class LoggingUtils {
             pw = new PrintWriter(System.out);
         }
 
-        pw.print("Classloader: " + classLoader.getClass().getCanonicalName());
-        pw.println("@" + String.format("%X", classLoader.hashCode()));
+        pw.print("[Classloader: " + classLoader.getClass().getCanonicalName());
+        pw.println("@" + String.format("%X", classLoader.hashCode()) + "]");
         pw.flush();
 
         synchronized (lock) {
-            org.apache.logging.log4j.spi.LoggerContext _context =
+            org.apache.logging.log4j.spi.LoggerContext targetContext =
                     LogManager.getContext(classLoader, !hasSpecifiedClassLoader);
 
-            if (null != _context) {
-                pw.print("LoggerContext: " + _context.getClass().getCanonicalName());
-                pw.println("@" + String.format("%X", _context.hashCode()));
+            if (null != targetContext) {
+                pw.print("[LoggerContext: " + targetContext.getClass().getCanonicalName());
+                pw.println("@" + String.format("%X", targetContext.hashCode()) + "]");
                 pw.flush();
 
                 org.apache.logging.log4j.core.LoggerContext context =
-                        (org.apache.logging.log4j.core.LoggerContext) _context;
+                        (org.apache.logging.log4j.core.LoggerContext) targetContext;
 
-                if (context.getState() == LifeCycle.State.STARTED) {
-                    org.apache.logging.log4j.core.config.Configuration _configuration =
+                if (context.isStarted()) {
+                    org.apache.logging.log4j.core.config.Configuration targetConfiguration =
                             context.getConfiguration();
 
                     pw.print("Log4j2 is running a configuration (");
-                    pw.print(_configuration.getName());
-                    pw.print(") with these appenders:");
+                    pw.print(targetConfiguration.getName());
+                    pw.print(") with appenders:");
 
-                    Map<String, Appender> appenders = _configuration.getAppenders();
+                    Map<String, Appender> appenders = targetConfiguration.getAppenders();
                     if (null != appenders) {
                         for (Appender appender : appenders.values()) {
                             pw.print(" " + appender.getName());
+                            appender.stop();
                         }
                     }
                     pw.println();
                     pw.flush();
 
+                    targetConfiguration.stop();
                     context.stop();
                 } else {
                     pw.println("No Log4j2 configuration yet running");
                 }
 
+                // Re-instantiate logging
                 ConfigurationSource source = getConfigurationSource(clazz, resourceName, pw);
-                context = Configurator.initialize(classLoader, source, context);
+                context = Configurator.initialize(classLoader, source);
                 context.start();
 
                 log = context.getLogger(clazz.getName());

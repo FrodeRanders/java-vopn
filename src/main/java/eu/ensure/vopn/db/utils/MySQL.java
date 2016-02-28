@@ -25,6 +25,9 @@
  */
 package eu.ensure.vopn.db.utils;
 
+import eu.ensure.vopn.db.Database;
+import eu.ensure.vopn.db.DatabaseException;
+
 import javax.sql.DataSource;
 import java.util.Properties;
 
@@ -48,6 +51,19 @@ public class MySQL extends Manager {
 
         // Always print database name to stdout.
         System.out.println("Target database: MySQL");
+    }
+
+    public static DataSource getDataSource(
+            String applicationName,
+            Database.Configuration config
+    ) throws DatabaseException, ClassCastException {
+
+        DataSource dataSource = Database.getDataSource(config);
+
+        // If anything in particular could be done with a MySQL datasource to
+        // make it dance, this is where it should be done.
+
+        return dataSource;
     }
 }
 

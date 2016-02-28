@@ -131,9 +131,6 @@ public class BatchReader {
                     return readFileConsiderCase(reader);
                 }
             }
-        } catch (IOException e) {
-            throw new Exception("Failed to read file: " + e.getMessage());
-
         } catch (Exception e) {
             throw new Exception("Failed to read file: " + e.getMessage());
 
@@ -145,16 +142,11 @@ public class BatchReader {
     private List<String> readFileIgnoreCaseAloneOnLine(Reader reader) throws IOException {
 
         List<String> sql = new Vector<String>();
-        BufferedReader in = null;
 
-        try {
+        try (BufferedReader in = new BufferedReader(reader)) {
             StringBuffer data = new StringBuffer();
-            String tmp = null;
 
-            int pos = 0;
-
-            in = new BufferedReader(reader);
-
+            String tmp;
             while ((tmp = in.readLine()) != null) {
                 tmp = tmp.trim();
 
@@ -162,9 +154,9 @@ public class BatchReader {
                 if (tmp.length() > 0 && !tmp.startsWith("--")) {
 
                     // ignore trailing comments
+                    int pos;
                     if ((pos = tmp.indexOf("--")) >= 0) {
-                        tmp = tmp.substring(0, pos);
-                        tmp.trim();
+                        tmp = tmp.substring(0, pos).trim();
                     }
 
                     // accept batch separator only if alone on line,
@@ -181,8 +173,6 @@ public class BatchReader {
                     }
                 }
             }
-        } finally {
-            if (null != in) in.close();
         }
 
         return sql;
@@ -192,16 +182,10 @@ public class BatchReader {
 
         List<String> sql = new Vector<String>();
 
-        BufferedReader in = null;
-
-        try {
+        try (BufferedReader in = new BufferedReader(reader)) {
             StringBuffer data = new StringBuffer();
-            String tmp = null;
 
-            int pos = 0;
-
-            in = new BufferedReader(reader);
-
+            String tmp;
             while ((tmp = in.readLine()) != null) {
                 tmp = tmp.trim();
 
@@ -209,9 +193,9 @@ public class BatchReader {
                 if (tmp.length() > 0 && !tmp.startsWith("--")) {
 
                     // ignore trailing comments
+                    int pos;
                     if ((pos = tmp.indexOf("--")) >= 0) {
-                        tmp = tmp.substring(0, pos);
-                        tmp.trim();
+                        tmp = tmp.substring(0, pos).trim();
                     }
 
                     // accept batch separator only if alone on line,
@@ -228,8 +212,6 @@ public class BatchReader {
                     }
                 }
             }
-        } finally {
-            if (null != in) in.close();
         }
 
         return sql;
@@ -239,17 +221,10 @@ public class BatchReader {
     private List<String> readFileConsiderCase(Reader reader) throws IOException {
         List<String> sql = new Vector<String>();
 
-        BufferedReader in = null;
-
-        try {
+        try (BufferedReader in = new BufferedReader(reader)) {
             StringBuffer data = new StringBuffer();
-            String tmp = null;
 
-            int pos = 0;
-            boolean foundSeparator = false;
-
-            in = new BufferedReader(reader);
-
+            String tmp;
             while ((tmp = in.readLine()) != null) {
                 tmp = tmp.trim();
 
@@ -257,18 +232,16 @@ public class BatchReader {
                 if (tmp.length() > 0 && !tmp.startsWith("--")) {
 
                     // ignore trailing comments
+                    int pos;
                     if ((pos = tmp.indexOf("--")) >= 0) {
-                        tmp = tmp.substring(0, pos);
-                        tmp.trim();
+                        tmp = tmp.substring(0, pos).trim();
                     }
 
                     // accept batch separator anywhere on line,
                     // considering case
                     //
                     if ((pos = tmp.indexOf(characteristics.batchSeparator)) >= 0) {
-                        foundSeparator = true;
-                        tmp = tmp.substring(0, pos);
-                        tmp.trim();
+                        tmp = tmp.substring(0, pos).trim();
 
                         // accumulate
                         data.append(tmp).append(" ");
@@ -284,8 +257,6 @@ public class BatchReader {
                     }
                 }
             }
-        } finally {
-            if (null != in) in.close();
         }
 
         return sql;
