@@ -100,7 +100,7 @@ public class Date {
             sdf.setLenient(false);
             dbDate = sdf.parse(date, pos);
 
-            return dbDate != null && dbDate.getTime() > 0;
+            return dbDate != null && dbDate.getTime() > 0L;
 
         } catch (Exception e) {
             return false;
@@ -128,13 +128,8 @@ public class Date {
             java.text.ParsePosition pos = new java.text.ParsePosition(0);
             sdf.setLenient(false);
             dbDate = sdf.parse(date, pos);
-            sqldate = new java.sql.Date(dbDate.getTime());
+            return new java.sql.Date(dbDate.getTime());
 
-            if (dbDate.getTime() <= 0) {
-                return null;
-            } else {
-                return sqldate;
-            }
         } catch (Exception e) {
             return null;
         }

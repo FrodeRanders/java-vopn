@@ -34,6 +34,7 @@ import org.apache.logging.log4j.Logger;
 import org.junit.Test;
 
 import java.math.BigInteger;
+import java.util.Locale;
 
 /**
  * <p>
@@ -41,6 +42,29 @@ import java.math.BigInteger;
  */
 public class CommonTest extends TestCase {
     private static final Logger log = LogManager.getLogger(CommonTest.class);
+
+    @Test
+    public void testDateConversions() {
+        Locale locale = Locale.forLanguageTag("sv");
+        {
+            String date = "1945-09-28";
+
+            java.sql.Date convertedDate = eu.ensure.vopn.lang.Date.convertDate(date, locale);
+            System.out.println("Input date: " + date + " -> " + convertedDate);
+        }
+        {
+            String date = "2016-09-10";
+
+            java.sql.Date convertedDate = eu.ensure.vopn.lang.Date.convertDate(date, locale);
+            System.out.println("Input date: " + date + " -> " + convertedDate);
+        }
+        {
+            String date = "3016-09-10";
+
+            java.sql.Date convertedDate = eu.ensure.vopn.lang.Date.convertDate(date, locale);
+            System.out.println("Input date: " + date + " -> " + convertedDate);
+        }
+    }
 
     @Test
     public void testTimeDelta() {
