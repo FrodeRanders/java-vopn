@@ -43,7 +43,7 @@
         <dependency>
             <groupId>org.antlr</groupId>
             <artifactId>antlr4-runtime</artifactId>
-            <version>4.5.3</version>
+            <version>4.6</version>
             <scope>provided</scope>
         </dependency>
 
@@ -65,7 +65,7 @@
             <!-- Internal database -->
             <groupId>org.apache.derby</groupId>
             <artifactId>derby</artifactId>
-            <version>10.12.1.1</version>
+            <version>10.13.1.1</version>
             <scope>provided</scope>
         </dependency>
 
@@ -73,7 +73,7 @@
             <!-- External database -->
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
-            <version>9.4.1211.jre7</version>
+            <version>9.4.1212.jre7</version>
             <scope>provided</scope>
         </dependency>
 
