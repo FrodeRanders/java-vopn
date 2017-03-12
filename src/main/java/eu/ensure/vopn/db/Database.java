@@ -46,6 +46,9 @@ public class Database {
     private static int DEADLOCK_MAX_RETRIES = 100;
     private static int DEADLOCK_SLEEP_TIME = 200; // milliseconds
 
+    private static final int DEFAULT_MAX_ACTIVE = 20;
+    private static final int DEFAULT_MAX_IDLE = 2;
+
     /**
      * The database configuration can be accessed through this interface,
      * that is implemented behind the scene using proxy objects and bound
@@ -72,6 +75,12 @@ public class Database {
 
         @Configurable(value = "localhost")
         String server();
+
+        @Configurable(value = "" + DEFAULT_MAX_ACTIVE)
+        int maxActive();
+
+        @Configurable(value = "" + DEFAULT_MAX_IDLE)
+        int maxIdle();
 
         /* {PostgreSQL, 5432} */
         @Configurable

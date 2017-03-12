@@ -19,6 +19,7 @@ package eu.ensure.vopn.db.utils;
 import eu.ensure.vopn.db.Database;
 import eu.ensure.vopn.db.DatabaseException;
 
+import org.apache.commons.dbcp.BasicDataSource;
 import javax.sql.DataSource;
 import java.util.Properties;
 
@@ -44,11 +45,23 @@ public class PostgreSQL extends Manager {
         System.out.println("Target database: PostgreSQL");
     }
 
+    /**
+     * Creates datasource.
+     * <p/>
+     * @param applicationName
+     * @param config
+     * @return
+     * @throws DatabaseException
+     * @throws ClassCastException
+     */
     public static DataSource getDataSource(
             String applicationName,
             Database.Configuration config
     ) throws DatabaseException, ClassCastException {
 
+        /*
+         * PGPoolingDataSource has been deprectated.
+         *
         DataSource dataSource = Database.getDataSource(config);
 
         org.postgresql.ds.PGPoolingDataSource ds = (org.postgresql.ds.PGPoolingDataSource) dataSource;
@@ -59,6 +72,35 @@ public class PostgreSQL extends Manager {
         ds.setServerName(config.server());
         ds.setPortNumber(config.port());
         ds.setMaxConnections(10);
+        */
+
+        BasicDataSource dataSource = new BasicDataSource();
+        dataSource.setDriverClassName(config.driver());
+
+        String database = config.database();
+        if (null != database && database.length() > 0) {
+            dataSource.addConnectionProperty("databaseName", database);
+        }
+
+        String user = config.user();
+        if (null != user && user.length() > 0) {
+            dataSource.setUsername(user);
+        }
+
+        String password = config.password();
+        if (null != password && password.length() > 0) {
+            dataSource.setPassword(password);
+        }
+
+        String url = config.url();
+        if (null != url && url.length() > 0) {
+            dataSource.setUrl(url);
+        }
+
+        dataSource.setMaxActive(config.maxActive());
+        dataSource.setMaxIdle(config.maxIdle());
+
+        dataSource.addConnectionProperty("description", applicationName);
 
         return dataSource;
     }
