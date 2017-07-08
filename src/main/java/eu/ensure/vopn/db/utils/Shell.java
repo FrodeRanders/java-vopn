@@ -18,7 +18,8 @@ package eu.ensure.vopn.db.utils;
 
 import eu.ensure.vopn.db.Database;
 import eu.ensure.vopn.lang.TimeDelta;
-import jline.console.ConsoleReader;
+import org.jline.reader.LineReader;
+import org.jline.reader.LineReaderBuilder;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -42,50 +43,42 @@ public class Shell {
 
     public void prompt(InputStream is, OutputStream os) throws IOException {
         final String PROMPT = "SQL> ";
-        final ConsoleReader reader = new ConsoleReader(is, os);
-        final PrintWriter out = new PrintWriter(reader.getOutput());
 
-        int screenWidth = jline.TerminalFactory.get().getWidth();
+        LineReaderBuilder builder = LineReaderBuilder.builder();
+        LineReader reader = builder.build();
 
-        try {
-            // Command loop
-            while (true) {
-                reader.setPrompt(PROMPT);
+        final PrintWriter out = reader.getTerminal().writer();
+        int screenWidth = reader.getTerminal().getWidth();
 
-                try {
-                    String cmd = reader.readLine();
-                    if (null != cmd && (cmd = cmd.trim()).length() > 0) {
-                        if ("exit".equalsIgnoreCase(cmd)) {
-                            out.println();
-                            out.flush();
-                            return;
-                        }
-
-                        long startTime = System.currentTimeMillis();
-                        execute(screenWidth, cmd, out);
-                        long endTime = System.currentTimeMillis();
-
-                        if (endTime > startTime) {
-                            out.println("[" + TimeDelta.asHumanApproximate(BigInteger.valueOf(endTime - startTime)) + "]");
-                        }
+        // Command loop
+        while (true) {
+            try {
+                String cmd = reader.readLine(PROMPT);
+                if (null != cmd && (cmd = cmd.trim()).length() > 0) {
+                    if ("exit".equalsIgnoreCase(cmd)) {
+                        out.println();
+                        out.flush();
+                        return;
                     }
-                    out.flush();
 
-                } catch (IOException ioe) {
-                    break;
+                    long startTime = System.currentTimeMillis();
+                    execute(screenWidth, cmd, out);
+                    long endTime = System.currentTimeMillis();
 
-                } catch (Throwable t) {
-                    String msg = t.getMessage();
-                    if (null == msg || msg.length() == 0) {
-                        msg = t.getClass().getSimpleName();
+                    if (endTime > startTime) {
+                        out.println("[" + TimeDelta.asHumanApproximate(BigInteger.valueOf(endTime - startTime)) + "]");
                     }
-                    out.println("error: " + msg);
-                    out.flush();
                 }
+                out.flush();
+
+            } catch (Throwable t) {
+                String msg = t.getMessage();
+                if (null == msg || msg.length() == 0) {
+                    msg = t.getClass().getSimpleName();
+                }
+                out.println("error: " + msg);
+                out.flush();
             }
-        }
-        finally {
-            reader.shutdown();
         }
     }
 

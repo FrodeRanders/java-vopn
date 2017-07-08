@@ -225,7 +225,7 @@ public class ThrottledExecutor {
             }
 
             if ((numUnitsProcessed % INFORM_EACH_N_UNITS) == 0) {
-                // Inform each 500:th export
+                // Inform each N:th time through
                 inform(numUnitsProcessed, averageTPU, averageDelay);
             }
         }
