@@ -14,7 +14,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <log4j.version>2.8.2</log4j.version>
         <derby.version>10.13.1.1</derby.version>
-        <postgresql.version>42.1.1.jre7</postgresql.version>
+        <postgresql.version>42.1.4.jre7</postgresql.version>
     </properties>
 
     <prerequisites>
@@ -96,7 +96,7 @@
         <dependency>
             <groupId>org.jline</groupId>
             <artifactId>jline</artifactId>
-            <version>3.3.0</version>
+            <version>3.4.0</version>
         </dependency>
 
         <dependency>
