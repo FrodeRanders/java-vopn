@@ -354,10 +354,11 @@ public class Database {
         executeWithDD(() -> {
             int[] results = stmt.executeBatch();
 
-            // Handle warning, if applicable
+            // Handle warnings, if applicable
             SQLWarning warning = stmt.getWarnings();
-            if (null != warning) {
+            for (int i = 0; i < 255 && null != warning; i++) {
                 log.info(squeeze(warning));
+                warning = warning.getNextWarning();
             }
 
             return true; // any value will do
@@ -372,10 +373,11 @@ public class Database {
         return executeWithDD(() -> {
             boolean results = stmt.execute(sql);
 
-            // Handle warning, if applicable
+            // Handle warnings, if applicable
             SQLWarning warning = stmt.getWarnings();
-            if (null != warning) {
+            for (int i = 0; i < 255 && null != warning; i++) {
                 log.info(squeeze(warning));
+                warning = warning.getNextWarning();
             }
 
             return results;
@@ -386,14 +388,15 @@ public class Database {
      * Manages call to PreparedStatement.executeWithDD(), providing support for deadlock
      * detection and statement reruns.
      */
-    public static boolean execute(final PreparedStatement pStmt) throws SQLException {
+    public static boolean execute(final PreparedStatement stmt) throws SQLException {
         return executeWithDD(() -> {
-            boolean result = pStmt.execute();
+            boolean result = stmt.execute();
 
-            // Handle warning, if applicable
-            SQLWarning warning = pStmt.getWarnings();
-            if (null != warning) {
+            // Handle warnings, if applicable
+            SQLWarning warning = stmt.getWarnings();
+            for (int i = 0; i < 255 && null != warning; i++) {
                 log.info(squeeze(warning));
+                warning = warning.getNextWarning();
             }
 
             return result;
@@ -401,40 +404,77 @@ public class Database {
     }
 
     /**
-     * Manages call to CallableStatement.executeWithDD(), providing support for deadlock
+     * Manages call to Statement.executeWithDD(), providing support for deadlock
      * detection and statement reruns.
-     */
-    public static boolean execute(final CallableStatement cStmt) throws SQLException {
-        return executeWithDD(() -> {
-            boolean result = cStmt.execute();
+     * <p/>
+     * Accepts Statement, PreparedStatement and CallableStatement arguments.
+     * <p/>
+     * We do not expect any result sets from this call.
+     *
+    public static void execute(final Statement stmt, final String sql) throws SQLException {
+        executeWithDD(() -> {
+            for (int i = 0, updateCount; i < 255; i++) {
+                try {
+                    boolean result = (i == 0) ? stmt.execute(sql) : stmt.getMoreResults();
 
-            // Handle warning, if applicable
-            SQLWarning warning = cStmt.getWarnings();
-            if (null != warning) {
-                log.info(squeeze(warning));
+                    SQLWarning warning = stmt.getWarnings();
+                    for (int j = 0; j < 255 && null != warning; j++) {
+                        log.info(squeeze(warning));
+                        warning = warning.getNextWarning();
+                    }
+
+                    stmt.clearWarnings();
+
+                    if (result) {
+                        if (/* first time through * / 0 == i) {
+                            String info = "Unexpected result(s) from SQL execute";
+                            Exception syntheticException = new Exception(info);
+                            log.info(info, syntheticException);
+                        }
+
+                        // Log some information for debug purposes
+                        try (ResultSet rs = stmt.getResultSet()) {
+                            ResultSetMetaData m = rs.getMetaData();
+
+                            while (rs.next()) {
+                                for (int c = 1; c <= m.getColumnCount(); c++) {
+                                    String info = " \"" + m.getColumnName(c) +"\": " + rs.getInt(c);
+                                    log.info(info);
+                                }
+                            }
+                        }
+                    }
+                    else if ((updateCount = stmt.getUpdateCount()) != -1)
+                        System.out.println("Update Count: " + updateCount);
+                    else
+                        break;
+                }
+                catch (SQLException e) {
+                    log.info(squeeze(e));
+                }
             }
-
-            return result;
         });
-    }
+    }*/
 
     /**
      * Manages call to PreparedStatement.executeQuery(), providing support for deadlock
      * detection and statement reruns.
      */
-    public static ResultSet executeQuery(final PreparedStatement pStmt) throws SQLException {
+    public static ResultSet executeQuery(final PreparedStatement stmt) throws SQLException {
         return queryWithDD(() -> {
-            ResultSet rs = pStmt.executeQuery();
+            ResultSet rs = stmt.executeQuery();
 
-            // Handle warning, if applicable
-            SQLWarning stmtWarning = pStmt.getWarnings();
-            if (null != stmtWarning) {
-                log.info(squeeze(stmtWarning));
+            // Handle warnings, if applicable
+            SQLWarning warning = stmt.getWarnings();
+            for (int i = 0; i < 255 && null != warning; i++) {
+                log.info(squeeze(warning));
+                warning = warning.getNextWarning();
             }
 
-            SQLWarning rsWarning = rs.getWarnings();
-            if (null != rsWarning) {
-                log.info(squeeze(rsWarning));
+            warning = rs.getWarnings();
+            for (int i = 0; i < 255 && null != warning; i++) {
+                log.info(squeeze(warning));
+                warning = warning.getNextWarning();
             }
 
             return rs;
@@ -449,15 +489,17 @@ public class Database {
         return queryWithDD(() -> {
             ResultSet rs = stmt.executeQuery(sql);
 
-            // Handle warning, if applicable
-            SQLWarning stmtWarning = stmt.getWarnings();
-            if (null != stmtWarning) {
-                log.warn(squeeze(stmtWarning));
+            // Handle warnings, if applicable
+            SQLWarning warning = stmt.getWarnings();
+            for (int i = 0; i < 255 && null != warning; i++) {
+                log.info(squeeze(warning));
+                warning = warning.getNextWarning();
             }
 
-            SQLWarning rsWarning = rs.getWarnings();
-            if (null != rsWarning) {
-                log.warn(squeeze(rsWarning));
+            warning = rs.getWarnings();
+            for (int i = 0; i < 255 && null != warning; i++) {
+                log.info(squeeze(warning));
+                warning = warning.getNextWarning();
             }
 
             return rs;
@@ -472,24 +514,26 @@ public class Database {
         return updateWithDD(() -> {
             int rows = stmt.executeUpdate(sql);
 
-            // Handle warning, if applicable
+            // Handle warnings, if applicable
             SQLWarning warning = stmt.getWarnings();
-            if (null != warning) {
+            for (int i = 0; i < 255 && null != warning; i++) {
                 log.info(squeeze(warning));
+                warning = warning.getNextWarning();
             }
 
             return rows;
         });
     }
 
-    public static int executeUpdate(final PreparedStatement pStmt) throws SQLException {
+    public static int executeUpdate(final PreparedStatement stmt) throws SQLException {
         return updateWithDD(() -> {
-            int rows = pStmt.executeUpdate();
+            int rows = stmt.executeUpdate();
 
-            // Handle warning, if applicable
-            SQLWarning warning = pStmt.getWarnings();
-            if (null != warning) {
+            // Handle warnings, if applicable
+            SQLWarning warning = stmt.getWarnings();
+            for (int i = 0; i < 255 && null != warning; i++) {
                 log.info(squeeze(warning));
+                warning = warning.getNextWarning();
             }
 
             return rows;
