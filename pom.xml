@@ -4,7 +4,7 @@
 
     <groupId>eu.ensure</groupId>
     <artifactId>vopn</artifactId>
-    <version>1.4</version>
+    <version>1.5</version>
     <packaging>jar</packaging>
 
     <name>Weapons for the Java-developer</name>
@@ -12,7 +12,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <log4j.version>2.8.2</log4j.version>
+        <log4j.version>2.9.1</log4j.version>
         <derby.version>10.13.1.1</derby.version>
         <postgresql.version>42.1.4.jre7</postgresql.version>
     </properties>
@@ -96,7 +96,7 @@
         <dependency>
             <groupId>org.jline</groupId>
             <artifactId>jline</artifactId>
-            <version>3.4.0</version>
+            <version>3.5.1</version>
         </dependency>
 
         <dependency>
