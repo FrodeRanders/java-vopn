@@ -30,7 +30,7 @@ import java.sql.*;
 
 /**
  * This class implements a simple SQL REPL.
- * <p/>
+ * <p>
  * Created by froran on 2016-02-19.
  */
 public class Shell {

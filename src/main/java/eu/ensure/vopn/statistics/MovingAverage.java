@@ -40,7 +40,7 @@ public class MovingAverage {
     private double stdDev = 0.0;
     private double cv = 0.0;
 
-    long count = 0L;
+    private long count = 0L;
     private double _pwrSumAverage = 0.0; // computational use
 
     public MovingAverage() {
@@ -52,7 +52,7 @@ public class MovingAverage {
 
     /**
      * Get average.
-     * @return
+     * @return average of all samples
      */
     public double getAverage() {
         return average;
@@ -60,6 +60,7 @@ public class MovingAverage {
 
     /**
      * Get min value.
+     * @return minimal sample
      */
     public double getMin() {
         return min;
@@ -67,6 +68,7 @@ public class MovingAverage {
 
     /**
      * Get max value.
+     * @return maximal sample
      */
     public double getMax() {
         return max;
@@ -74,7 +76,7 @@ public class MovingAverage {
 
     /**
      * Get standard deviation.
-     * @return
+     * @return standard deviation for series of samples
      */
     public double getStdDev() {
         return stdDev;
@@ -82,7 +84,7 @@ public class MovingAverage {
 
     /**
      * Get CV.
-     * @return
+     * @return CV for series of samples
      */
     public double getCV() {
         return cv;
@@ -91,7 +93,7 @@ public class MovingAverage {
     /**
      * Updates statistics with 'sample'
      * <p>
-     * @param sample
+     * @param sample a sample added to the series
      */
     public void update(double sample) {
         // Adjust min&max

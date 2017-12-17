@@ -193,7 +193,7 @@ public class LoggingUtils {
 
     /**
      * Initializes (and sets up) logging.
-     * <p/>
+     * <p>
      * These are class loader hierarchies as seen from different containers
      * --------------------------------------------------------------------------------------
      *     Servlet container
@@ -221,7 +221,7 @@ public class LoggingUtils {
      * We will search up the class loader hierarchy untill we find a common ancestor, into
      * which we place our common LoggerContext.
      *
-     * <p/>
+     * <p>
      * @param clazz - the class requesting a Logger
      * @param resourceName - name of parameter holding name of Log4j2 configuration
      * @param classLoaderType - name of common class loader ancestor (or null if we don't care)

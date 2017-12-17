@@ -7,7 +7,7 @@
     <version>1.6</version>
     <packaging>jar</packaging>
 
-    <name>Weapons for the Java-developer</name>
+    <name>${project.groupId}:${project.artifactId}</name>
     <inceptionYear>2011</inceptionYear>
 
     <properties>

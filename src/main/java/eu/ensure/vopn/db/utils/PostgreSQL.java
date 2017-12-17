@@ -47,7 +47,7 @@ public class PostgreSQL extends Manager {
 
     /**
      * Creates datasource.
-     * <p/>
+     * <p>
      * @param applicationName
      * @param config
      * @return

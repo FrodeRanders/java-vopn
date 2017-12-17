@@ -39,6 +39,11 @@ public class Options {
     public Options() {
     }
 
+    public Options setDebug(boolean value) {
+        this.debug = value;
+        return this;
+    }
+
     public static Options getDefault() {
         return DEFAULT;
     }
