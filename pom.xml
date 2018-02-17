@@ -4,7 +4,7 @@
 
     <groupId>eu.ensure</groupId>
     <artifactId>vopn</artifactId>
-    <version>1.7</version>
+    <version>1.8</version>
     <packaging>jar</packaging>
 
     <name>${project.groupId}:${project.artifactId}</name>
@@ -96,7 +96,7 @@
         <dependency>
             <groupId>org.jline</groupId>
             <artifactId>jline</artifactId>
-            <version>3.5.2</version>
+            <version>3.6.1</version>
         </dependency>
 
         <dependency>
