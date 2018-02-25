@@ -28,7 +28,7 @@
 
     </Appenders>
     <Loggers>
-        <logger name="eu.ensure.vopn" level="DEBUG" />
+        <logger name="org.gautelis.vopn" level="DEBUG" />
         <logger name="org.apache" level="INFO" />
 
         <Root level="WARN">
