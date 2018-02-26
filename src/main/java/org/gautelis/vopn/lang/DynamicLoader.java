@@ -25,8 +25,8 @@
  */
 package  org.gautelis.vopn.lang;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -118,7 +118,7 @@ import java.util.Properties;
  * Created by Frode Randers at 2011-11-04 14:14
  */
 public class DynamicLoader<C> extends Hashtable<String, C> {
-    private static final Logger log = LogManager.getLogger(DynamicLoader.class);
+    private static final Logger log = LoggerFactory.getLogger(DynamicLoader.class);
 
     private String description;
 
@@ -131,6 +131,18 @@ public class DynamicLoader<C> extends Hashtable<String, C> {
      */
     public DynamicLoader(String description) {
         this.description = description;
+    }
+
+    /**
+     * Dynamically loads the named class (fully qualified classname) and
+     * creates an instance from it.
+     * @param className name of class to load.
+     * @throws ClassNotFoundException if class was not found.
+     */
+    public C load(String className) throws ClassNotFoundException {
+
+        Class clazz = createClass(className);
+        return createObject(className, clazz);
     }
 
     /**
@@ -311,9 +323,35 @@ public class DynamicLoader<C> extends Hashtable<String, C> {
 
     /**
      * Creates an instance from a Class.
+     * @param className name of class -- used for logging purposes and nothing else.
+     * @param clazz the class template from which an object is wrought.
+     * @throws ClassNotFoundException if class could not be found.
      */
     public C createObject(String className, Class clazz) throws ClassNotFoundException {
         return createObject(className, clazz, /* no dynamic init */ null);
+    }
+
+    /**
+     * Creates a method for a class.
+     * @param object the object to which the method belongs.
+     * @param methodName name of method.
+     * @param parameterTypes an array of parameter types for the method.
+     * @throws NoSuchMethodException if method is not found on object.
+     */
+    public Method createMethod(C object, String methodName, Class[] parameterTypes) throws NoSuchMethodException {
+        Class clazz = object.getClass();
+
+        try {
+            @SuppressWarnings("unchecked")
+            Method method = clazz.getMethod(methodName, parameterTypes);
+            return method;
+
+        } catch (NoSuchMethodException nsme) {
+            String info = "The specified class " + clazz.getName();
+            info += " does not have a method \"" + methodName + "\" as expected: ";
+            info += nsme.getMessage();
+            throw new NoSuchMethodException(info);
+        }
     }
 
     /**

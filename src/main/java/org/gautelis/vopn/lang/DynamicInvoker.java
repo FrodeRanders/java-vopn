@@ -25,8 +25,8 @@
  */
 package  org.gautelis.vopn.lang;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
@@ -44,7 +44,7 @@ import java.net.URLClassLoader;
  * Created by Frode Randers at 2012-07-28 17:24
 */
 public class DynamicInvoker {
-    private static final Logger log = LogManager.getLogger(DynamicInvoker.class);
+    private static final Logger log = LoggerFactory.getLogger(DynamicInvoker.class);
 
     private final File root;
     private final String description;

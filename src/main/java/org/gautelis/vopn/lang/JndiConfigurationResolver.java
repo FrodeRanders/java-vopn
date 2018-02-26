@@ -25,8 +25,8 @@
  */
 package  org.gautelis.vopn.lang;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -38,7 +38,7 @@ import javax.naming.NamingException;
  * Created by Frode Randers at 2014-02-06 16:07
  */
 public class JndiConfigurationResolver implements ConfigurationTool.ConfigurationResolver {
-    private static final Logger log = LogManager.getLogger(JndiConfigurationResolver.class);
+    private static final Logger log = LoggerFactory.getLogger(JndiConfigurationResolver.class);
     public static final String DEFAULT_JNDI_ENVIRONMENT = "java:comp/env";
 
     private final String jndiEnvironment;

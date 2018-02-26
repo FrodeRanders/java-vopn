@@ -25,8 +25,8 @@
  */
 package  org.gautelis.vopn.lang;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.tools.*;
 import java.io.File;
@@ -45,7 +45,7 @@ import java.util.List;
  * Created by Frode Randers at 2012-07-28 17:24
  */
 public class DynamicCompiler {
-    private static final Logger log = LogManager.getLogger(DynamicCompiler.class);
+    private static final Logger log = LoggerFactory.getLogger(DynamicCompiler.class);
 
     final private File workDirectory;
 

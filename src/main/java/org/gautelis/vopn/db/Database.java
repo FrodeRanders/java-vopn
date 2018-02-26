@@ -28,8 +28,8 @@ package org.gautelis.vopn.db;
 import org.gautelis.vopn.lang.Configurable;
 import org.gautelis.vopn.lang.ConfigurationTool;
 import org.gautelis.vopn.lang.DynamicLoader;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.sql.DataSource;
 import java.sql.*;
@@ -41,7 +41,7 @@ import java.util.Properties;
  * Created by Frode Randers at 2011-11-04 14:14
  */
 public class Database {
-    private static final Logger log = LogManager.getLogger(Database.class);
+    private static final Logger log = LoggerFactory.getLogger(Database.class);
 
     private static int DEADLOCK_MAX_RETRIES = 100;
     private static int DEADLOCK_SLEEP_TIME = 200; // milliseconds

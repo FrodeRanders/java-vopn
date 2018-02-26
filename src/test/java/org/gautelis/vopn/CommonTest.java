@@ -25,12 +25,11 @@
  */
 package org.gautelis.vopn;
 
-import org.gautelis.vopn.lang.LoggingUtils;
 import org.gautelis.vopn.lang.TimeDelta;
 import org.gautelis.vopn.statistics.MovingAverage;
 import junit.framework.TestCase;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.junit.Test;
 
 import java.math.BigInteger;
@@ -41,7 +40,7 @@ import java.util.Locale;
  * Created by Frode Randers at 2012-10-23 11:00
  */
 public class CommonTest extends TestCase {
-    private static final Logger log = LogManager.getLogger(CommonTest.class);
+    private static final Logger log = LoggerFactory.getLogger(CommonTest.class);
 
     @Test
     public void testDateConversions() {

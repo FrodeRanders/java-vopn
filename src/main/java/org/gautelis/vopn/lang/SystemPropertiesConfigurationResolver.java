@@ -25,8 +25,8 @@
  */
 package  org.gautelis.vopn.lang;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This configuration resolver will (try to) lookup configuration among the system properties.
@@ -34,7 +34,7 @@ import org.apache.logging.log4j.Logger;
  * Created by Frode Randers at 2014-02-06 16:13
  */
 public class SystemPropertiesConfigurationResolver implements ConfigurationTool.ConfigurationResolver {
-    private static final Logger log = LogManager.getLogger(SystemPropertiesConfigurationResolver.class);
+    private static final Logger log = LoggerFactory.getLogger(SystemPropertiesConfigurationResolver.class);
 
     @Override
     public Object resolve(String name) {
