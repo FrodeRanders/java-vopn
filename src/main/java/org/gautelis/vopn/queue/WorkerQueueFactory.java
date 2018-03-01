@@ -22,7 +22,9 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Factory that creates different types of worker queues:
- * {@link SimpleWorkQueue}, {@link MultiWorkQueue}, {@link WorkStealingQueue}.
+ * {@link SimpleWorkQueue one queue with multiple workers},
+ * {@link MultiWorkQueue multiple queues with corresponding workers},
+ * {@link WorkStealingQueue multiple queues with workers stealing from each others queues}.
  */
 public class WorkerQueueFactory {
     private static final Logger log = LoggerFactory.getLogger(WorkerQueueFactory.class);
@@ -38,7 +40,7 @@ public class WorkerQueueFactory {
      * Returns a thread-backed queue.
      * @param type {@link Type} of queue
      * @param nThreads number of threads tending to the queue
-     * @return
+     * @return a worker queue
      */
 	public static WorkQueue getWorkQueue(Type type, int nThreads) {
 		switch(type) {

@@ -53,15 +53,6 @@ public class WorkStealingQueue implements WorkQueue {
     }
     
     private Runnable stealWork(int index) {
-        /*
-        // go through queues from index + 1 to (index + (nThreads - 1)) % nThreads
-        for (int i=1 ; i<nThreads ; i++) {
-            Object o = queues[(index + i) % nThreads].pollFirst();
-            if(o!=null) {
-                return (Runnable) o;
-            }
-        }
-        */
     	for (int i=0; i<nThreads; i++) {
     		if (i != index) {
     			Object o = queue[i].pollFirst();
