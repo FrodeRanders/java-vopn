@@ -10,3 +10,13 @@ other projects.
 
 This code is battle tested over a series of years in production and I
 don't expect anything to break any time soon.
+
+Available from Maven Central as:
+```
+<dependency>
+    <groupId>org.gautelis</groupId>
+    <artifactId>vopn</artifactId>
+    <version>2.1</version>
+</dependency>
+
+```
