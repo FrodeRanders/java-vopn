@@ -28,6 +28,7 @@ package  org.gautelis.vopn.lang.configuration;
 import org.gautelis.vopn.lang.Configurable;
 import org.gautelis.vopn.lang.ConfigurationTool;
 
+import java.io.File;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -65,13 +66,11 @@ public class GeneralizedConfigurationInvocationHandler implements InvocationHand
     }
 
     public GeneralizedConfigurationInvocationHandler(Map map, Collection<ConfigurationTool.ConfigurationResolver> resolvers) {
-        for (ConfigurationTool.ConfigurationResolver resolver : resolvers) {
-            this.resolvers.add(resolver);
-        }
+        this.resolvers.addAll(resolvers);
         this.resolvers.add(new DefaultResolver(map));
     }
 
-    public Object invoke(Object proxy, Method method, Object[] params) throws Throwable {
+    public Object invoke(Object proxy, Method method, Object[] params) {
         if ("toString".equals(method.getName())) {
             return DESCRIPTION;
         }
@@ -91,8 +90,12 @@ public class GeneralizedConfigurationInvocationHandler implements InvocationHand
             if (null != value) {
                 if (targetType.isAssignableFrom(value.getClass())) {
                     return value;
-                }
-                else {
+
+                } else if (File.class.equals(targetType) && String.class.equals(value.getClass())) {
+                    // Special, but common, configuration case
+                    return new File((String)value);
+
+                } else {
                     throw new RuntimeException("Could not treat return value of " + method.getName() + " as \'" + targetType.getName() + "' when in fact it was '" + value.getClass().getName() + "'");
                 }
             }

@@ -29,6 +29,7 @@ import org.gautelis.vopn.lang.Configurable;
 import org.gautelis.vopn.lang.ConfigurationTool;
 import org.gautelis.vopn.lang.StringMapConfigurationResolver;
 
+import java.io.File;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.util.*;
@@ -57,17 +58,15 @@ public class PropertiesConfigurationInvocationHandler implements InvocationHandl
     public PropertiesConfigurationInvocationHandler(
             Properties properties, Collection<ConfigurationTool.ConfigurationResolver> resolvers
     ) {
-        for (ConfigurationTool.ConfigurationResolver resolver : resolvers) {
-            this.resolvers.add(resolver);
-        }
-        Map<String, String> map = new HashMap<String, String>();
+        this.resolvers.addAll(resolvers);
+        Map<String, String> map = new HashMap<>();
         for (Map.Entry<?,?> entry : properties.entrySet()) {
             map.put((String)entry.getKey(), (String)entry.getValue());
         }
         resolvers.add(new StringMapConfigurationResolver(map));
     }
 
-    public Object invoke(Object proxy, Method method, Object[] params) throws Throwable {
+    public Object invoke(Object proxy, Method method, Object[] params) {
         if ("toString".equals(method.getName())) {
             return DESCRIPTION;
         }
@@ -109,6 +108,11 @@ public class PropertiesConfigurationInvocationHandler implements InvocationHandl
             }
         } else if (targetType.isAssignableFrom(Boolean.class) || targetType.isAssignableFrom(boolean.class)) {
             return value.equalsIgnoreCase("true");
+
+        } else if (File.class.equals(targetType)) {
+            // Special, but common, configuration case
+            return new File(/* path or filename */ value);
+
         } else {
             return value;
         }

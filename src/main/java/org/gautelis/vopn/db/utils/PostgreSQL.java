@@ -60,7 +60,7 @@ public class PostgreSQL extends Manager {
     ) throws DatabaseException, ClassCastException {
 
         /*
-         * PGPoolingDataSource has been deprectated.
+         * PGPoolingDataSource has been deprecated.
          *
         DataSource dataSource = Database.getDataSource(config);
 
