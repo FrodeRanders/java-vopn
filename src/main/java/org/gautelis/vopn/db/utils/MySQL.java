@@ -25,6 +25,7 @@
  */
 package org.gautelis.vopn.db.utils;
 
+import org.apache.commons.dbcp.BasicDataSource;
 import org.gautelis.vopn.db.Database;
 import org.gautelis.vopn.db.DatabaseException;
 
@@ -58,10 +59,33 @@ public class MySQL extends Manager {
             Database.Configuration config
     ) throws DatabaseException, ClassCastException {
 
-        DataSource dataSource = Database.getDataSource(config);
+        BasicDataSource dataSource = new BasicDataSource();
+        dataSource.setDriverClassName(config.driver());
 
-        // If anything in particular could be done with a MySQL datasource to
-        // make it dance, this is where it should be done.
+        String database = config.database();
+        if (null != database && database.length() > 0) {
+            dataSource.addConnectionProperty("databaseName", database);
+        }
+
+        String user = config.user();
+        if (null != user && user.length() > 0) {
+            dataSource.setUsername(user);
+        }
+
+        String password = config.password();
+        if (null != password && password.length() > 0) {
+            dataSource.setPassword(password);
+        }
+
+        String url = config.url();
+        if (null != url && url.length() > 0) {
+            dataSource.setUrl(url);
+        }
+
+        dataSource.setMaxActive(config.maxActive());
+        dataSource.setMaxIdle(config.maxIdle());
+
+        dataSource.addConnectionProperty("description", applicationName);
 
         return dataSource;
     }

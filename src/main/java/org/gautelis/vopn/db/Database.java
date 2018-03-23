@@ -189,7 +189,25 @@ public class Database {
      * @param className specifies the fully qualified class name of a class (implementing DataSource).
      * @param clazz specifies the class from which the object will be drawn.
      */
-    public static DataSource createDataSource(String className, Class clazz) throws ClassNotFoundException {
+    public static DataSource createDataSource(String className, Class clazz) throws ClassNotFoundException, ClassCastException {
+
+        if (!DataSource.class.isAssignableFrom(clazz)) {
+            String info = "A " + className + " does not qualify as a " + DataSource.class.getName() + "! ";
+
+            Class candidate = clazz;
+            while (null != candidate) {
+                if (Driver.class.isAssignableFrom(candidate)) {
+                    info += "This is a " + Driver.class.getName() + ", which is not quite the same.";
+                    break;
+                } else if (DriverManager.class.isAssignableFrom(candidate)) {
+                    info += "This is a " + DriverManager.class.getName() + ", which is not quite the same.";
+                    break;
+                }
+                candidate = candidate.getSuperclass();
+            }
+            throw new ClassCastException(info); // kind of
+        }
+
         return loader.createObject(className, clazz);
     }
     
