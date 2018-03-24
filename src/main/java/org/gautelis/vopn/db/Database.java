@@ -382,8 +382,6 @@ public class Database {
             for (int i = 0; i < 255 && null != warning; i++) {
                 if (log.isTraceEnabled()) {
                     log.trace("Statement warning: {}", squeeze(warning), new Exception("Synthetic exception to get a stack trace"));
-                } else {
-                    log.debug("Statement warning: {}", squeeze(warning));
                 }
                 warning = warning.getNextWarning();
             }
@@ -405,8 +403,6 @@ public class Database {
             for (int i = 0; i < 255 && null != warning; i++) {
                 if (log.isTraceEnabled()) {
                     log.trace("Statement warning, problem? {}", squeeze(warning), new Exception("Synthetic exception to get a stack trace"));
-                } else {
-                    log.debug("Statement warning, problem? {}", squeeze(warning));
                 }
                 warning = warning.getNextWarning();
             }
@@ -428,8 +424,6 @@ public class Database {
             for (int i = 0; i < 255 && null != warning; i++) {
                 if (log.isTraceEnabled()) {
                     log.trace("Statement warning, problem? {}", squeeze(warning), new Exception("Synthetic exception to get a stack trace"));
-                } else {
-                    log.debug("Statement warning, problem? {}", squeeze(warning));
                 }
                 warning = warning.getNextWarning();
             }
@@ -504,8 +498,6 @@ public class Database {
             for (int i = 0; i < 255 && null != warning; i++) {
                 if (log.isTraceEnabled()) {
                     log.trace("Statement warning, problem? {}", squeeze(warning), new Exception("Synthetic exception to get a stack trace"));
-                } else {
-                    log.debug("Statement warning, problem? {}", squeeze(warning));
                 }
                 warning = warning.getNextWarning();
             }
@@ -514,8 +506,6 @@ public class Database {
             for (int i = 0; i < 255 && null != warning; i++) {
                 if (log.isTraceEnabled()) {
                     log.trace("Result set warning, problem? {}", squeeze(warning), new Exception("Synthetic exception to get a stack trace"));
-                } else {
-                    log.debug("Result set warning, problem? {}", squeeze(warning));
                 }
                 warning = warning.getNextWarning();
             }
@@ -537,8 +527,6 @@ public class Database {
             for (int i = 0; i < 255 && null != warning; i++) {
                 if (log.isTraceEnabled()) {
                     log.trace("Statement warning, problem? {}", squeeze(warning), new Exception("Synthetic exception to get a stack trace"));
-                } else {
-                    log.debug("Statement warning, problem? {}", squeeze(warning));
                 }
                 warning = warning.getNextWarning();
             }
@@ -547,8 +535,6 @@ public class Database {
             for (int i = 0; i < 255 && null != warning; i++) {
                 if (log.isTraceEnabled()) {
                     log.trace("Result set warning, problem? {}", squeeze(warning), new Exception("Synthetic exception to get a stack trace"));
-                } else {
-                    log.debug("Result set warning, problem? {}", squeeze(warning));
                 }
                 warning = warning.getNextWarning();
             }
@@ -570,8 +556,6 @@ public class Database {
             for (int i = 0; i < 255 && null != warning; i++) {
                 if (log.isTraceEnabled()) {
                     log.trace("Statement warning, problem? {}", squeeze(warning), new Exception("Synthetic exception to get a stack trace"));
-                } else {
-                    log.debug("Statement warning, problem? {}", squeeze(warning));
                 }
                 warning = warning.getNextWarning();
             }
@@ -589,8 +573,6 @@ public class Database {
             for (int i = 0; i < 255 && null != warning; i++) {
                 if (log.isTraceEnabled()) {
                     log.trace("Statement warning, problem? {}", squeeze(warning), new Exception("Synthetic exception to get a stack trace"));
-                } else {
-                    log.debug("Statement warning, problem? {}", squeeze(warning));
                 }
                 warning = warning.getNextWarning();
             }
