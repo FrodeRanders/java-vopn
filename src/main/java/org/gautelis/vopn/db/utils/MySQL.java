@@ -60,6 +60,7 @@ public class MySQL extends Manager {
     ) throws DatabaseException, ClassCastException {
 
         BasicDataSource dataSource = new BasicDataSource();
+        dataSource.setPoolPreparedStatements(true);
         dataSource.setDriverClassName(config.driver());
 
         String database = config.database();

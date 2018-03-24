@@ -73,8 +73,9 @@ public class PostgreSQL extends Manager {
         ds.setPortNumber(config.port());
         ds.setMaxConnections(10);
         */
-
         BasicDataSource dataSource = new BasicDataSource();
+
+        dataSource.setPoolPreparedStatements(true);
         dataSource.setDriverClassName(config.driver());
 
         String database = config.database();
