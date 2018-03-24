@@ -126,6 +126,17 @@ public class WorkStealingQueue implements WorkQueue {
     }
 
     /*
+     * Returns size of work queue
+     */
+    public synchronized long size() {
+        long _size = 0L;
+        for (BlockingDeque q : queue) {
+            _size += q.size();
+        }
+        return _size;
+    }
+
+    /*
      * Clean-up the worker thread when all the tasks are done
      */
     private synchronized void doInterruptAllWaitingThreads() {

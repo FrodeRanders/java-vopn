@@ -18,9 +18,9 @@
 package org.gautelis.vopn.queue;
 
 public interface WorkQueue {
-
 	void start();
     void stop();
 	boolean execute(Runnable t);
 	boolean isEmpty();
+	long size();
 }
