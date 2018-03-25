@@ -24,16 +24,17 @@ import org.slf4j.LoggerFactory;
  * Factory that creates different types of worker queues:
  * {@link SimpleWorkQueue one queue with multiple workers},
  * {@link MultiWorkQueue multiple queues with corresponding workers},
- * {@link WorkStealingQueue multiple queues with workers stealing from each others queues}.
  */
 public class WorkerQueueFactory {
     private static final Logger log = LoggerFactory.getLogger(WorkerQueueFactory.class);
 
+     //* {@link WorkStealingQueue multiple queues with workers stealing from each others queues}.
+
     public enum Type
     {
         Simple,
-        Multi,
-        WorkStealing
+        Multi
+        // WorkStealing
     }
 
     /**
@@ -50,9 +51,9 @@ public class WorkerQueueFactory {
 			case Multi:
 					return new MultiWorkQueue(nThreads);
 
-            case WorkStealing:
+            //case WorkStealing:
             default:
-					return new WorkStealingQueue(nThreads);
+					return new MultiWorkQueue(nThreads);
 		}
 	}
 }
