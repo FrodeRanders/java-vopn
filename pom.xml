@@ -42,7 +42,7 @@
         <slf4j.version>1.7.25</slf4j.version>
         <log4j.version>2.11.1</log4j.version>
         <derby.version>10.14.2.0</derby.version>
-        <postgresql.version>42.2.4.jre7</postgresql.version>
+        <postgresql.version>42.2.5.jre7</postgresql.version>
     </properties>
 
     <prerequisites>
