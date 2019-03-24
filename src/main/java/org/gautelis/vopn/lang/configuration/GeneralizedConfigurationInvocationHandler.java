@@ -38,7 +38,6 @@ import java.util.Map;
 /**
  * Description of GeneralizedConfigurationInvocationHandler:
  * <p>
- * <p>
  * Created by Frode Randers at 2013-01-19 12:55
  */
 public class GeneralizedConfigurationInvocationHandler implements InvocationHandler {

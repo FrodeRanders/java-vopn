@@ -114,7 +114,6 @@ import java.util.Properties;
  * {@link  org.gautelis.vopn.lang.DynamicInitializer}&lt;Processor&gt;,
  * specifically targeted at Processor plugins.
  * <p>
- * <p>
  * Created by Frode Randers at 2011-11-04 14:14
  */
 public class DynamicLoader<C> extends Hashtable<String, C> {

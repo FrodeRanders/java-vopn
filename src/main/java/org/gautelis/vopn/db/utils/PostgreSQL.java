@@ -26,7 +26,6 @@ import java.util.Properties;
 /**
  * Description of PostgreSQL:
  * <p>
- * <p>
  * Created by Frode Randers at 2016-02-18 10:29
  */
 public class PostgreSQL extends Manager {

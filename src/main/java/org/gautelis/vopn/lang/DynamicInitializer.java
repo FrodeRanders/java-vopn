@@ -49,7 +49,6 @@ package  org.gautelis.vopn.lang;
  *   };
  * </pre>
  * <p>
- * <p>
  * Created by Frode Randers at 2011-11-04 14:14
  */
 public interface DynamicInitializer<C> {

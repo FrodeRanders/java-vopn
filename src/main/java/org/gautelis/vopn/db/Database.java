@@ -183,6 +183,8 @@ public class Database {
      * Dynamically loads the named class (fully qualified classname).
      * <p>
      * @param className specifies the fully qualified class name of a class (implementing DataSource).
+     * @return Class matching specified parameter class name
+     * @throws ClassNotFoundException if no Class matches specified class name
      */
     public static Class loadDataSource(String className) throws ClassNotFoundException {
         return loader.createClass(className);
@@ -193,6 +195,7 @@ public class Database {
      * <p>
      * @param className specifies the fully qualified class name of a class (implementing DataSource).
      * @param clazz specifies the class from which the object will be drawn.
+     * @return datasource
      */
     public static DataSource createDataSource(String className, Class clazz) throws ClassNotFoundException, ClassCastException {
 

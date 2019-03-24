@@ -33,7 +33,6 @@ import java.lang.annotation.Target;
 /**
  * Description of Configurable:
  * <p>
- * <p>
  * Created by Frode Randers at 2011-11-04 14:14
  */
 @Target(ElementType.METHOD)

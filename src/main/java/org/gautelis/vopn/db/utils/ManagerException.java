@@ -28,7 +28,6 @@ package org.gautelis.vopn.db.utils;
 /**
  * Description of ManagerException:
  * <p>
- * <p>
  * Created by Frode Randers at 2011-11-04 14:14
  */
 public class ManagerException extends Exception {

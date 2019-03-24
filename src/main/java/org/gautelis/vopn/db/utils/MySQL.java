@@ -35,7 +35,6 @@ import java.util.Properties;
 /**
  * Description of MySQL:
  * <p>
- * <p>
  * Created by Frode Randers at 2011-11-04 14:14
  */
 public class MySQL extends Manager {
