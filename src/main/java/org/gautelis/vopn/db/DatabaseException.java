@@ -35,7 +35,7 @@ public class DatabaseException extends Exception {
 		super(msg);
 	}
 	
-	public DatabaseException(String msg, Exception e) {
-		super(msg, e);
+	public DatabaseException(String msg, Throwable t) {
+		super(msg, t);
 	}
 }

@@ -36,7 +36,7 @@ public class XmlException extends Exception {
         super(s);
     }
 
-    public XmlException(String s, Exception e) {
-        super(s, e);
+    public XmlException(String s, Throwable t) {
+        super(s, t);
     }
 }
