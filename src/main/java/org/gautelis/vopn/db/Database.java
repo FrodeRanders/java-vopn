@@ -164,7 +164,7 @@ public class Database {
 
         // Class implementing the DataSource
         String driver = config.driver();
-        if (null == driver) {
+        if (null == driver || driver.isEmpty()) {
             throw new DatabaseException("Could not determine JDBC driver name (driver)");
         }
         driver = driver.trim();

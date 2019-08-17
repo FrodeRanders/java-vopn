@@ -28,6 +28,7 @@ package  org.gautelis.vopn.io;
 import java.io.*;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
@@ -47,12 +48,28 @@ public class FileIO {
      */
     public static void fastChannelCopy(final ReadableByteChannel src, final WritableByteChannel dest) throws IOException {
         final ByteBuffer buffer = ByteBuffer.allocateDirect(16 * 1024);
+
+        /*
+         * If built with JDK 9 (and later) with target JDK 8, invoking flip() on a ByteBuffer
+         * yields a weird error:
+         *     java.lang.NoSuchMethodError: java.nio.ByteBuffer.flip()Ljava/nio/ByteBuffer
+         *
+         * Apparently, in JDK 9 (and later) ByteBuffer.flip() returns a ByteBuffer but it
+         * used to return a Buffer in JDK 8. If run on JDK 8 you get this error.
+         *
+         * How can this even be :(
+         *
+         * The workaround is to cast ByteBuffer to Buffer before calling flip(),
+         * whereafter you can compile the project with JDK 9 and have it running on JDK 8.
+         */
+        Buffer yuck = buffer;
+
         while (src.read(buffer) != -1) {
-            buffer.flip();
+            yuck.flip();
             dest.write(buffer);
             buffer.compact();
         }
-        buffer.flip();
+        yuck.flip();
         while (buffer.hasRemaining()) {
             dest.write(buffer);
         }
