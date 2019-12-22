@@ -40,9 +40,9 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <slf4j.version>1.7.25</slf4j.version>
-        <log4j.version>2.12.1</log4j.version>
+        <log4j.version>2.13.0</log4j.version>
         <derby.version>10.14.2.0</derby.version> <!-- later versions demands jdk 9 -->
-        <postgresql.version>42.2.6.jre7</postgresql.version>
+        <postgresql.version>42.2.9.jre7</postgresql.version>
     </properties>
 
     <prerequisites>
@@ -123,7 +123,7 @@
         <dependency>
             <groupId>org.jline</groupId>
             <artifactId>jline</artifactId>
-            <version>3.12.1</version>
+            <version>3.13.2</version>
         </dependency>
 
         <dependency>
