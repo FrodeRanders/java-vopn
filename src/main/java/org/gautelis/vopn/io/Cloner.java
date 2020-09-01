@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 Frode Randers
+ * Copyright (C) 2017-2020 Frode Randers
  * All rights reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -47,8 +47,8 @@ public class Cloner {
      * Makes a 'snapshot' of an object, i.e. makes a deep clone of the object structure
      * to preserve state and protect against later modification.
      * <p>
-     * @param original
-     * @return
+     * @param original original object to clone
+     * @return cloned object
      * @throws IOException
      * @throws ClassNotFoundException
      */

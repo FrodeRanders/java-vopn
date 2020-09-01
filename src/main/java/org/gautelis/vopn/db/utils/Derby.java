@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2016 Frode Randers
+ * Copyright (C) 2011-2020 Frode Randers
  * All rights reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
