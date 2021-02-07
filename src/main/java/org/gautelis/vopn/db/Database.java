@@ -25,11 +25,6 @@
  */
 package org.gautelis.vopn.db;
 
-import org.apache.derby.iapi.error.StandardException;
-import org.apache.derby.iapi.sql.ParameterValueSet;
-import org.apache.derby.iapi.types.DataValueDescriptor;
-import org.apache.derby.impl.jdbc.EmbedParameterSetMetaData;
-import org.apache.derby.impl.jdbc.EmbedPreparedStatement42;
 import org.gautelis.vopn.lang.Configurable;
 import org.gautelis.vopn.lang.ConfigurationTool;
 import org.gautelis.vopn.lang.DynamicLoader;
@@ -38,6 +33,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.sql.DataSource;
 import java.sql.*;
+import java.util.Objects;
 import java.util.Properties;
 
 /**
@@ -92,8 +88,16 @@ public class Database {
         int port();
     }
 
+    /** Prepares a datasource for use, by providing additional configuration
+     */
+    public interface DataSourcePreparation<T extends DataSource> {
+        default T prepare(T dataSource, Configuration config) {
+            return Objects.requireNonNull(dataSource);
+        };
+    }
+
     // 
-    private static DynamicLoader<DataSource> loader = new DynamicLoader<DataSource>("datasource");
+    private static DynamicLoader<DataSource> loader = new DynamicLoader<>("datasource");
     
     //
     private Database() {
@@ -111,56 +115,17 @@ public class Database {
     }
 
     /**
-     * Gets a datasource for the database.
+     * Gets a datasource for the database, based on some common configuration.
      * <p>
-     * Now, these are the naked facts regarding data sources:        
-     *
-     * There is no uniform way to configure a data source - it is
-     * highly proprietary and depends on the JDBC driver.
-     *
-     * Depending on what data source you have configured, you will
-     * have to use a construction along the lines of these examples
-     * on the returned DataSource.
-     * <pre>
-     * String appName = "MyApplication";
-     *
-     * Properties properties = ...;
-     * DataSource dataSource = getDataSource(properties);
-     * Database.Configuration config = Database.getConfiguration(properties);
-     *
-     * if (driver.equals("net.sourceforge.jtds.jdbcx.JtdsDataSource")) {
-     *     net.sourceforge.jtds.jdbcx.JtdsDataSource ds = (net.sourceforge.jtds.jdbcx.JtdsDataSource)dataSource;
-     *     ds.setAppName(appName); // std
-     *     ds.setDatabaseName(config.database()); // std
-     *     ds.setUser(config.user()); // std
-     *     ds.setPassword(config.password()); // std
-     *
-     *     ds.setServerName(config.server());  // jtds specific
-     *     ds.setPortNumber(config.port()); // jtds specific
-     * }
-     * else if (driver.equals("org.apache.derby.jdbc.EmbeddedDataSource")) {
-     *     org.apache.derby.jdbc.EmbeddedDataSource ds = (org.apache.derby.jdbc.EmbeddedDataSource)dataSource;
-     *     ds.setDescription(appName); // std
-     *     ds.setDatabaseName(config.database()); // std
-     *     ds.setUser(config.user()); // std
-     *     ds.setPassword(config.password()); // std
-     * 
-     *     ds.setCreateDatabase("create");  // derby specific
-     * }
-     * else if (driver.equals("sun.jdbc.odbc.ee.DataSource")) {
-     *     sun.jdbc.odbc.ee.DataSource ds = (sun.jdbc.odbc.ee.DataSource)dataSource;
-     *     ds.setDescription(appName); // std
-     *     ds.setDatabaseName(config.database()); // std
-     *     ds.setUser(config.user()); // std
-     *     ds.setPassword(config.password()); // std
-     * }
-     * </pre>
+     * NOTE: Additional configuration may have to be provided!
+     * @see #getDataSource(Configuration, DataSourcePreparation)
      * <p>
      * @param config the configuration for accessing the database (driver etc).
      * @return a datasource matching the provided configuration.
      * @throws DatabaseException if a suitable driver was not found or could not be instantiated.
      */
     public static DataSource getDataSource(Configuration config) throws DatabaseException {
+        Objects.requireNonNull(config, "config");
 
         // Class implementing the DataSource
         String driver = config.driver();
@@ -177,6 +142,112 @@ public class Database {
             info += cnfe.getMessage();
             throw new DatabaseException(info, cnfe);
         }
+    }
+
+    /**
+     * Gets a datasource for the database.
+     * <p>
+     * Now, these are the naked facts regarding data sources:
+     *
+     * There is no uniform way to configure a data source - it is
+     * highly proprietary and depends on the JDBC driver.
+     *
+     * Depending on what data source you have configured, you will
+     * have to use a construction along the lines of these examples
+     * on the returned DataSource.
+     * <pre>
+     * Map&lt;String, String&gt; init = Map.of(
+     *       "manager", "db2",
+     *       "driver", "com.ibm.db2.jcc.DB2SimpleDataSource",
+     *       //
+     *       "server", "localhost",
+     *       "port", "50000",
+     *       //
+     *       "url", "jdbc:db2://localhost:50000/ledger",
+     *       "database", "ledger",
+     *       //
+     *       "user", "ledgerapplication",
+     *       "password", "sosecret"
+     * );
+     *
+     * Properties properties = new Properties();
+     * properties.putAll(init);
+     *
+     * // DB2
+     * DataSource db2 = Database.getDataSource(
+     *        Database.getConfiguration(properties),
+     *        new Database.DataSourcePreparation&lt;com.ibm.db2.jcc.DB2SimpleDataSource&gt;() {
+     *                &#x40;Override
+     *                public com.ibm.db2.jcc.DB2SimpleDataSource prepare(
+     *                       com.ibm.db2.jcc.DB2SimpleDataSource ds,
+     *                       Database.Configuration config cf
+     *                ) {
+     *                       ds.setDescription("MyApplication"); // std
+     *                       ds.setDatabaseName(cf.database());  // std
+     *                       ds.setUser(cf.user());  // std
+     *                       ds.setPassword(cf.password());  // std
+     *
+     *                       ds.setDriverType(4);  // DB2 specific
+     *
+     *                       return dataSource;
+     *                }
+     *         }
+     * );
+     *
+     * // Derby
+     * DataSource derby = Database.getDataSource(
+     *        Database.getConfiguration(properties),
+     *        new Database.DataSourcePreparation&lt;org.apache.derby.jdbc.EmbeddedDataSource&gt;() {
+     *                &#x40;Override
+     *                public org.apache.derby.jdbc.EmbeddedDataSource prepare(
+     *                       org.apache.derby.jdbc.EmbeddedDataSource ds,
+     *                       Database.Configuration config cf
+     *                ) {
+     *                       ds.setDescription("MyApplication"); // std
+     *                       ds.setDatabaseName(cf.database()); // std
+     *                       ds.setUser(cf.user()); // std
+     *                       ds.setPassword(cf.password()); // std
+     *
+     *                       ds.setCreateDatabase("create");  // derby specific
+     *
+     *                       return dataSource;
+     *                }
+     *         }
+     * );
+     *
+     * // SQL Server
+     * DataSource mssql = Database.getDataSource(
+     *        Database.getConfiguration(properties),
+     *        new Database.DataSourcePreparation&lt;net.sourceforge.jtds.jdbcx.JtdsDataSource&gt;() {
+     *                &#x40;Override
+     *                public net.sourceforge.jtds.jdbcx.JtdsDataSource prepare(
+     *                       net.sourceforge.jtds.jdbcx.JtdsDataSource ds,
+     *                       Database.Configuration config cf
+     *                ) {
+     *                       ds.setDescription("MyApplication"); // std
+     *                       ds.setDatabaseName(cf.database()); // std
+     *                       ds.setUser(cf.user()); // std
+     *                       ds.setPassword(cf.password()); // std
+     *
+     *                       ds.setServerName(cf.server());  // jtds specific
+     *                       ds.setPortNumber(cf.port()); // jtds specific
+     *
+     *                       return dataSource;
+     *                }
+     *         }
+     * );
+     * </pre>
+     * <p>
+     * @param config the configuration for accessing the database (driver etc).
+     * @param preparation a function used to prepare the datasource (config wise)
+     * @return a datasource matching the provided configuration.
+     * @throws DatabaseException if a suitable driver was not found or could not be instantiated.
+     */
+    public static DataSource getDataSource(Configuration config, DataSourcePreparation preparation) throws DatabaseException {
+        Objects.requireNonNull(preparation, "preparation");
+
+        DataSource ds = getDataSource(config);
+        return preparation.prepare(ds, config);
     }
 
     /**
