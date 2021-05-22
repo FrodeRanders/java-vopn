@@ -310,6 +310,10 @@ public class Database {
                .append(e.getErrorCode())
                .append(")");
             e = e.getNextException();
+
+            if (null != e) {
+                buf.append(" >> ");
+            }
         }
         return buf.toString();
     }
@@ -334,6 +338,10 @@ public class Database {
                .append(w.getErrorCode())
                .append(")");
             w = w.getNextWarning();
+
+            if (null != w) {
+                buf.append(" >> ");
+            }
         }
         return buf.toString();
     }

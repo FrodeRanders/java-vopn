@@ -40,9 +40,9 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <slf4j.version>1.7.25</slf4j.version>
-        <log4j.version>2.13.3</log4j.version>
+        <log4j.version>2.14.1</log4j.version>
         <derby.version>10.14.2.0</derby.version> <!-- later versions demands jdk 9 -->
-        <postgresql.version>42.2.16.jre7</postgresql.version>
+        <postgresql.version>42.2.20.jre7</postgresql.version>
     </properties>
 
     <prerequisites>
@@ -73,7 +73,7 @@
         <dependency>
             <groupId>org.antlr</groupId>
             <artifactId>antlr4-runtime</artifactId>
-            <version>4.8-1</version>
+            <version>4.9.2</version>
             <scope>provided</scope>
         </dependency>
 
@@ -123,7 +123,7 @@
         <dependency>
             <groupId>org.jline</groupId>
             <artifactId>jline</artifactId>
-            <version>3.16.0</version>
+            <version>3.20.0</version>
         </dependency>
 
         <dependency>
@@ -135,7 +135,7 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.13.1</version>
+            <version>4.13.2</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
