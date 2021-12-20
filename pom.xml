@@ -40,7 +40,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <slf4j.version>1.7.25</slf4j.version>
-        <log4j.version>2.16.0</log4j.version>
+        <log4j.version>2.17.0</log4j.version>
         <derby.version>10.14.2.0</derby.version> <!-- later versions demands jdk 9 -->
         <postgresql.version>42.3.1</postgresql.version>
     </properties>
