@@ -32,7 +32,7 @@ public class SimpleWorkQueue implements WorkQueue {
 
     private final int nThreads;
     private final PoolWorker[] threads;
-    private final BlockingDeque queue;
+    private final BlockingDeque<Runnable> queue;
     private volatile boolean stopRequested = false;
     
     private final Object lock = new Object();
@@ -43,7 +43,7 @@ public class SimpleWorkQueue implements WorkQueue {
     /* package private */ SimpleWorkQueue(int nThreads)
     {
         this.nThreads = nThreads;
-        queue = new LinkedBlockingDeque<Runnable>();
+        queue = new LinkedBlockingDeque<>();
         threads = new PoolWorker[nThreads];
     }
     
@@ -129,12 +129,11 @@ public class SimpleWorkQueue implements WorkQueue {
     	 * This thread will wait for a task if there is no task in the queue. 
     	 */
         public void run() {
-
-            Runnable r;
-
             while (!stopRequested) {
+                Runnable r;
+
             	try {
-					r = (Runnable) queue.takeLast();
+					r = queue.takeLast();
 				}
                 catch (InterruptedException e1) {
 					continue; // and check if we are requested to stop
@@ -144,6 +143,7 @@ public class SimpleWorkQueue implements WorkQueue {
                     if (log.isTraceEnabled()) {
                         log.trace("Running pool worker task");
                     }
+
                     r.run();
                 }
                 catch (Throwable t) {

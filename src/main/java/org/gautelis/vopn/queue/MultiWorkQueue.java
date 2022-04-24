@@ -20,6 +20,7 @@ package org.gautelis.vopn.queue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Vector;
 import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.LinkedBlockingDeque;
 
@@ -33,7 +34,7 @@ public class MultiWorkQueue implements WorkQueue {
     private final int nThreads;
     private int queue_no = 0;
     private final PoolWorker[] threads;
-    private final BlockingDeque[] queue;
+    private final Vector<BlockingDeque<Runnable>> queues;
     private volatile boolean stopRequested = false;
 
     private final Object lock = new Object();
@@ -43,10 +44,11 @@ public class MultiWorkQueue implements WorkQueue {
      */
     /* package private */ MultiWorkQueue(int nThreads) {
         this.nThreads = nThreads;
-        queue = new BlockingDeque[nThreads];
         threads = new PoolWorker[nThreads];
+
+        queues = new Vector<>(nThreads);
         for (int i = 0; i < nThreads; i++) {
-            queue[i] = new LinkedBlockingDeque<>();
+            queues.add(new LinkedBlockingDeque<>());
         }
     }
 
@@ -83,7 +85,7 @@ public class MultiWorkQueue implements WorkQueue {
     public synchronized boolean execute(Runnable r) {
 
         try {
-            queue[queue_no++ % nThreads].putFirst(r);
+            queues.elementAt(queue_no++ % nThreads).putFirst(r);
             if (queue_no == nThreads) {
                 queue_no = 0;
             }
@@ -102,7 +104,7 @@ public class MultiWorkQueue implements WorkQueue {
      * Checks whether the queue is empty (or not)
      */
     public synchronized boolean isEmpty() {
-        for (BlockingDeque q : queue) {
+        for (BlockingDeque<Runnable> q : queues) {
             if (!q.isEmpty()) {
                 return false;
             }
@@ -115,7 +117,7 @@ public class MultiWorkQueue implements WorkQueue {
      */
     public synchronized long size() {
         long _size = 0L;
-        for (BlockingDeque q : queue) {
+        for (BlockingDeque<Runnable> q : queues) {
             _size += q.size();
         }
         return _size;
@@ -151,11 +153,12 @@ public class MultiWorkQueue implements WorkQueue {
          * This thread will wait for a task if there is no task in the queue.
          */
         public void run() {
-            Runnable r;
 
             while (!stopRequested) {
+                Runnable r;
+
                 try {
-                    r = (Runnable) queue[index].takeLast();
+                    r = queues.elementAt(index).takeLast();
                 } catch (InterruptedException e1) {
                     continue; // and check if we are requested to stop
                 }
@@ -165,6 +168,7 @@ public class MultiWorkQueue implements WorkQueue {
                         log.trace("Running pool worker [" + index + "] task");
                     }
                     r.run();
+
                 } catch (Throwable t) {
                     String info = "Failed to run queued task: ";
                     Throwable baseCause = org.gautelis.vopn.lang.Stacktrace.getBaseCause(t);

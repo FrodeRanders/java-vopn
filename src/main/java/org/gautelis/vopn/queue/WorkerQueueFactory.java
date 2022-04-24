@@ -33,8 +33,8 @@ public class WorkerQueueFactory {
     public enum Type
     {
         Simple,
-        Multi
-        // WorkStealing
+        Multi,
+        WorkStealing
     }
 
     /**
@@ -46,14 +46,14 @@ public class WorkerQueueFactory {
 	public static WorkQueue getWorkQueue(Type type, int nThreads) {
 		switch(type) {
 			case Simple:
-					return new SimpleWorkQueue(nThreads);
+				return new SimpleWorkQueue(nThreads);
 			
-			case Multi:
-					return new MultiWorkQueue(nThreads);
+            case WorkStealing:
+				return new WorkStealingQueue(nThreads);
 
-            //case WorkStealing:
+			case Multi:
             default:
-					return new MultiWorkQueue(nThreads);
+				return new MultiWorkQueue(nThreads);
 		}
 	}
 }

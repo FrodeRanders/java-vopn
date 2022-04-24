@@ -20,6 +20,7 @@ package org.gautelis.vopn.queue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Vector;
 import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.LinkedBlockingDeque;
 
@@ -34,7 +35,7 @@ public class WorkStealingQueue implements WorkQueue {
 	private final int nThreads;
     private int queue_no = 0;
     private final PoolWorker[] threads;
-    private final BlockingDeque[] queue;
+    private final Vector<BlockingDeque<Runnable>> queues;
     private volatile boolean stopRequested = false;
     
     private final Object lock = new Object();
@@ -45,25 +46,30 @@ public class WorkStealingQueue implements WorkQueue {
     /* package private */ WorkStealingQueue(int nThreads)
     {
         this.nThreads = nThreads;
-        queue = new BlockingDeque[nThreads];
         threads = new PoolWorker[nThreads];
+
+        queues = new Vector<>(nThreads);
         for (int i=0; i<nThreads; i++) {
-        	queue[i] = new LinkedBlockingDeque<Runnable>();
+        	queues.add(new LinkedBlockingDeque<>());
         }
     }
     
-    private Runnable stealWork(int index) {
+    private Runnable stealWork(int index) throws InterruptedException {
     	for (int i=0; i<nThreads; i++) {
     		if (i != index) {
-    			Object o = queue[i].pollFirst();
-    			if (o!=null) {
-    				return (Runnable) o;
-    			}
+                synchronized (queues) {
+                    BlockingDeque<Runnable> queue = queues.elementAt(i);
+
+                    if (!queue.isEmpty()) {
+                        Runnable r = queue.takeFirst();
+                        // log.trace("Worker [{}] stealing work from [{}]", index, i);
+                        return r;
+                    }
+                }
     		}
     	}
     	
     	return null;
-    	
     }
     
     public void start() {
@@ -97,12 +103,14 @@ public class WorkStealingQueue implements WorkQueue {
      */
     @SuppressWarnings("unchecked")
     public boolean execute(Runnable r) {
-    	
     	try {
-			queue[queue_no++ % nThreads].putFirst(r);
-			if (queue_no == nThreads){
-				queue_no = 0;
-			}
+            synchronized (queues) {
+                queues.elementAt(queue_no++ % nThreads).putFirst(r);
+                if (queue_no == nThreads) {
+                    queue_no = 0;
+                }
+                queues.notifyAll();
+            }
             return true;
 		} catch (InterruptedException e) {
             String info = "Failed to enqueue task: ";
@@ -116,10 +124,12 @@ public class WorkStealingQueue implements WorkQueue {
     /*
      * Checks whether queue is empty (or not)
      */
-    public synchronized boolean isEmpty() {
-        for (BlockingDeque q : queue) {
-            if (!q.isEmpty()) {
-                return false;
+    public boolean isEmpty() {
+        synchronized (queues) {
+            for (BlockingDeque<Runnable> queue : queues) {
+                if (!queue.isEmpty()) {
+                    return false;
+                }
             }
         }
         return true;
@@ -128,10 +138,12 @@ public class WorkStealingQueue implements WorkQueue {
     /*
      * Returns size of work queue
      */
-    public synchronized long size() {
+    public long size() {
         long _size = 0L;
-        for (BlockingDeque q : queue) {
-            _size += q.size();
+        synchronized (queues) {
+            for (BlockingDeque<Runnable> queue : queues) {
+                _size += queue.size();
+            }
         }
         return _size;
     }
@@ -168,19 +180,26 @@ public class WorkStealingQueue implements WorkQueue {
         public void run() {
 
             while (!stopRequested) {
-                Runnable r = (Runnable) queue[index].pollLast();
-				if (null == r) {
-					r = stealWork(index);
-					if (null == r) {
-						// looks like there is no work to steal
-                        try {
-                            sleep(500); /* half a second */
+                Runnable r;
+                try {
+                    synchronized (queues) {
+                        BlockingDeque<Runnable> queue = queues.elementAt(index);
+
+                        if (queue.isEmpty()) {
+                            r = stealWork(index);
+                        } else {
+                            r = queue.takeLast();
+                            // log.trace("Worker [{}] claiming task", index);
                         }
-                        catch (InterruptedException ignore) {
+
+                        if (r == null) {
+                            queues.wait();
+                            continue;
                         }
-						continue; // and check if we are requested to stop
-					}
-				}
+                    }
+                } catch (InterruptedException e) {
+                    continue;
+                }
 
                 // If we don't catch RuntimeException, 
                 // the pool could leak threads
@@ -188,6 +207,7 @@ public class WorkStealingQueue implements WorkQueue {
                     if (log.isTraceEnabled()) {
                         log.trace("Running pool worker [" + index + "] task");
                     }
+
                     r.run();
                 }
                 catch (Throwable t) {
