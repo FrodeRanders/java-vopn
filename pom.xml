@@ -40,9 +40,10 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <slf4j.version>1.7.25</slf4j.version>
-        <log4j.version>2.17.1</log4j.version>
-        <derby.version>10.14.2.0</derby.version> <!-- later versions demands jdk 9 -->
-        <postgresql.version>42.3.3</postgresql.version>
+        <log4j.version>2.17.2</log4j.version>
+        <derby.version>10.15.2.0</derby.version>
+        <postgresql.version>42.3.4</postgresql.version>
+        <antlr4.version>4.10.1</antlr4.version>
     </properties>
 
     <prerequisites>
@@ -73,7 +74,7 @@
         <dependency>
             <groupId>org.antlr</groupId>
             <artifactId>antlr4-runtime</artifactId>
-            <version>4.9.3</version>
+            <version>${antlr4.version}</version>
             <scope>provided</scope>
         </dependency>
 
@@ -95,6 +96,13 @@
             <!-- Internal database -->
             <groupId>org.apache.derby</groupId>
             <artifactId>derby</artifactId>
+            <version>${derby.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.derby</groupId>
+            <artifactId>derbytools</artifactId> <!-- org.apache.derby.jdbc lives here nowadays -->
             <version>${derby.version}</version>
             <scope>provided</scope>
         </dependency>
