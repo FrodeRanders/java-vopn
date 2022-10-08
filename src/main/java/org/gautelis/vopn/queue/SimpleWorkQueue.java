@@ -53,22 +53,16 @@ public class SimpleWorkQueue implements WorkQueue {
             threads[i].start();
         }
 
-        if (log.isTraceEnabled()) {
-            log.trace("Starting work queue...");
-        }
+        log.trace("Starting work queue...");
     }
 
     public void stop() {
-        if (log.isTraceEnabled()) {
-            log.trace("Stopping work queue...");
-        }
+        log.trace("Stopping work queue...");
 
         stopRequested = true;
         doInterruptAllWaitingThreads();
 
-        if (log.isTraceEnabled()) {
-            log.trace("Work queue stopped");
-        }
+        log.trace("Work queue stopped");
     }
 
     /*
@@ -140,10 +134,7 @@ public class SimpleWorkQueue implements WorkQueue {
 				}
 
                 try {
-                    if (log.isTraceEnabled()) {
-                        log.trace("Running pool worker task");
-                    }
-
+                    log.trace("Running pool worker task");
                     r.run();
                 }
                 catch (Throwable t) {
