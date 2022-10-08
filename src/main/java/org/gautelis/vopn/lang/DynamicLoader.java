@@ -262,20 +262,20 @@ public class DynamicLoader<C> extends Hashtable<String, C> {
             return clazz;
 
         } catch (ExceptionInInitializerError eiie) {
-            String info = "Could not load the " + description + " object: " + className
+            String info = "Could not load the " + description + " class: " + className
                     + ". Could not initialize static object in server: ";
             info += eiie.getMessage();
             throw new ClassNotFoundException(info, eiie);
 
         } catch (LinkageError le) {
-            String info = "Could not load the " + description + " object: " + className
-                    + ". This object is depending on a class that has been changed after compilation ";
+            String info = "Could not load the " + description + " class: " + className
+                    + ". This class is depending on a class that has been changed after compilation ";
             info += "or a class that was not found: ";
             info += le.getMessage();
             throw new ClassNotFoundException(info, le);
 
         } catch (ClassNotFoundException cnfe) {
-            String info = "Could not find the " + description + " object: " + className + ": ";
+            String info = "Could not find the " + description + " class: " + className + ": ";
             info += cnfe.getMessage();
             throw new ClassNotFoundException(info, cnfe);
         }

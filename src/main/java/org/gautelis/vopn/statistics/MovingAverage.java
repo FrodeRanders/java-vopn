@@ -26,9 +26,12 @@
 package  org.gautelis.vopn.statistics;
 
 /*
- * Calculates statistics based on a Moving Average (MA) algorithm.
- * <p>
- * <p>
+ * Calculates statistics based on a Moving Average (MA) algorithm over a set of data points.
+ * <pre>
+ * (defun running-createAverage (avg new n)
+ *    "Calculate new createAverage given previous createAverage over n data points"
+ *    (/ (+ new (* avg n)) (1+ n)))
+ * </pre>
  * Created by Frode Randers at 2012-09-21 14:29
  * Amended by Göran Lindqvist at 2012-09-22 17:26
  */
@@ -97,8 +100,12 @@ public class MovingAverage {
      */
     public void update(double sample) {
         // Adjust min&max
-        min = (sample < min ? sample : min);
-        max = (sample > max ? sample : max);
+        if (0L == count) {
+            min = max = sample;
+        } else {
+            min = Math.min(sample, min);
+            max = Math.max(sample, max);
+        }
 
         // Update average
         average += (sample - average) / ++count;

@@ -167,7 +167,6 @@ public class ThrottledExecutor {
     public long execute(Consumer<StatusContext> block) {
         long numUnitsProcessed = 0L;
 
-
         // Keep track of average time used per unig (average time per unit)
         MovingAverage averageTPU = new MovingAverage();
 
@@ -202,7 +201,7 @@ public class ThrottledExecutor {
             ++numUnitsProcessed;
 
             // Possibly delay processing so that we do not process more than 'maxUnitsProcessedPerMinute' - on average
-            final double slotTime = (60000) / maxUnitsProcessedPerMinute;   // milliseconds
+            final double slotTime = (60000.0) / maxUnitsProcessedPerMinute;   // milliseconds
             double averageProcessingTime = averageTPU.getAverage(); // milliseconds
             long waitTime = (long) (slotTime - Math.ceil(averageProcessingTime));  // milliseconds
 
