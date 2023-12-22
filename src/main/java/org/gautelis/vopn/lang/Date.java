@@ -79,26 +79,20 @@ public class Date {
      * @return true if user inputted corect format, otherwise false
      */
     public static boolean validateDateFormat(String date, Locale locale) {
-        SimpleDateFormat df;
-        SimpleDateFormat sdf;
-        java.text.ParsePosition pos;
-        java.util.Date dbDate;
-
-        dbDate = null;
         try {
             if (date == null || date.equals("")) {
                 return false;
             }
 
-            df = (SimpleDateFormat) DateFormat.getDateInstance(
+            SimpleDateFormat df = (SimpleDateFormat) DateFormat.getDateInstance(
                     dateStyle,
                     locale
             );
 
-            sdf = new SimpleDateFormat(df.toPattern());
-            pos = new java.text.ParsePosition(0);
+            SimpleDateFormat sdf = new SimpleDateFormat(df.toPattern());
+            java.text.ParsePosition pos = new java.text.ParsePosition(0);
             sdf.setLenient(false);
-            dbDate = sdf.parse(date, pos);
+            java.util.Date dbDate = sdf.parse(date, pos);
 
             return dbDate != null && dbDate.getTime() > 0L;
 
@@ -114,20 +108,17 @@ public class Date {
      * @return The converted date in java.sql.date format
      */
     public static java.sql.Date convertDate(String date, Locale locale) {
-        SimpleDateFormat df;
-        java.util.Date dbDate = null;
-        java.sql.Date sqldate = null;
         try {
             if (date == null || date.equals("")) {
                 return null;
             }
 
-            df = (SimpleDateFormat) DateFormat.getDateInstance(dateStyle, locale);
+            SimpleDateFormat df = (SimpleDateFormat) DateFormat.getDateInstance(dateStyle, locale);
 
             SimpleDateFormat sdf = new SimpleDateFormat(df.toPattern());
             java.text.ParsePosition pos = new java.text.ParsePosition(0);
             sdf.setLenient(false);
-            dbDate = sdf.parse(date, pos);
+            java.util.Date dbDate = sdf.parse(date, pos);
             return new java.sql.Date(dbDate.getTime());
 
         } catch (Exception e) {

@@ -110,7 +110,7 @@ public class XPath {
             namespaces.applyNamespacesOn(xpath);
 
             Object node = xpath.selectSingleNode(element);
-            if (null != node && node instanceof OMElement) {
+            if (node instanceof OMElement) {
                 return (OMElement) node;
             }
 

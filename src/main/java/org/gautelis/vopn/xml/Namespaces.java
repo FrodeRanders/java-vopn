@@ -41,7 +41,7 @@ import java.util.*;
  * Created by Frode Randers at 2012-04-11 21:50
  */
 public class Namespaces {
-    private Map<String, OMNamespace> namespaces = new HashMap<>();
+    private final Map<String, OMNamespace> namespaces = new HashMap<>();
 
     public Namespaces() {
         // No default namespaces defined yet...
