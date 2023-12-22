@@ -39,7 +39,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <slf4j.version>2.0.9</slf4j.version>
+        <slf4j.version>1.7.25</slf4j.version>
         <log4j.version>2.20.0</log4j.version>
         <derby.version>10.16.1.1</derby.version>  <!-- 10.17.1.0 demands non-LTS Java SE 19 -->
         <postgresql.version>42.7.1</postgresql.version>
@@ -54,6 +54,9 @@
     </prerequisites>
     
     <dependencies>
+        <!-- Logging
+             We use SLF4J as logging facade and during test we use LOG4J as backend
+          -->
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
