@@ -40,12 +40,13 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <slf4j.version>1.7.36</slf4j.version>
-        <log4j.version>2.18.0</log4j.version>
-        <derby.version>10.16.1.1</derby.version>
-        <postgresql.version>42.5.0</postgresql.version>
-        <antlr4.version>4.11.1</antlr4.version>
+        <log4j.version>2.23.1</log4j.version>
+        <derby.version>10.17.1.0</derby.version>
+        <postgresql.version>42.7.3</postgresql.version>
+        <antlr4.version>4.13.1</antlr4.version>
         <axiom.version>1.4.0</axiom.version>
         <jaxen.version>1.2.0</jaxen.version>
+        <jline.version>3.26.1</jline.version>
     </properties>
 
     <prerequisites>
@@ -133,7 +134,7 @@
         <dependency>
             <groupId>org.jline</groupId>
             <artifactId>jline</artifactId>
-            <version>3.21.0</version>
+            <version>${jline.version}</version>
         </dependency>
 
         <dependency>
