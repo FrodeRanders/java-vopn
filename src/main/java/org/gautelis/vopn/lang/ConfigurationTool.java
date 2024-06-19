@@ -25,9 +25,12 @@
  */
 package  org.gautelis.vopn.lang;
 
+import org.gautelis.vopn.db.Database;
 import org.gautelis.vopn.io.Closer;
 import org.gautelis.vopn.lang.configuration.GeneralizedConfigurationInvocationHandler;
 import org.gautelis.vopn.lang.configuration.PropertiesConfigurationInvocationHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -37,9 +40,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Proxy;
-import java.util.Collection;
-import java.util.Map;
-import java.util.Properties;
+import java.nio.file.Files;
+import java.util.*;
 
 /**
  * Implements an abstraction over properties-files (or other configuration schemas) and
@@ -102,6 +104,9 @@ import java.util.Properties;
  * Created by Frode Randers at 2011-11-04 14:14
  */
 public class ConfigurationTool {
+    private static final Logger log = LoggerFactory.getLogger(ConfigurationTool.class);
+
+    private static final Class<?>[] C = {};
 
     /**
      * [Default] path to the environment location.
@@ -121,38 +126,71 @@ public class ConfigurationTool {
     private static final Object lock = new Object();
     private static Properties globalProperties = null; // if provided
 
+    private static void accumulateIfcs(Class<?> clazz, Collection<Class<?>> acc) {
+        if (clazz != null && clazz.isInterface()) {
+            acc.add(clazz);
+
+            Class<?>[] superIfc = clazz.getInterfaces();
+            for (Class<?> ifc : superIfc) {
+                accumulateIfcs(ifc, acc);
+            }
+        }
+    }
+
     @SuppressWarnings("unchecked")
-    public static <T> T bind(Class<T> clazz, Map defaultValues) {
+    public static <T> T bind(Class<T> clazz, Map<String, Object> defaultValues) {
+        ArrayList<Class<?>> interfaces = new ArrayList<>();
+        accumulateIfcs(clazz, interfaces);
+
         return (T) Proxy.newProxyInstance(
                 clazz.getClassLoader(),
-                new Class[] { clazz },
+                interfaces.toArray(C),
                 new GeneralizedConfigurationInvocationHandler(defaultValues)
         );
     }
 
     @SuppressWarnings("unchecked")
-    public static <T> T bind(Class<T> clazz, Map defaultValues, Collection<ConfigurationResolver> resolvers) {
+    public static <T> T bind(Class<T> clazz, Map<String, Object> defaultValues, Collection<ConfigurationResolver> resolvers) {
+        ArrayList<Class<?>> interfaces = new ArrayList<>();
+        accumulateIfcs(clazz, interfaces);
+
         return (T) Proxy.newProxyInstance(
                 clazz.getClassLoader(),
-                new Class[] { clazz },
+                interfaces.toArray(C),
                 new GeneralizedConfigurationInvocationHandler(defaultValues, resolvers)
         );
     }
 
+
     @SuppressWarnings("unchecked")
     public static <T> T bindProperties(Class<T> clazz, Properties properties) {
+        ArrayList<Class<?>> interfaces = new ArrayList<>();
+        accumulateIfcs(clazz, interfaces);
+
+        /*
+        if (log.isTraceEnabled()) {
+            log.trace("Binding properties to " + clazz.getCanonicalName());
+            for (Class<?> c : interfaces.toArray(C)) {
+                log.trace("ifc: " + c.getCanonicalName());
+            }
+        }
+        */
+
         return (T) Proxy.newProxyInstance(
                 clazz.getClassLoader(),
-                new Class[] { clazz },
+                interfaces.toArray(C),
                 new PropertiesConfigurationInvocationHandler(properties)
         );
     }
 
     @SuppressWarnings("unchecked")
     public static <T> T bindProperties(Class<T> clazz, Properties properties, Collection<ConfigurationResolver> resolvers) {
+        ArrayList<Class<?>> interfaces = new ArrayList<>();
+        accumulateIfcs(clazz, interfaces);
+
         return (T) Proxy.newProxyInstance(
                 clazz.getClassLoader(),
-                new Class[] { clazz },
+                interfaces.toArray(C),
                 new PropertiesConfigurationInvocationHandler(properties, resolvers)
         );
     }
@@ -165,9 +203,13 @@ public class ConfigurationTool {
                 info += " to a non-existing *global* configuration!";
                 throw new RuntimeException(info);
             }
+
+            ArrayList<Class<?>> interfaces = new ArrayList<>();
+            accumulateIfcs(clazz, interfaces);
+
             return (T) Proxy.newProxyInstance(
                 clazz.getClassLoader(),
-                new Class[] { clazz },
+                interfaces.toArray(C),
                 new PropertiesConfigurationInvocationHandler(globalProperties)
             );
         }
@@ -194,7 +236,7 @@ public class ConfigurationTool {
     public static Properties load(File propertiesFile) throws IOException {
         InputStream is = null;
         try {
-            is = new FileInputStream(propertiesFile);
+            is = Files.newInputStream(propertiesFile.toPath());
             return load(is, isXML(propertiesFile));
         } finally {
             Closer.close(is);
@@ -205,7 +247,7 @@ public class ConfigurationTool {
         return load(new File(path));
     }
 
-    public static Properties loadFromResource(Class clazz, String resourceName) throws IOException {
+    public static Properties loadFromResource(Class<?> clazz, String resourceName) throws IOException {
         InputStream is = null;
         try {
             is = clazz.getResourceAsStream(resourceName);
@@ -238,7 +280,7 @@ public class ConfigurationTool {
         catch (NamingException ignore) {}
 
         // 2. Check among system properties
-        if (null == resource || resource.length() == 0) {
+        if (null == resource || resource.isEmpty()) {
             System.out.println("Resource \"" + resourceName + "\" not published through JNDI...");
             try {
                 resource = System.getProperty(resourceName);
@@ -246,7 +288,7 @@ public class ConfigurationTool {
             catch (Exception ignore) {}
         }
 
-        if (null == resource || resource.length() == 0) {
+        if (null == resource || resource.isEmpty()) {
             System.out.println("Resource \"" + resourceName + "\" not published through system properties...");
         }
         return resource;

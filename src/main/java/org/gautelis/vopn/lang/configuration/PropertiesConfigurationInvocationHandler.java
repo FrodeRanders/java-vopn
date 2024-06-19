@@ -76,7 +76,7 @@ public class PropertiesConfigurationInvocationHandler implements InvocationHandl
         }
 
         // If we have a Configurable property name, use it - otherwise fall back on method name...
-        String key = (null != binding.property() && binding.property().length() > 0) ? binding.property() : method.getName();
+        String key = (null != binding.property() && !binding.property().isEmpty()) ? binding.property() : method.getName();
 
         //-----------------------------------------------------------------------
         // Properties only deals with Strings, so we will have to cast the
@@ -92,7 +92,7 @@ public class PropertiesConfigurationInvocationHandler implements InvocationHandl
         return cast(method.getName(), binding.value().trim(), method.getReturnType());
     }
 
-    private Object cast(String name, String value, Class targetType) {
+    private Object cast(String name, String value, Class<?> targetType) {
         if (null == value) {
             return null;
         }

@@ -46,11 +46,21 @@ public class StringMapConfigurationResolver implements ConfigurationTool.Configu
 
     @Override
     public Object resolve(String name) {
-        Object value = map.get(name);
+        String value = map.get(name);
 
-        if (null != value && log.isDebugEnabled()) {
-            String info = "Successfully resolved \"" + name + "\" from environment: " + value;
-            log.debug(info);
+        if (null != value) {
+            value = value.trim();
+
+            if (log.isTraceEnabled()) {
+                String info = "Successfully resolved \"" + name + "\" from map: " + value;
+                Exception syntheticException = new Exception();
+                for (StackTraceElement element : syntheticException.getStackTrace()) {
+                    info += "\n at " + element.toString();
+                }
+                log.trace(info);
+            }
+        } else {
+            log.info("Unable to resolve \"{}\" from map", name);
         }
 
         return value;

@@ -62,10 +62,10 @@ public class BundledPropertiesConfigurationResolver implements ConfigurationTool
 
     private final Properties properties;
 
-    public BundledPropertiesConfigurationResolver(Class clazz, String bundledFileName) throws IOException {
+    public BundledPropertiesConfigurationResolver(Class<?> clazz, String bundledFileName) throws IOException {
         properties = new Properties();
 
-        if (null != bundledFileName && bundledFileName.length() > 0) {
+        if (null != bundledFileName && !bundledFileName.isEmpty()) {
             InputStream is = null;
             try {
                 is = clazz.getResourceAsStream(bundledFileName);
@@ -89,10 +89,20 @@ public class BundledPropertiesConfigurationResolver implements ConfigurationTool
     @Override
     public Object resolve(String name) {
         String value = properties.getProperty(name);
+        if (null != value) {
+            value = value.trim();
 
-        if (null != value && log.isDebugEnabled()) {
-            String info = "Successfully resolved \"" + name + "\" from bundled properties: " + value;
-            log.debug(info);
+            if (log.isTraceEnabled()) {
+                String info = "Successfully resolved \"" + name + "\" from bundled properties: " + value;
+                Exception syntheticException = new Exception();
+                for (StackTraceElement element : syntheticException.getStackTrace()) {
+                    info += "\n at " + element.toString();
+                }
+                log.trace(info);
+
+            }
+        } else {
+            log.info("Unable to resolve \"{}\" from bundled properties", name);
         }
         return value;
     }

@@ -31,9 +31,19 @@ public class SystemPropertiesConfigurationResolver implements ConfigurationTool.
     public Object resolve(String name) {
         String value = System.getProperty(name);
 
-        if (null != value && log.isDebugEnabled()) {
-            String info = "Successfully resolved \"" + name + "\" from system properties: " + value;
-            log.debug(info);
+        if (null != value) {
+            value = value.trim();
+
+            if (log.isTraceEnabled()) {
+                String info = "Successfully resolved \"" + name + "\" from system properties: " + value;
+                Exception syntheticException = new Exception();
+                for (StackTraceElement element : syntheticException.getStackTrace()) {
+                    info += "\n at " + element.toString();
+                }
+                log.trace(info);
+            }
+        } else {
+            log.info("Unable to resolve \"{}\" from system properties", name);
         }
         return value;
     }

@@ -25,6 +25,8 @@
  */
 package org.gautelis.vopn;
 
+import org.gautelis.vopn.lang.Configurable;
+import org.gautelis.vopn.lang.ConfigurationTool;
 import org.gautelis.vopn.lang.TimeDelta;
 import org.gautelis.vopn.statistics.MovingAverage;
 import junit.framework.TestCase;
@@ -34,6 +36,8 @@ import org.junit.Test;
 
 import java.math.BigInteger;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Properties;
 
 /**
  * <p>
@@ -144,5 +148,32 @@ public class CommonTest extends TestCase {
             assertEquals(sum / i, ma3.getAverage(), /* acceptable delta */ 1E-15);
             assertEquals(i, ma3.getCount());
         }
+    }
+
+    interface ProxyTest {
+        @Configurable(property = "stringConfigurable", value = "default value")
+        String stringTest();
+
+        @Configurable(property = "intConfigurable", value = "43")
+        int intTest();
+
+        @Configurable(property = "booleanConfigurable", value = "false")
+        boolean booleanTest();
+    }
+
+    @Test
+    public void testConfigurable() {
+        Properties properties = new Properties();
+        properties.putAll(Map.of(
+        "stringConfigurable", "string value",
+        "intConfigurable", "42",
+        "booleanConfigurable", "true"
+        ));
+
+        ProxyTest pt = ConfigurationTool.bindProperties(ProxyTest.class, properties);
+
+        assertEquals("string value", pt.stringTest());
+        assertEquals(42, pt.intTest());
+        assertTrue(pt.booleanTest());
     }
 }

@@ -49,9 +49,9 @@ public class GeneralizedConfigurationInvocationHandler implements InvocationHand
 
     // We don't have to expose this default resolver
     private class DefaultResolver implements ConfigurationTool.ConfigurationResolver {
-        private Map map;
+        private Map<String, Object> map;
 
-        DefaultResolver(Map map) {
+        DefaultResolver(Map<String, Object> map) {
             this.map = map;
         }
 
@@ -60,11 +60,11 @@ public class GeneralizedConfigurationInvocationHandler implements InvocationHand
         }
     }
 
-    public GeneralizedConfigurationInvocationHandler(Map map) {
+    public GeneralizedConfigurationInvocationHandler(Map<String, Object> map) {
         resolvers.add(new DefaultResolver(map));
     }
 
-    public GeneralizedConfigurationInvocationHandler(Map map, Collection<ConfigurationTool.ConfigurationResolver> resolvers) {
+    public GeneralizedConfigurationInvocationHandler(Map<String, Object> map, Collection<ConfigurationTool.ConfigurationResolver> resolvers) {
         this.resolvers.addAll(resolvers);
         this.resolvers.add(new DefaultResolver(map));
     }
@@ -80,9 +80,9 @@ public class GeneralizedConfigurationInvocationHandler implements InvocationHand
         }
 
         // If we have a Configurable property name, use it - otherwise fall back on method name...
-        String key = (null != binding.property() && binding.property().length() > 0) ? binding.property() : method.getName();
+        String key = (null != binding.property() && !binding.property().isEmpty()) ? binding.property() : method.getName();
 
-        Class targetType = method.getReturnType();
+        Class<?> targetType = method.getReturnType();
         Object value = null;
         for (ConfigurationTool.ConfigurationResolver resolver : resolvers) {
             value = resolver.resolve(key);
@@ -95,7 +95,7 @@ public class GeneralizedConfigurationInvocationHandler implements InvocationHand
                     return new File((String)value);
 
                 } else {
-                    throw new RuntimeException("Could not treat return value of " + method.getName() + " as \'" + targetType.getName() + "' when in fact it was '" + value.getClass().getName() + "'");
+                    throw new RuntimeException("Could not treat return value of " + method.getName() + " as '" + targetType.getName() + "' when in fact it was '" + value.getClass().getName() + "'");
                 }
             }
         }
