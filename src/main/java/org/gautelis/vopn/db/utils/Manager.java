@@ -51,7 +51,7 @@ public abstract class Manager {
     protected static final boolean BREAK_ON_FAILURE = false;
 
     //
-    private Options options = null;
+    private final Options options;
 
     //
     protected DataSource dataSource;
@@ -157,11 +157,11 @@ public abstract class Manager {
             if (options.debug) {
                 out.println(Database.squeeze(sqle));
             }
-            throw new Exception("Caught exception when running script\n" + sqle.toString());
+            throw new Exception("Caught exception when running script\n" + sqle, sqle);
 
         } catch (Exception e) {
             e.printStackTrace(out);
-            throw new Exception("Caught exception when running script\n" + e.toString());
+            throw new Exception("Caught exception when running script\n" + e);
         }
     }
 
