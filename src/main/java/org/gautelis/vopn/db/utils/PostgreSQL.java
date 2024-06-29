@@ -31,14 +31,14 @@ import java.util.Properties;
 public class PostgreSQL extends Manager {
 
     public PostgreSQL(DataSource dataSource, Options options) {
-        super(dataSource, options, ";", /* ignore case? */ false, /* alone on line? */ false);
+        super(dataSource, options, ";", /* ignore case? */ false, /* alone on line? */ true);
 
         // Always print database name to stdout.
         System.out.println("Target database: PostgreSQL");
     }
 
     public PostgreSQL(Properties properties, Options options, PrepareDataSource preparer) throws Exception {
-        super(preparer, properties, options, ";", /* ignore case? */ false, /* alone on line? */ false);
+        super(preparer, properties, options, ";", /* ignore case? */ false, /* alone on line? */ true);
 
         // Always print database name to stdout.
         System.out.println("Target database: PostgreSQL");
@@ -78,22 +78,22 @@ public class PostgreSQL extends Manager {
         dataSource.setDriverClassName(config.driver());
 
         String database = config.database();
-        if (null != database && database.length() > 0) {
+        if (null != database && !database.isEmpty()) {
             dataSource.addConnectionProperty("databaseName", database);
         }
 
         String user = config.user();
-        if (null != user && user.length() > 0) {
+        if (null != user && !user.isEmpty()) {
             dataSource.setUsername(user);
         }
 
         String password = config.password();
-        if (null != password && password.length() > 0) {
+        if (null != password && !password.isEmpty()) {
             dataSource.setPassword(password);
         }
 
         String url = config.url();
-        if (null != url && url.length() > 0) {
+        if (null != url && !url.isEmpty()) {
             dataSource.setUrl(url);
         }
 
