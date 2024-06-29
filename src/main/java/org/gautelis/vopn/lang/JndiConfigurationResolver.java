@@ -59,9 +59,15 @@ public class JndiConfigurationResolver implements ConfigurationTool.Configuratio
                 Context ctx = new InitialContext();
                 Object value = ctx.lookup(name);
 
-                if (null != value && log.isDebugEnabled()) {
+                if (null != value && log.isTraceEnabled()) {
                     String info = "Successfully resolved \"" + name + "\" from JNDI: " + value.toString();
-                    log.debug(info);
+                    Exception syntheticException = new Exception();
+                    for (StackTraceElement element : syntheticException.getStackTrace()) {
+                        info += "\n at " + element.toString();
+                    }
+                    log.trace(info);
+                } else {
+                    log.info("Unable to resolve \"{}\" from JNDI", name);
                 }
                 return value;
 
@@ -70,9 +76,15 @@ public class JndiConfigurationResolver implements ConfigurationTool.Configuratio
                 Context ctx = (Context) new InitialContext().lookup(jndiEnvironment);
                 Object value = ctx.lookup(name);
 
-                if (null != value && log.isDebugEnabled()) {
+                if (null != value && log.isTraceEnabled()) {
                     String info = "Successfully resolved \"" + name + "\" from JNDI: " + value.toString();
-                    log.debug(info);
+                    Exception syntheticException = new Exception();
+                    for (StackTraceElement element : syntheticException.getStackTrace()) {
+                        info += "\n at " + element.toString();
+                    }
+                    log.trace(info);
+                } else {
+                    log.info("Unable to resolve \"{}\" from JNDI", name);
                 }
                 return value;
             }

@@ -46,9 +46,19 @@ public class SystemEnvironmentConfigurationResolver implements ConfigurationTool
         String _name = name.toUpperCase().replace('-', '_');
         String value = System.getenv(_name);
 
-        if (null != value && log.isDebugEnabled()) {
-            String info = "Successfully resolved \"" + _name + "\" from environment: " + value;
-            log.debug(info);
+        if (null != value) {
+            value = value.trim();
+
+            if (log.isTraceEnabled()) {
+                String info = "Successfully resolved \"" + _name + "\" from system environment: " + value;
+                Exception syntheticException = new Exception();
+                for (StackTraceElement element : syntheticException.getStackTrace()) {
+                    info += "\n at " + element.toString();
+                }
+                log.trace(info);
+            }
+        } else {
+            log.info("Unable to resolve \"{}\" from system environment", name);
         }
         return value;
     }

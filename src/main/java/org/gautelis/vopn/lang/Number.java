@@ -71,19 +71,19 @@ public class Number {
         }
     }
 
-    private static DecimalFormatSymbols usSymbols = new DecimalFormatSymbols(new Locale("us"));
-    private static DecimalFormatSymbols seSymbols = new DecimalFormatSymbols(new Locale("se"));
+    private static final DecimalFormatSymbols usSymbols = new DecimalFormatSymbols(Locale.US);
+    private static final DecimalFormatSymbols seSymbols = new DecimalFormatSymbols(Locale.of("se"));
 
     public static double roundTwoDecimals(double d) {
         // TODO - fix this!
         DecimalFormat formatter = new DecimalFormat("#.##", seSymbols); // Swedish
         try {
-            return Double.valueOf(formatter.format(d));
+            return Double.parseDouble(formatter.format(d));
         }
         catch (NumberFormatException nfe) {
             try {
                 formatter = new DecimalFormat("#,##", usSymbols); // US
-                return Double.valueOf(formatter.format(d));
+                return Double.parseDouble(formatter.format(d));
             }
             catch (NumberFormatException nfe2) {
                 return 0.00;

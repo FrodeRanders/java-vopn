@@ -38,15 +38,18 @@
     </scm>
 
     <properties>
+        <maven.compiler.release>21</maven.compiler.release>
+        <maven.compiler.target>21</maven.compiler.target>
+        <maven.compiler.source>21</maven.compiler.source>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <slf4j.version>1.7.36</slf4j.version>
-        <log4j.version>2.20.0</log4j.version>
         <derby.version>10.16.1.1</derby.version>
+        <log4j.version>2.23.1</log4j.version>
         <postgresql.version>42.7.3</postgresql.version>
         <antlr4.version>4.13.1</antlr4.version>
         <axiom.version>1.4.0</axiom.version>
         <jaxen.version>2.0.0</jaxen.version>
-        <jline.version>3.26.1</jline.version>
+        <jline.version>3.26.2</jline.version>
     </properties>
 
     <prerequisites>
@@ -54,9 +57,6 @@
     </prerequisites>
     
     <dependencies>
-        <!-- Logging
-             We use SLF4J as logging facade and during test we use LOG4J as backend
-          -->
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>

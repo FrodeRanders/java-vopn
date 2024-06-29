@@ -180,7 +180,7 @@ public class Database {
      *                &#x40;Override
      *                public com.ibm.db2.jcc.DB2SimpleDataSource prepare(
      *                       com.ibm.db2.jcc.DB2SimpleDataSource ds,
-     *                       Database.Configuration config cf
+     *                       Database.Configuration cf
      *                ) {
      *                       ds.setDescription("MyApplication"); // std
      *                       ds.setDatabaseName(cf.database());  // std
@@ -189,7 +189,7 @@ public class Database {
      *
      *                       ds.setDriverType(4);  // DB2 specific
      *
-     *                       return dataSource;
+     *                       return ds;
      *                }
      *         }
      * );
@@ -201,7 +201,7 @@ public class Database {
      *                &#x40;Override
      *                public org.apache.derby.jdbc.EmbeddedDataSource prepare(
      *                       org.apache.derby.jdbc.EmbeddedDataSource ds,
-     *                       Database.Configuration config cf
+     *                       Database.Configuration cf
      *                ) {
      *                       ds.setDescription("MyApplication"); // std
      *                       ds.setDatabaseName(cf.database()); // std
@@ -210,7 +210,7 @@ public class Database {
      *
      *                       ds.setCreateDatabase("create");  // derby specific
      *
-     *                       return dataSource;
+     *                       return ds;
      *                }
      *         }
      * );
@@ -222,7 +222,7 @@ public class Database {
      *                &#x40;Override
      *                public net.sourceforge.jtds.jdbcx.JtdsDataSource prepare(
      *                       net.sourceforge.jtds.jdbcx.JtdsDataSource ds,
-     *                       Database.Configuration config cf
+     *                       Database.Configuration cf
      *                ) {
      *                       ds.setDescription("MyApplication"); // std
      *                       ds.setDatabaseName(cf.database()); // std
@@ -232,7 +232,7 @@ public class Database {
      *                       ds.setServerName(cf.server());  // jtds specific
      *                       ds.setPortNumber(cf.port()); // jtds specific
      *
-     *                       return dataSource;
+     *                       return ds;
      *                }
      *         }
      * );
