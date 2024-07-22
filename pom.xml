@@ -43,13 +43,13 @@
         <maven.compiler.source>21</maven.compiler.source>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <slf4j.version>1.7.36</slf4j.version>
-        <derby.version>10.16.1.1</derby.version>
+        <derby.version>10.17.1.0</derby.version>
         <log4j.version>2.23.1</log4j.version>
         <postgresql.version>42.7.3</postgresql.version>
         <antlr4.version>4.13.1</antlr4.version>
         <axiom.version>1.4.0</axiom.version>
         <jaxen.version>2.0.0</jaxen.version>
-        <jline.version>3.26.2</jline.version>
+        <jline.version>3.26.3</jline.version>
     </properties>
 
     <prerequisites>
@@ -159,7 +159,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>
-                <version>3.0.0-M2</version>
+                <version>3.0.0-M3</version>
                 <executions>
                     <execution>
                         <goals><goal>enforce</goal></goals>
@@ -179,7 +179,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.8.0</version>
+                <version>3.8.1</version>
                 <configuration>
                     <source>1.8</source>
                     <target>1.8</target>
@@ -190,7 +190,7 @@
 	        <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
-                <version>3.0.1</version>
+                <version>3.2.1</version>
                 <executions>
                     <execution>
                         <id>attach-sources</id>
@@ -203,7 +203,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
-                <version>3.1.0</version>
+                <version>3.3.2</version>
                 <configuration>
                     <source>8</source>
                 </configuration>
