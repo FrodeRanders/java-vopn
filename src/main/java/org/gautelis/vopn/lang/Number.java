@@ -58,13 +58,13 @@ public class Number {
         if (bytes < BYTES_MAX) {
             return bytes + _separator + "B";
         } else if (bytes < KB_MAX) {
-            return dec2Format.format((double) bytes / KB_DIV) + _separator + "KB";
+            return dec2Format.format((double) bytes / KB_DIV) + _separator + "KiB";
         } else if (bytes < MB_MAX) {
-            return dec2Format.format((double) bytes / MB_DIV) + _separator + "MB";
+            return dec2Format.format((double) bytes / MB_DIV) + _separator + "MiB";
         } else if (bytes < GB_MAX) {
-            return dec2Format.format((double) bytes / GB_DIV) + _separator + "GB";
+            return dec2Format.format((double) bytes / GB_DIV) + _separator + "GiB";
         } else if (bytes < TB_MAX) {
-            return dec2Format.format((double) bytes / TB_DIV) + _separator + "TB";
+            return dec2Format.format((double) bytes / TB_DIV) + _separator + "TiB";
         } else {
             // out of range
             return bytes + _separator + "B";
