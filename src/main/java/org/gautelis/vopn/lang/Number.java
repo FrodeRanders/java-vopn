@@ -86,7 +86,7 @@ public class Number {
                 return Double.parseDouble(formatter.format(d));
             }
             catch (NumberFormatException nfe2) {
-                return 0.00;
+                throw new RuntimeException("Unable to format number: " + d, nfe2);
             }
         }
     }
