@@ -25,6 +25,7 @@
  */
 package  org.gautelis.vopn.io;
 
+import jakarta.activation.DataSource;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -43,7 +44,7 @@ import java.io.OutputStream;
  * <p>
  * Created by Frode Randers at 2013-01-23 00:33
  */
-public class StringBufferDataSource implements javax.activation.DataSource {
+public class StringBufferDataSource implements DataSource {
 
     private String name;
     private String mimeType;

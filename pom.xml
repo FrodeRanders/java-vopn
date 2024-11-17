@@ -4,7 +4,7 @@
 
     <groupId>org.gautelis</groupId>
     <artifactId>vopn</artifactId>
-    <version>2.4-SNAPSHOT</version>
+    <version>2.5-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>${project.groupId}:${project.artifactId}</name>
@@ -51,6 +51,9 @@
         <axiom.version>1.4.0</axiom.version>
         <jaxen.version>2.0.0</jaxen.version>
         <jline.version>3.27.1</jline.version>
+        <jakarta.activation.version>2.0.1</jakarta.activation.version>
+        <jakarta.xml.bind.version>4.0.0</jakarta.xml.bind.version>
+        <jaxb.version>4.0.5</jaxb.version>
     </properties>
 
     <prerequisites>
@@ -163,10 +166,34 @@
             <version>${jline.version}</version>
         </dependency>
 
+        <!-- JAXB API -->
         <dependency>
-            <groupId>javax.xml.bind</groupId>
-            <artifactId>jaxb-api</artifactId>
-            <version>2.4.0-b180830.0359</version>
+            <groupId>jakarta.xml.bind</groupId>
+            <artifactId>jakarta.xml.bind-api</artifactId>
+            <version>${jakarta.xml.bind.version}</version>
+        </dependency>
+
+        <!-- JAXB Core (Runtime Implementation) -->
+        <dependency>
+            <groupId>com.sun.xml.bind</groupId>
+            <artifactId>jaxb-core</artifactId>
+            <version>${jaxb.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- JAXB Implementation -->
+        <dependency>
+            <groupId>com.sun.xml.bind</groupId>
+            <artifactId>jaxb-impl</artifactId>
+            <version>${jaxb.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Activation Framework (required by JAXB) -->
+        <dependency>
+            <groupId>jakarta.activation</groupId>
+            <artifactId>jakarta.activation-api</artifactId>
+            <version>${jakarta.activation.version}</version>
         </dependency>
 
         <dependency>
