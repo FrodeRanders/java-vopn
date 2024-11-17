@@ -25,7 +25,7 @@
  */
 package  org.gautelis.vopn.io;
 
-import jakarta.activation.DataSource;
+import javax.activation.DataSource;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;

@@ -51,9 +51,9 @@
         <axiom.version>1.4.0</axiom.version>
         <jaxen.version>2.0.0</jaxen.version>
         <jline.version>3.27.1</jline.version>
-        <jakarta.activation.version>2.0.1</jakarta.activation.version>
-        <jakarta.xml.bind.version>4.0.0</jakarta.xml.bind.version>
-        <jaxb.version>4.0.5</jaxb.version>
+        <jaxb.api.version>2.3.1</jaxb.api.version>
+        <jaxb.runtime.version>4.0.5</jaxb.runtime.version>
+        <javax.activation.version>1.1.1</javax.activation.version>
     </properties>
 
     <prerequisites>
@@ -166,34 +166,32 @@
             <version>${jline.version}</version>
         </dependency>
 
-        <!-- JAXB API -->
+        <!-- JAXB API in javax namespace-->
         <dependency>
-            <groupId>jakarta.xml.bind</groupId>
-            <artifactId>jakarta.xml.bind-api</artifactId>
-            <version>${jakarta.xml.bind.version}</version>
+            <groupId>javax.xml.bind</groupId>
+            <artifactId>jaxb-api</artifactId>
+            <version>${jaxb.api.version}</version>
         </dependency>
 
         <!-- JAXB Core (Runtime Implementation) -->
         <dependency>
             <groupId>com.sun.xml.bind</groupId>
             <artifactId>jaxb-core</artifactId>
-            <version>${jaxb.version}</version>
-            <scope>test</scope>
+            <version>${jaxb.runtime.version}</version>
         </dependency>
 
         <!-- JAXB Implementation -->
         <dependency>
             <groupId>com.sun.xml.bind</groupId>
             <artifactId>jaxb-impl</artifactId>
-            <version>${jaxb.version}</version>
-            <scope>test</scope>
+            <version>${jaxb.runtime.version}</version>
         </dependency>
 
-        <!-- Activation Framework (required by JAXB) -->
+        <!-- Activation Framework in javax namespace (required by JAXB) -->
         <dependency>
-            <groupId>jakarta.activation</groupId>
-            <artifactId>jakarta.activation-api</artifactId>
-            <version>${jakarta.activation.version}</version>
+            <groupId>javax.activation</groupId>
+            <artifactId>activation</artifactId>
+            <version>${javax.activation.version}</version>
         </dependency>
 
         <dependency>
