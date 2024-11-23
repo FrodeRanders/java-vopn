@@ -72,7 +72,7 @@ public class Number {
     }
 
     private static final DecimalFormatSymbols usSymbols = new DecimalFormatSymbols(Locale.US);
-    private static final DecimalFormatSymbols seSymbols = new DecimalFormatSymbols(Locale.of("se"));
+    private static final DecimalFormatSymbols seSymbols = new DecimalFormatSymbols(Locale.forLanguageTag("se"));
 
     public static double roundTwoDecimals(double d) {
         // TODO - fix this!

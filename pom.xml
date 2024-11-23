@@ -38,9 +38,9 @@
     </scm>
 
     <properties>
-        <maven.compiler.release>21</maven.compiler.release>
-        <maven.compiler.target>21</maven.compiler.target>
-        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.release>11</maven.compiler.release>
+        <maven.compiler.target>11</maven.compiler.target>
+        <maven.compiler.source>11</maven.compiler.source>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <slf4j.version>2.0.13</slf4j.version>
         <derby.version>10.17.1.0</derby.version>
@@ -178,6 +178,7 @@
             <groupId>com.sun.xml.bind</groupId>
             <artifactId>jaxb-core</artifactId>
             <version>${jaxb.runtime.version}</version>
+            <scope>provided</scope>
         </dependency>
 
         <!-- JAXB Implementation -->
@@ -185,6 +186,7 @@
             <groupId>com.sun.xml.bind</groupId>
             <artifactId>jaxb-impl</artifactId>
             <version>${jaxb.runtime.version}</version>
+            <scope>provided</scope>
         </dependency>
 
         <!-- Activation Framework in javax namespace (required by JAXB) -->
