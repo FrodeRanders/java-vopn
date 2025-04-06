@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2020 Frode Randers
+ * Copyright (C) 2014-2025 Frode Randers
  * All rights reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -48,26 +48,26 @@ import java.io.StringReader;
  */
 public class Deserializer {
 
-    public static Object xml2Obj(Class clazz, Node node)  throws JAXBException {
+    public static Object xml2Obj(Class<?> clazz, Node node)  throws JAXBException {
         JAXBContext pContext = JAXBContext.newInstance(clazz);
         Unmarshaller unmarshaller = pContext.createUnmarshaller();
 
         return unmarshaller.unmarshal(node);
     }
 
-    public static Object xml2Obj(Class clazz, Reader xml)  throws JAXBException {
+    public static Object xml2Obj(Class<?> clazz, Reader xml)  throws JAXBException {
         JAXBContext pContext = JAXBContext.newInstance(clazz);
         Unmarshaller unmarshaller = pContext.createUnmarshaller();
 
         return unmarshaller.unmarshal(xml);
     }
 
-    public static Object xml2Obj(Class clazz, String xml)  throws JAXBException {
+    public static Object xml2Obj(Class<?> clazz, String xml)  throws JAXBException {
         StringReader reader = new StringReader(xml);
         return xml2Obj(clazz, reader);
     }
 
-    public static Object xml2Obj(Class clazz, InputStream is)  throws JAXBException {
+    public static Object xml2Obj(Class<?> clazz, InputStream is)  throws JAXBException {
         JAXBContext pContext = JAXBContext.newInstance(clazz);
         Unmarshaller unmarshaller = pContext.createUnmarshaller();
 

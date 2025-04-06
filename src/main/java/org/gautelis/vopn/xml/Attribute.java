@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012-2020 Frode Randers
+ * Copyright (C) 2012-2025 Frode Randers
  * All rights reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -38,7 +38,7 @@ import javax.xml.namespace.QName;
  * Created by Frode Randers at 2012-04-11 21:50
  */
 public class Attribute {
-    private Namespaces namespaces;
+    private final Namespaces namespaces;
 
     public Attribute(Namespaces namespaces) {
         this.namespaces = namespaces;
@@ -73,7 +73,7 @@ public class Attribute {
     //
     public static String getValueFrom(OMElement element, Namespaces namespaces, String namespacePrefix, String name, boolean acceptFail) throws XmlException {
         OMAttribute attrib;
-        if (null != namespacePrefix && namespacePrefix.length() > 0) {
+        if (null != namespacePrefix && !namespacePrefix.isEmpty()) {
             OMNamespace ns = namespaces.get(namespacePrefix);
             if (null == ns) {
                 String info = "There is no defined namespace that matches prefix: " + namespacePrefix;
@@ -89,7 +89,7 @@ public class Attribute {
             }
 
             String info = "Node does not have an attribute named \"";
-            if (null != namespacePrefix && namespacePrefix.length() > 0) {
+            if (null != namespacePrefix && !namespacePrefix.isEmpty()) {
                 info += namespacePrefix + ":";
             }
             info += name + "\" as expected. ";

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2020 Frode Randers
+ * Copyright (C) 2014-2025 Frode Randers
  * All rights reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -39,6 +39,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.ByteArrayOutputStream;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 
 /*
  * Description of Serializer.
@@ -54,7 +55,7 @@ import java.io.UnsupportedEncodingException;
  */
 public class Serializer {
 
-    public static String obj2XmlUtf16(Class clazz, Object o)  throws JAXBException, ParserConfigurationException {
+    public static String obj2XmlUtf16(Class<?> clazz, Object o)  throws JAXBException, ParserConfigurationException {
         Document doc = obj2Doc(clazz, o);
 
         DOMImplementationLS domImplementation = (DOMImplementationLS) doc.getImplementation();
@@ -89,7 +90,7 @@ public class Serializer {
      *
      * You need to take a peek at 'cause' in a debugger when initially developing the application.
      */
-    public static String obj2Xml(Class clazz, Object o)  throws JAXBException, ParserConfigurationException {
+    public static String obj2Xml(Class<?> clazz, Object o)  throws JAXBException, ParserConfigurationException {
         Document doc = obj2Doc(clazz, o);
 
         DOMImplementationLS domImplementation = (DOMImplementationLS) doc.getImplementation();
@@ -100,22 +101,17 @@ public class Serializer {
         }
         lsSerializer.setNewLine("\n");
 
-        try {
-            // Encode as UTF-8
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            LSOutput lsOutput = domImplementation.createLSOutput();
-            lsOutput.setEncoding("UTF-8");
-            lsOutput.setByteStream(baos);
-            lsSerializer.write(doc, lsOutput);
+        // Encode as UTF-8
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        LSOutput lsOutput = domImplementation.createLSOutput();
+        lsOutput.setEncoding("UTF-8");
+        lsOutput.setByteStream(baos);
+        lsSerializer.write(doc, lsOutput);
 
-            return baos.toString("UTF-8");
-        }
-        catch (UnsupportedEncodingException uee) {
-            return lsSerializer.writeToString(doc); // Produces UTF-16
-        }
+        return baos.toString(StandardCharsets.UTF_8);
     }
 
-    public static Document obj2Doc(Class clazz, Object o) throws JAXBException, ParserConfigurationException {
+    public static Document obj2Doc(Class<?> clazz, Object o) throws JAXBException, ParserConfigurationException {
         JAXBContext pContext = JAXBContext.newInstance(clazz);
 
         Marshaller marshaller = pContext.createMarshaller();

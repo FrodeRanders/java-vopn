@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2020 Frode Randers
+ * Copyright (C) 2011-2025 Frode Randers
  * All rights reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -28,13 +28,21 @@ package org.gautelis.vopn;
 import org.gautelis.vopn.lang.Configurable;
 import org.gautelis.vopn.lang.ConfigurationTool;
 import org.gautelis.vopn.lang.TimeDelta;
+import org.gautelis.vopn.server.BasicServer;
+import org.gautelis.vopn.server.Configuration;
+import org.gautelis.vopn.server.Server;
 import org.gautelis.vopn.statistics.MovingAverage;
 import junit.framework.TestCase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.junit.Test;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.math.BigInteger;
+import java.net.Socket;
+import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
@@ -175,5 +183,73 @@ public class CommonTest extends TestCase {
         assertEquals("string value", pt.stringTest());
         assertEquals(42, pt.intTest());
         assertTrue(pt.booleanTest());
+    }
+
+    @Test
+    public void testServer() {
+        Server[] server = { null };
+        Thread t1 = new Thread(() -> {
+            try {
+                // Initialize configuration
+                final Properties properties = new Properties();
+                properties.setProperty("local-host", "localhost");
+                properties.setProperty("local-port", "10081"); // famdc
+
+                Configuration config = ConfigurationTool.bindProperties(Configuration.class, properties);
+
+                server[0] = new BasicServer(config);
+                server[0].start();
+            }
+            catch (Throwable t) {
+                String info = "Server failure: " + t.getMessage();
+                log.error(info, t);
+                System.err.println(info);
+            }
+        });
+
+        try {
+            t1.start();
+            Thread.sleep(2000);
+        }
+        catch (InterruptedException ignore) {}
+        {
+            String host = "localhost";
+            int port = 10081;
+
+            try (Socket socket = new Socket(host, port)) {
+                System.out.println("Connected to server: " + host + ":" + port);
+
+                OutputStream out = socket.getOutputStream();
+                InputStream in = socket.getInputStream();
+
+                String message = "Hello from client!\n";
+                out.write(message.getBytes(StandardCharsets.UTF_8));
+                out.flush();
+
+                System.out.println("Sent: " + message.trim());
+
+                // Read response (echo)
+                byte[] buffer = new byte[1024];
+                int bytesRead = in.read(buffer);
+
+                if (bytesRead != -1) {
+                    String reply = new String(buffer, 0, bytesRead, StandardCharsets.UTF_8);
+                    System.out.println("Received: " + reply.trim());
+                } else {
+                    System.out.println("Server closed the connection.");
+                }
+
+            } catch (IOException e) {
+                System.err.println("Client error: " + e.getMessage());
+                e.printStackTrace();
+            }
+        }
+        try {
+            server[0].requestShutdown("test is over");
+            Thread.sleep(5000);
+        }
+        catch (InterruptedException ignore) {}
+
+        t1.interrupt();
     }
 }

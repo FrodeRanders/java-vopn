@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012-2020 Frode Randers
+ * Copyright (C) 2012-2025 Frode Randers
  * All rights reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -28,8 +28,8 @@ package  org.gautelis.vopn.statistics;
 /*
  * Calculates statistics based on a Moving Average (MA) algorithm over a set of data points.
  * <pre>
- * (defun running-createAverage (avg new n)
- *    "Calculate new createAverage given previous createAverage over n data points"
+ * (defun running-average (avg new n)
+ *    "Calculate new average given previous average over n data points"
  *    (/ (+ new (* avg n)) (1+ n)))
  * </pre>
  * Created by Frode Randers at 2012-09-21 14:29

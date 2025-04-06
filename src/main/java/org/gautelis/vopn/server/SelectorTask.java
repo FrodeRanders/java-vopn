@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2025 Frode Randers
+ * Copyright (C) 2025 Frode Randers
  * All rights reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,12 +15,25 @@
  * limitations under the License.
  *
  */
-package org.gautelis.vopn.queue;
+package org.gautelis.vopn.server;
 
-public interface WorkQueue {
-	void start();
-    void stop();
-	boolean execute(Runnable t);
-	boolean isEmpty();
-	long size();
+abstract class SelectorTask
+{
+    private final Request request;
+    private final int interest;
+
+    SelectorTask(Request request, int interest) {
+        this.request = request;
+        this.interest = interest;
+    }
+
+    Request getRequest() {
+        return request;
+    }
+
+    int getInterest() {
+        return interest;
+    }
+
+    abstract boolean isAdditive();
 }

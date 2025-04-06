@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2025 Frode Randers
+ * Copyright (C) 2025 Frode Randers
  * All rights reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,12 +15,15 @@
  * limitations under the License.
  *
  */
-package org.gautelis.vopn.queue;
+package org.gautelis.vopn.server;
 
-public interface WorkQueue {
-	void start();
-    void stop();
-	boolean execute(Runnable t);
-	boolean isEmpty();
-	long size();
+public interface Server {
+
+    void requestShutdown(String reason);
+
+    void start();
+
+    void stopping();
+
+    void stopped();
 }

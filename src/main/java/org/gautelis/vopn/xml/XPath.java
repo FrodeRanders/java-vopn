@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012-2020 Frode Randers
+ * Copyright (C) 2012-2025 Frode Randers
  * All rights reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -110,8 +110,8 @@ public class XPath {
             namespaces.applyNamespacesOn(xpath);
 
             Object node = xpath.selectSingleNode(element);
-            if (null != node && node instanceof OMElement) {
-                return (OMElement) node;
+            if (node instanceof OMElement e) {
+                return e;
             }
 
             if (acceptFailure) {

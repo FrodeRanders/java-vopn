@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012-2020 Frode Randers
+ * Copyright (C) 2012-2025 Frode Randers
  * All rights reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -41,7 +41,7 @@ import java.util.*;
  * Created by Frode Randers at 2012-04-11 21:50
  */
 public class Namespaces {
-    private Map<String, OMNamespace> namespaces = new HashMap<>();
+    private final Map<String, OMNamespace> namespaces = new HashMap<>();
 
     public Namespaces() {
         // No default namespaces defined yet...

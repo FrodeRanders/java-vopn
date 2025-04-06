@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2025 Frode Randers
+ * Copyright (C) 2025 Frode Randers
  * All rights reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,12 +15,26 @@
  * limitations under the License.
  *
  */
-package org.gautelis.vopn.queue;
+package org.gautelis.vopn.server;
 
-public interface WorkQueue {
-	void start();
-    void stop();
-	boolean execute(Runnable t);
-	boolean isEmpty();
-	long size();
+import java.nio.channels.SelectionKey;
+
+public class Request {
+    private final Session session;
+
+    Request(Session session) {
+        this.session = session;
+    }
+
+    Connection getConnection() {
+        return session.getConnection();
+    }
+
+    SelectionKey getKey() {
+        return session.getKey();
+    }
+
+    public Session getSession() {
+        return session;
+    }
 }
