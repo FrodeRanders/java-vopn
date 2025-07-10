@@ -42,7 +42,7 @@ public class MultiWorkQueue implements WorkQueue {
     /*
      * constructor to initiate worker threads and queue associated with it
      */
-    /* package private */ MultiWorkQueue(int nThreads) {
+    /* package visible only */ MultiWorkQueue(int nThreads) {
         this.nThreads = nThreads;
         threads = new PoolWorker[nThreads];
 

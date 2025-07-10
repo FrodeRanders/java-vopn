@@ -17,12 +17,27 @@
  */
 package org.gautelis.vopn.server;
 
+/**
+ * Represents a wish (task) for adding interest.
+ * Issued by a request processor thread, put on the SelectorQueue
+ * and picked up by the main server thread.
+ */
 class AdditiveSelectorTask extends SelectorTask
 {
+    /**
+     * Creates a additive selector task.
+     * @param request in question (just served)
+     * @param interest to be added
+     */
     AdditiveSelectorTask(Request request, int interest) {
         super(request, interest);
     }
 
+    /**
+     * Queries whether selector task adds interest.
+     * @return true if additive, false if subtractive
+     */
+    @Override
     boolean isAdditive() {
         return true;
     }

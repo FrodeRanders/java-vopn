@@ -28,7 +28,7 @@ import java.util.LinkedList;
 public class SelectorQueue extends LinkedList<SelectorTask> {
     private static final Logger log = LoggerFactory.getLogger(SelectorQueue.class);
 
-    public void addInterest(Request request, int interest) throws IOException {
+    public void addInterest(Request request, int interest) {
         if (log.isTraceEnabled()) {
             SelectionKey key = request.getKey();
             Session session = request.getSession();
@@ -46,7 +46,7 @@ public class SelectorQueue extends LinkedList<SelectorTask> {
         }
     }
     
-    public void removeInterest(Request request, int interest) throws IOException {
+    public void removeInterest(Request request, int interest) {
         if (log.isTraceEnabled()) {
             SelectionKey key = request.getKey();
             Session session = request.getSession();

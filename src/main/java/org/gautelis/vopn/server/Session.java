@@ -34,8 +34,8 @@ public class Session {
     private final SelectionKey key;
     private final Connection connection;
 
+    //
     private final Queue<ByteBuffer> pendingWrites = new LinkedList<>();
-
 
     // User identification stuff
     private String userId = null;
@@ -44,7 +44,7 @@ public class Session {
     // Authentication state
     private boolean authenticated = false;
 
-    Session(SelectionKey key, Server server) throws Exception {
+    /* package visible only */ Session(SelectionKey key, Server server) throws Exception {
         this.key = key;
 
         try {
@@ -60,18 +60,17 @@ public class Session {
 
     public void queueWrite(ByteBuffer data) {
         pendingWrites.add(data);
-        key.interestOps(SelectionKey.OP_WRITE);
     }
 
     public Queue<ByteBuffer> getPendingWrites() {
         return pendingWrites;
     }
 
-    SelectionKey getKey() {
+    public SelectionKey getKey() {
         return key;
     }
 
-    Connection getConnection() {
+    public Connection getConnection() {
         return connection;
     }
 

@@ -30,6 +30,7 @@ import org.gautelis.vopn.lang.ConfigurationTool;
 import org.gautelis.vopn.lang.TimeDelta;
 import org.gautelis.vopn.server.BasicServer;
 import org.gautelis.vopn.server.Configuration;
+import org.gautelis.vopn.server.RequestProcessor;
 import org.gautelis.vopn.server.Server;
 import org.gautelis.vopn.statistics.MovingAverage;
 import junit.framework.TestCase;
@@ -197,7 +198,7 @@ public class CommonTest extends TestCase {
 
                 Configuration config = ConfigurationTool.bindProperties(Configuration.class, properties);
 
-                server[0] = new BasicServer(config);
+                server[0] = new BasicServer<>(config, null);
                 server[0].start();
             }
             catch (Throwable t) {

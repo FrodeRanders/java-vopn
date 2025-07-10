@@ -40,7 +40,7 @@ public class SimpleWorkQueue implements WorkQueue {
     /* 
      * constructor to initiate worker threads and queue associated with it
      */
-    /* package private */ SimpleWorkQueue(int nThreads)
+    /* package visible only */ SimpleWorkQueue(int nThreads)
     {
         this.nThreads = nThreads;
         queue = new LinkedBlockingDeque<>();

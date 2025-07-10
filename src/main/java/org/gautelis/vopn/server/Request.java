@@ -22,15 +22,15 @@ import java.nio.channels.SelectionKey;
 public class Request {
     private final Session session;
 
-    Request(Session session) {
+    /* package visible only */ Request(Session session) {
         this.session = session;
     }
 
-    Connection getConnection() {
+    public Connection getConnection() {
         return session.getConnection();
     }
 
-    SelectionKey getKey() {
+    public SelectionKey getKey() {
         return session.getKey();
     }
 

@@ -17,12 +17,26 @@
  */
 package org.gautelis.vopn.server;
 
-class SubtractiveSelectorTask extends SelectorTask
+/**
+ * Represents a wish (task) for removing interest.
+ * Issued by a request processor thread, put on the SelectorQueue
+ * and picked up by the main server thread.
+ */class SubtractiveSelectorTask extends SelectorTask
 {
+    /**
+     * Creates a subtractive selector task.
+     * @param request in question (just served)
+     * @param interest to be removed
+     */
     SubtractiveSelectorTask(Request request, int interest) {
         super(request, interest);
     }
 
+    /**
+     * Queries whether selector task adds interest.
+     * @return true if additive, false if subtractive
+     */
+    @Override
     boolean isAdditive() {
         return false;
     }

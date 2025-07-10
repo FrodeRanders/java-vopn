@@ -26,14 +26,22 @@ import java.net.InetSocketAddress;
 import java.nio.channels.*;
 import java.nio.channels.spi.SelectorProvider;
 import java.util.Iterator;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.function.Consumer;
 
 
-public class BasicServer implements Server {
+public class BasicServer<T extends RequestProcessor> implements Server {
     private static final Logger log = LoggerFactory.getLogger(BasicServer.class);
 
-    private static final String THREAD_NAME = "Server (main loop)";
+    private static final String THREAD_NAME = "Server::eventloop";
+    private static int sequenceNumber = 0;
+
+    private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     private final Configuration config;
+    private final Consumer<T> consumer;
 
     // The selector is managed explicitly and closed during shutdown.
     // Suppressing IntelliJ's warning about try-with-resources.
@@ -48,10 +56,9 @@ public class BasicServer implements Server {
 
     //
 
-    public BasicServer(Configuration config) throws IOException {
-        Thread.currentThread().setName(THREAD_NAME);
-
+    public BasicServer(Configuration config, Consumer<T> consumer) throws IOException {
         this.config = config;
+        this.consumer = consumer;
         this.selector = SelectorProvider.provider().openSelector();
     }
 
@@ -67,6 +74,9 @@ public class BasicServer implements Server {
         for (int i = config.numRequestThreads(); i > 0; i--) {
             RequestProcessor processor = loader.createObject(className, pluginClass, /* no dynamic init */ null);
             processor.initialize(this, requestQueue, selectorQueue);
+            if (null != consumer) {
+                consumer.accept((T)processor);
+            }
             processor.start();
         }
     }
@@ -151,6 +161,7 @@ public class BasicServer implements Server {
             while (null != (task = selectorQueue.remove())) {
                 Request request = task.getRequest();
                 SelectionKey key = request.getKey();
+                @SuppressWarnings("resource")
                 SelectableChannel channel = key.channel();
 
                 if (key.isValid() && channel.isOpen() &&  key.selector().isOpen()) {
@@ -170,8 +181,16 @@ public class BasicServer implements Server {
             }
         }
     }
-    
+
     public void start() {
+        // Start the event loop on a separate thread.
+        //executorService.submit(this::eventLoop);
+        new Thread(this::eventLoop).start();
+    }
+
+    private void eventLoop() {
+        Thread.currentThread().setName(THREAD_NAME + "#" + (++sequenceNumber) + " (" + Thread.currentThread().threadId() + ")");
+
         try {
             String info = "Starting server on port " + config.localPort() + "...";
             log.info(info);
@@ -216,7 +235,7 @@ public class BasicServer implements Server {
                         break;
                     }
 
-                    // Selects a set of keys whose corresponding channels are ready for I/O operations.
+                    // The call to select() blocks until an event is ready
                     int numReadyKeys = selector.select();
                     if (numReadyKeys == 0) {
                         log.trace("No keys are ready after select, this is possibly a wakeup");

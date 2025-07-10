@@ -27,6 +27,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.NoSuchElementException;
 import java.util.Queue;
 
 public class RequestProcessor extends Thread {
@@ -45,18 +46,13 @@ public class RequestProcessor extends Thread {
     private Server server = null;
     private RequestQueue requestQueue = null;
     private volatile boolean shutdown = false;
-    private SelectorQueue selectorQueue = null;
-
-    //
-    public long getId() {
-        return threadId();
-    }
+    protected SelectorQueue selectorQueue = null;
 
     /**
      * Default constructor (needed since objects of this class are created dynamically).
      */
     public RequestProcessor() {
-        super(requestProcessorGroup, THREAD_NAME + " #" + (++sequenceNumber));
+        super(requestProcessorGroup, THREAD_NAME + "#" + (++sequenceNumber) + " (" + Thread.currentThread().threadId() + ")");
     }
 
     /**
@@ -71,6 +67,11 @@ public class RequestProcessor extends Thread {
         this.server = server;
         this.requestQueue = requestQueue;
         this.selectorQueue = selectorQueue;
+    }
+
+    //
+    public long getId() {
+        return threadId();
     }
 
     public void run() {
@@ -100,12 +101,12 @@ public class RequestProcessor extends Thread {
 
                 if (key.isWritable()) {
                     log.trace("Handling writable key: {}", key);
-                    handleWrite(request, session);
+                    handleWrite(request);
                 }
 
                 if (key.isReadable()) {
                     log.trace("Handling readable key: {}", key);
-                    handleRead(request, session);
+                    handleRead(request);
                 }
 
             } catch (InterruptedException e) {
@@ -118,7 +119,25 @@ public class RequestProcessor extends Thread {
         }
     }
 
-    private void handleRead(Request request, Session session) throws Exception {
+    protected void addInterest(Request request, int interest) throws IOException {
+        SelectionKey key = request.getKey();
+        if (key.isValid()) {
+            selectorQueue.addInterest(request, interest);
+        } else {
+            log.warn("Invalid key: Could not add interest {} from key {}", interest, key);
+        }
+    }
+
+    protected void removeInterest(Request request, int interest) throws IOException {
+        SelectionKey key = request.getKey();
+        if (key.isValid()) {
+            selectorQueue.removeInterest(request, interest);
+        } else {
+            log.warn("Invalid key: Could not remove interest {} from key {}", interest, key);
+        }
+    }
+
+    protected void handleRead(Request request) {
         log.trace("Handling read request: {}", request);
 
         try {
@@ -138,36 +157,43 @@ public class RequestProcessor extends Thread {
                 log.trace("Received: {}", charset.decode(msgBytes));
                 msgBytes.flip();
                 request.getSession().queueWrite(msgBytes);
+                addInterest(request, SelectionKey.OP_WRITE);
             }
 
-            if (request.getKey().isValid()) {
-                selectorQueue.addInterest(request, SelectionKey.OP_READ);
-            } else {
-                log.warn("Not adding selector task: key already invalid");
-            }
+            addInterest(request, SelectionKey.OP_READ);
+
         } catch (Exception e) {
-            log.error("Could not handle request: {}", e.getMessage(), e);
+            log.error("Could not handle read request: {}", e.getMessage(), e);
         }
     }
 
-    private void handleWrite(Request request, Session session) throws IOException {
+    protected void handleWrite(Request request) {
         log.trace("Handling write request: {}", request);
 
+        Session session = request.getSession();
         Queue<ByteBuffer> pendingWrites = session.getPendingWrites();
         Connection conn = session.getConnection();
 
-        while (!pendingWrites.isEmpty()) {
-            ByteBuffer buffer = pendingWrites.peek();
-            conn.write(buffer);
-            if (buffer.hasRemaining()) {
-                // Couldn’t write it all — register interest in an OP_WRITE
-                selectorQueue.addInterest(request, SelectionKey.OP_WRITE);
-                return;
+        try {
+            while (!pendingWrites.isEmpty()) {
+                ByteBuffer buffer = pendingWrites.peek();
+                conn.write(buffer);
+                if (buffer.hasRemaining()) {
+                    // Couldn’t write it all — register interest in an OP_WRITE
+                    addInterest(request, SelectionKey.OP_WRITE);
+                    return;
+                }
+                pendingWrites.remove(); // done with this buffer
             }
-            pendingWrites.remove(); // done with this buffer
-        }
 
-        selectorQueue.removeInterest(request, SelectionKey.OP_WRITE);
+            removeInterest(request, SelectionKey.OP_WRITE);
+        }
+        catch (NoSuchElementException nsee) {
+            log.error("List of pending writes modified elsewhere: {}", nsee.getMessage(), nsee);
+        }
+        catch (IOException ioe) {
+            log.error("Could not handle write request: {}", ioe.getMessage(), ioe);
+        }
     }
 
     /**
@@ -186,22 +212,6 @@ public class RequestProcessor extends Thread {
 
     static public Logger getLog() {
         return log;
-    }
-
-    /**
-     * This is a simple default implementation of the execute method, that
-     * will simply echo the command back to the caller. You have to override
-     * this method since it is not much use in this behaviour.
-     */
-    public int execute(Request request, String command, StringBuffer reply) throws Exception {
-
-        if (log.isTraceEnabled()) {
-            log.trace("thread#{} got command: {}", getId(), command);
-        }
-
-        // Some default ;-)
-        reply.append(command);
-        return 0;
     }
 
     /**

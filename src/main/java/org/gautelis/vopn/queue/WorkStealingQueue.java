@@ -43,7 +43,7 @@ public class WorkStealingQueue implements WorkQueue {
     /* 
      * constructor to initiate worker threads and queue associated with it
      */
-    /* package private */ WorkStealingQueue(int nThreads)
+    /* package visible only */ WorkStealingQueue(int nThreads)
     {
         this.nThreads = nThreads;
         threads = new PoolWorker[nThreads];
