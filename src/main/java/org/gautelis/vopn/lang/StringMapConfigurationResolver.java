@@ -53,14 +53,16 @@ public class StringMapConfigurationResolver implements ConfigurationTool.Configu
 
             if (log.isTraceEnabled()) {
                 String info = "Successfully resolved \"" + name + "\" from map: " + value;
+                /*
                 Exception syntheticException = new Exception();
                 for (StackTraceElement element : syntheticException.getStackTrace()) {
                     info += "\n at " + element.toString();
                 }
+                */
                 log.trace(info);
             }
         } else {
-            log.info("Unable to resolve \"{}\" from map", name);
+            log.trace("Unable to resolve \"{}\" from map", name);
         }
 
         return value;

@@ -61,13 +61,15 @@ public class JndiConfigurationResolver implements ConfigurationTool.Configuratio
 
                 if (null != value && log.isTraceEnabled()) {
                     String info = "Successfully resolved \"" + name + "\" from JNDI: " + value.toString();
+                    /*
                     Exception syntheticException = new Exception();
                     for (StackTraceElement element : syntheticException.getStackTrace()) {
                         info += "\n at " + element.toString();
                     }
+                    */
                     log.trace(info);
                 } else {
-                    log.info("Unable to resolve \"{}\" from JNDI", name);
+                    log.trace("Unable to resolve \"{}\" from JNDI", name);
                 }
                 return value;
 
@@ -78,13 +80,15 @@ public class JndiConfigurationResolver implements ConfigurationTool.Configuratio
 
                 if (null != value && log.isTraceEnabled()) {
                     String info = "Successfully resolved \"" + name + "\" from JNDI: " + value.toString();
+                    /*
                     Exception syntheticException = new Exception();
                     for (StackTraceElement element : syntheticException.getStackTrace()) {
                         info += "\n at " + element.toString();
                     }
+                    */
                     log.trace(info);
                 } else {
-                    log.info("Unable to resolve \"{}\" from JNDI", name);
+                    log.trace("Unable to resolve \"{}\" from JNDI", name);
                 }
                 return value;
             }

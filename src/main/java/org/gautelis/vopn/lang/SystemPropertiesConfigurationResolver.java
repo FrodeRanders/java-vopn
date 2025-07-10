@@ -36,14 +36,16 @@ public class SystemPropertiesConfigurationResolver implements ConfigurationTool.
 
             if (log.isTraceEnabled()) {
                 String info = "Successfully resolved \"" + name + "\" from system properties: " + value;
+                /*
                 Exception syntheticException = new Exception();
                 for (StackTraceElement element : syntheticException.getStackTrace()) {
                     info += "\n at " + element.toString();
                 }
+                */
                 log.trace(info);
             }
         } else {
-            log.info("Unable to resolve \"{}\" from system properties", name);
+            log.trace("Unable to resolve \"{}\" from system properties", name);
         }
         return value;
     }

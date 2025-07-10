@@ -51,14 +51,16 @@ public class SystemEnvironmentConfigurationResolver implements ConfigurationTool
 
             if (log.isTraceEnabled()) {
                 String info = "Successfully resolved \"" + _name + "\" from system environment: " + value;
+                /*
                 Exception syntheticException = new Exception();
                 for (StackTraceElement element : syntheticException.getStackTrace()) {
                     info += "\n at " + element.toString();
                 }
+                */
                 log.trace(info);
             }
         } else {
-            log.info("Unable to resolve \"{}\" from system environment", name);
+            log.trace("Unable to resolve \"{}\" from system environment", name);
         }
         return value;
     }
