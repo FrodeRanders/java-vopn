@@ -34,7 +34,10 @@ package  org.gautelis.vopn.statistics;
  * </pre>
  * Created by Frode Randers at 2012-09-21 14:29
  * Amended by Göran Lindqvist at 2012-09-22 17:26
+ *
+ * @deprecated Use RunningStatistics instead.
  */
+@Deprecated
 public class MovingAverage {
 
     private double min = 0.0;
