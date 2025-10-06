@@ -89,4 +89,8 @@ public class TimeDelta {
         }
         return result.trim();
     }
+
+    public static String asHumanApproximate(long milliseconds) {
+        return asHumanApproximate(BigInteger.valueOf(milliseconds));
+    }
 }
