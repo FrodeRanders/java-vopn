@@ -17,10 +17,15 @@
  */
 package org.gautelis.vopn.queue;
 
-public interface WorkQueue {
+import java.io.Closeable;
+import java.io.IOException;
+
+public interface WorkQueue extends Closeable {
 	void start();
     void stop();
 	boolean execute(Runnable t);
 	boolean isEmpty();
 	long size();
+
+    default void close() throws IOException { stop(); }
 }
