@@ -23,12 +23,13 @@
  * and remains the copyright holder of this material due to the
  * Teachers Exemption expressed in Swedish law (LAU 1949:345)
  */
-package  org.gautelis.vopn.lang.configuration;
+package org.gautelis.vopn.lang.configuration;
 
 import org.gautelis.vopn.lang.Configurable;
 import org.gautelis.vopn.lang.ConfigurationTool;
 
 import java.io.File;
+import java.lang.reflect.Array;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -45,64 +46,215 @@ public class GeneralizedConfigurationInvocationHandler implements InvocationHand
             "Dynamic configuration object handled by proxy by " +
                     GeneralizedConfigurationInvocationHandler.class.getSimpleName();
 
-    private Collection<ConfigurationTool.ConfigurationResolver> resolvers = new ArrayList<ConfigurationTool.ConfigurationResolver>();
+    // Use comma as a separator
+    // e.g. hosts=host1,host2,host3
+    private static final String DEFAULT_SEPARATOR_RE = "\\s*,\\s*";
 
-    // We don't have to expose this default resolver
-    private class DefaultResolver implements ConfigurationTool.ConfigurationResolver {
-        private Map<String, Object> map;
+    private final Collection<ConfigurationTool.ConfigurationResolver> resolvers =
+            new ArrayList<>();
+
+    /**
+     * Simple map-backed resolver. Keys are property names, values are Objects.
+     */
+    private static class DefaultResolver implements ConfigurationTool.ConfigurationResolver {
+        private final Map<String, Object> map;
 
         DefaultResolver(Map<String, Object> map) {
             this.map = map;
         }
 
+        @Override
         public Object resolve(String name) {
             return map.get(name);
         }
     }
 
     public GeneralizedConfigurationInvocationHandler(Map<String, Object> map) {
-        resolvers.add(new DefaultResolver(map));
+        this.resolvers.add(new DefaultResolver(map));
     }
 
-    public GeneralizedConfigurationInvocationHandler(Map<String, Object> map, Collection<ConfigurationTool.ConfigurationResolver> resolvers) {
+    public GeneralizedConfigurationInvocationHandler(
+            Map<String, Object> map,
+            Collection<ConfigurationTool.ConfigurationResolver> resolvers
+    ) {
         this.resolvers.addAll(resolvers);
         this.resolvers.add(new DefaultResolver(map));
     }
 
+    @Override
     public Object invoke(Object proxy, Method method, Object[] params) {
         if ("toString".equals(method.getName())) {
             return DESCRIPTION;
         }
 
         Configurable binding = method.getAnnotation(Configurable.class);
-        if (null == binding) {
+        if (binding == null) {
             throw new RuntimeException("Method is not bound to a Configurable property: " + method);
         }
 
         // If we have a Configurable property name, use it - otherwise fall back on method name...
-        String key = (null != binding.property() && !binding.property().isEmpty()) ? binding.property() : method.getName();
+        String key = (binding.property() != null && !binding.property().isEmpty())
+                ? binding.property()
+                : method.getName();
 
         Class<?> targetType = method.getReturnType();
-        Object value = null;
+
+        // Try all resolvers
         for (ConfigurationTool.ConfigurationResolver resolver : resolvers) {
-            value = resolver.resolve(key);
-            if (null != value) {
-                if (targetType.isAssignableFrom(value.getClass())) {
-                    return value;
-
-                } else if (File.class.equals(targetType) && String.class.equals(value.getClass())) {
-                    // Special, but common, configuration case
-                    return new File((String)value);
-
-                } else {
-                    throw new RuntimeException("Could not treat return value of " + method.getName() + " as '" + targetType.getName() + "' when in fact it was '" + value.getClass().getName() + "'");
-                }
+            Object value = resolver.resolve(key);
+            if (value != null) {
+                return cast(method.getName(), value, targetType);
             }
         }
-        if (targetType.isAssignableFrom(String.class)) {
-            // No configured value for this key - fall back on default value (if it is a String)
-            return binding.value().trim();
+
+        // No configured value - fall back to default from annotation (if any)
+        String defaultValue = binding.value();
+        if (defaultValue != null) {
+            defaultValue = defaultValue.trim();
         }
+        if (defaultValue != null && !defaultValue.isEmpty()) {
+            return cast(method.getName(), defaultValue, targetType);
+        }
+
+        // No value and no default
         return null;
+    }
+
+    /**
+     * Casts a raw value (usually from a resolver or annotation) to the method's return type.
+     * Supports arrays and scalar types.
+     */
+    private Object cast(String name, Object rawValue, Class<?> targetType) {
+        if (rawValue == null) {
+            return null;
+        }
+
+        // Already of correct type
+        if (targetType.isInstance(rawValue)) {
+            return rawValue;
+        }
+
+        // Arrays: String[], File[], int[], etc.
+        if (targetType.isArray()) {
+            return castArray(name, rawValue, targetType);
+        }
+
+        // Scalars
+        return castScalar(name, rawValue, targetType);
+    }
+
+    /**
+     * Handles array-typed return values.
+     *
+     * Supported sources:
+     *  - Already an array (compatible with component type)
+     *  - A Collection<?> (elements cast individually)
+     *  - A String, split with DEFAULT_SEPARATOR_RE
+     *  - A single scalar is treated as single-element array
+     */
+    private Object castArray(String name, Object rawValue, Class<?> arrayType) {
+        Class<?> componentType = arrayType.getComponentType();
+
+        // Already an array: try to cast elements
+        if (rawValue.getClass().isArray()) {
+            int length = Array.getLength(rawValue);
+            Object newArray = Array.newInstance(componentType, length);
+            for (int i = 0; i < length; i++) {
+                Object elementRaw = Array.get(rawValue, i);
+                Object element = castScalar(name + "[" + i + "]", elementRaw, componentType);
+                Array.set(newArray, i, element);
+            }
+            return newArray;
+        }
+
+        // Collection: cast each element
+        if (rawValue instanceof Collection<?>) {
+            Collection<?> coll = (Collection<?>) rawValue;
+            Object newArray = Array.newInstance(componentType, coll.size());
+            int i = 0;
+            for (Object elementRaw : coll) {
+                Object element = castScalar(name + "[" + i + "]", elementRaw, componentType);
+                Array.set(newArray, i, element);
+                i++;
+            }
+            return newArray;
+        }
+
+        // String: split on separator and cast each piece
+        if (rawValue instanceof String) {
+            String[] parts = ((String) rawValue).split(DEFAULT_SEPARATOR_RE);
+            Object newArray = Array.newInstance(componentType, parts.length);
+            for (int i = 0; i < parts.length; i++) {
+                String part = parts[i];
+                Object element = castScalar(name + "[" + i + "]", part, componentType);
+                Array.set(newArray, i, element);
+            }
+            return newArray;
+        }
+
+        // Single scalar or single-element array
+        Object newArray = Array.newInstance(componentType, 1);
+        Object element = castScalar(name + "[0]", rawValue, componentType);
+        Array.set(newArray, 0, element);
+        return newArray;
+    }
+
+    /**
+     * Handles only scalar (non-array) types.
+     */
+    private Object castScalar(String name, Object rawValue, Class<?> targetType) {
+        if (rawValue == null) {
+            return null;
+        }
+
+        // If already correct type, done.
+        if (targetType.isInstance(rawValue)) {
+            return rawValue;
+        }
+
+        // We'll mostly normalize via String representation when needed
+        String asString = rawValue.toString();
+
+        // String
+        if (targetType == String.class) {
+            return asString;
+        }
+
+        // Integer / int
+        if (targetType == Integer.class || targetType == int.class) {
+            try {
+                return Integer.parseInt(asString);
+            } catch (NumberFormatException nfe) {
+                throw new RuntimeException(
+                        "Could not treat return value of " + name + " as integer: \"" + asString + "\"", nfe
+                );
+            }
+        }
+
+        // Boolean / boolean
+        if (targetType == Boolean.class || targetType == boolean.class) {
+            // Accept actual Boolean, "true"/"false", etc.
+            if (rawValue instanceof Boolean) {
+                return rawValue;
+            }
+            return Boolean.parseBoolean(asString);
+        }
+
+        // File
+        if (targetType == File.class) {
+            if (rawValue instanceof File) {
+                return rawValue;
+            }
+            return new File(asString);
+        }
+
+        // Other numeric types could be added here (Long, Double, etc.)
+
+        // Fallback – if we get here, we don't know how to cast
+        throw new RuntimeException(
+                "Could not treat return value of " + name +
+                " as '" + targetType.getName() +
+                "' when in fact it was '" + rawValue.getClass().getName() + "'"
+        );
     }
 }

@@ -32,6 +32,7 @@ import org.gautelis.vopn.lang.StringMapConfigurationResolver;
 import java.io.File;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import java.lang.reflect.Array;
 import java.util.*;
 
 /**
@@ -43,6 +44,10 @@ public class PropertiesConfigurationInvocationHandler implements InvocationHandl
     private static final String DESCRIPTION =
             "Dynamic configuration object handled by proxy by " +
                     PropertiesConfigurationInvocationHandler.class.getSimpleName();
+
+    // Use comma as a separator
+    // e.g. hosts=host1,host2,host3
+    private static final String DEFAULT_SEPARATOR_RE = "\\s*,\\s*";
 
     private Collection<ConfigurationTool.ConfigurationResolver> resolvers = new ArrayList<ConfigurationTool.ConfigurationResolver>();
 
@@ -82,9 +87,8 @@ public class PropertiesConfigurationInvocationHandler implements InvocationHandl
         // Properties only deals with Strings, so we will have to cast the
         // value into the correct type - identified by the method return type.
         //-----------------------------------------------------------------------
-        Object value = null;
         for (ConfigurationTool.ConfigurationResolver resolver : resolvers) {
-            value = resolver.resolve(key);
+            Object value = resolver.resolve(key);
             if (null != value) {
                 return cast(method.getName(), ((String)value).trim(), method.getReturnType());
             }
@@ -93,28 +97,58 @@ public class PropertiesConfigurationInvocationHandler implements InvocationHandl
     }
 
     private Object cast(String name, String value, Class<?> targetType) {
-        if (null == value) {
+        if (value == null) {
+            return null;
+        }
+
+        // Handle array types first: String[], File[], int[], etc.
+        if (targetType.isArray()) {
+            Class<?> componentType = targetType.getComponentType();
+
+            String[] parts = value.split(DEFAULT_SEPARATOR_RE);
+
+            Object array = Array.newInstance(componentType, parts.length);
+            for (int i = 0; i < parts.length; i++) {
+                String elementValue = parts[i];
+
+                // Scalar casting logic for each element
+                Object element = castScalar(name + "[" + i + "]", elementValue, componentType);
+                Array.set(array, i, element);
+            }
+            return array;
+        }
+
+        // Non-array types
+        return castScalar(name, value, targetType);
+    }
+
+    /**
+     * Handles only scalar (non-array) types.
+     */
+    private Object castScalar(String name, String value, Class<?> targetType) {
+        if (value == null) {
             return null;
         }
 
         if (targetType.isAssignableFrom(String.class)) {
             return value;
-        } else if (targetType.isAssignableFrom(Integer.class) || targetType.isAssignableFrom(int.class)) {
+
+        } else if (targetType == Integer.class || targetType == int.class) {
             try {
                 return Integer.parseInt(value);
             } catch (NumberFormatException nfe) {
-                throw new RuntimeException("Could not treat return value of " + name + " as integer.");
+                throw new RuntimeException("Could not treat return value of " + name + " as integer: \"" + value + "\"");
             }
-        } else if (targetType.isAssignableFrom(Boolean.class) || targetType.isAssignableFrom(boolean.class)) {
-            return value.equalsIgnoreCase("true");
 
-        } else if (File.class.equals(targetType)) {
-            // Special, but common, configuration case
-            return new File(/* path or filename */ value);
+        } else if (targetType == Boolean.class || targetType == boolean.class) {
+            return Boolean.parseBoolean(value);
+
+        } else if (targetType == File.class) {
+            return new File(value);
 
         } else {
+            // Fallback
             return value;
         }
-        // Expect to add more casts :-)
     }
 }
