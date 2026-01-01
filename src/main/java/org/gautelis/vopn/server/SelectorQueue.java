@@ -25,9 +25,19 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.util.LinkedList;
 
+/**
+ * Queue of selector interest updates posted by request processors and
+ * applied by the server event loop.
+ */
 public class SelectorQueue extends LinkedList<SelectorTask> {
     private static final Logger log = LoggerFactory.getLogger(SelectorQueue.class);
 
+    /**
+     * Enqueue a request to add interest ops for the given selection key.
+     *
+     * @param request request owning the key
+     * @param interest selection key interest to add
+     */
     public void addInterest(Request request, int interest) {
         if (log.isTraceEnabled()) {
             SelectionKey key = request.getKey();
@@ -46,6 +56,12 @@ public class SelectorQueue extends LinkedList<SelectorTask> {
         }
     }
     
+    /**
+     * Enqueue a request to remove interest ops for the given selection key.
+     *
+     * @param request request owning the key
+     * @param interest selection key interest to remove
+     */
     public void removeInterest(Request request, int interest) {
         if (log.isTraceEnabled()) {
             SelectionKey key = request.getKey();
@@ -64,6 +80,11 @@ public class SelectorQueue extends LinkedList<SelectorTask> {
         }
     }
 
+    /**
+     * Removes and returns the next selector task, or {@code null} if empty.
+     *
+     * @return next selector task or {@code null}
+     */
     @Override
     public synchronized SelectorTask remove() {
         if (this.isEmpty()) {

@@ -26,20 +26,40 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 
+/**
+ * Thread-safe queue of sessions waiting to be processed by request processors.
+ */
 public class RequestQueue {
     private static final Logger log = LoggerFactory.getLogger(RequestQueue.class);
 
     private final BlockingQueue<Session> queue = new LinkedBlockingQueue<>();
 
+    /**
+     * Enqueues a session for processing.
+     *
+     * @param session session to enqueue
+     * @return {@code true} if the session was accepted
+     */
     public boolean insert(Session session) {
         log.trace("Adding session: {}", session);
         return queue.offer(session); // or queue.put(session) to block if full
     }
 
+    /**
+     * Removes and returns the next session, blocking if none are available.
+     *
+     * @return next session
+     * @throws InterruptedException if interrupted while waiting
+     */
     public Session take() throws InterruptedException {
         return queue.take(); // blocks until available
     }
 
+    /**
+     * Returns whether the queue is empty.
+     *
+     * @return {@code true} if empty
+     */
     public boolean isEmpty() {
         return queue.isEmpty();
     }

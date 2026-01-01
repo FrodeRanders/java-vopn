@@ -85,12 +85,12 @@ public final class RunningStatistics {
      * The standard deviation is the “typical” distance of a data point from the mean.
      * <p>
      * What it tells you:
-     * <li><i>Spread:</i> A larger s means the observations are more dispersed;
+     * <i>Spread:</i> A larger s means the observations are more dispersed;
      *       a smaller s means they are tightly clustered around the mean.
-     * </li>
-     * <li><i>Scale-aware:</i> Because s uses the original units, you can read
+     *
+     * <i>Scale-aware:</i> Because s uses the original units, you can read
      *      it directly: "latency is ~ 80 ms +/- 7 ms".
-     * </li>
+     *
      */
     public double getStdDev() {
         return Math.sqrt(getVariance());
@@ -103,13 +103,13 @@ public final class RunningStatistics {
      * so the unit cancels out.
      * <p>
      * What it tells you:
-     * <li><i>Comparability across metrics:</i> You can line up the CV of packet
+     * <i>Comparability across metrics:</i> You can line up the CV of packet
      *       latency (ms), request size (kB) and CPU load (%) and immediately
      *       see which one fluctuates most relative to its typical value.
-     * </li>
-     * <li><i>Dimensionless scaling:</i> Useful when the magnitudes differ by orders
+     *
+     * <i>Dimensionless scaling:</i> Useful when the magnitudes differ by orders
      * 	     (e.g. response times measured in both seconds and minutes).
-     * </li>
+     * 
      */
     public double getCV() {
         return (count > 1 && mean != 0.0) ? 100.0 * getStdDev() / mean : Double.NaN;

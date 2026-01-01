@@ -19,5 +19,8 @@ package org.gautelis.vopn.server;
 
 import java.util.Map;
 
+/**
+ * Simple string-to-string map for command execution context.
+ */
 public interface CommandContext extends Map<String, String> {
 }

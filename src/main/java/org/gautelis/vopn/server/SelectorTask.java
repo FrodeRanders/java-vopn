@@ -17,23 +17,46 @@
  */
 package org.gautelis.vopn.server;
 
-abstract class SelectorTask
-{
+/**
+ * Base class for selector interest update tasks.
+ */
+abstract class SelectorTask {
     private final Request request;
     private final int interest;
 
+    /**
+     * Creates a selector task for a request and interest mask.
+     *
+     * @param request request owning the selection key
+     * @param interest interest ops to add or remove
+     */
     SelectorTask(Request request, int interest) {
         this.request = request;
         this.interest = interest;
     }
 
+    /**
+     * Returns the request tied to this task.
+     *
+     * @return request instance
+     */
     Request getRequest() {
         return request;
     }
 
+    /**
+     * Returns the selection key interest mask.
+     *
+     * @return interest ops
+     */
     int getInterest() {
         return interest;
     }
 
+    /**
+     * Returns whether this task adds or removes interest.
+     *
+     * @return {@code true} if additive
+     */
     abstract boolean isAdditive();
 }

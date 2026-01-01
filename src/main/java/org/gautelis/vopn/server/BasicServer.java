@@ -32,6 +32,11 @@ import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 
 
+/**
+ * Non-blocking server implementation backed by a selector and request processors.
+ *
+ * @param <T> request processor type
+ */
 public class BasicServer<T extends RequestProcessor> implements Server {
     private static final Logger log = LoggerFactory.getLogger(BasicServer.class);
 
@@ -56,6 +61,13 @@ public class BasicServer<T extends RequestProcessor> implements Server {
 
     //
 
+    /**
+     * Creates a server using the provided configuration and processor hook.
+     *
+     * @param config server configuration
+     * @param consumer optional callback for each created request processor
+     * @throws IOException if selector initialization fails
+     */
     public BasicServer(Configuration config, Consumer<T> consumer) throws IOException {
         this.config = config;
         this.consumer = consumer;
@@ -81,6 +93,11 @@ public class BasicServer<T extends RequestProcessor> implements Server {
         }
     }
 
+    /**
+     * Requests that the event loop exits and shutdown begins.
+     *
+     * @param reason reason for shutdown, used for logging
+     */
     public void requestShutdown(String reason) {
         synchronized (this) {
             shutdownRequest = (null != reason ? reason : "?unknown? reason");
@@ -182,6 +199,9 @@ public class BasicServer<T extends RequestProcessor> implements Server {
         }
     }
 
+    /**
+     * Starts the server event loop in a background thread.
+     */
     public void start() {
         // Start the event loop on a separate thread.
         //executorService.submit(this::eventLoop);

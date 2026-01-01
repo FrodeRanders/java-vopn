@@ -30,6 +30,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.NoSuchElementException;
 import java.util.Queue;
 
+/**
+ * Worker thread that handles IO for sessions queued by the server.
+ */
 public class RequestProcessor extends Thread {
     private static final Logger log = LoggerFactory.getLogger(RequestProcessor.class);
 
@@ -59,9 +62,9 @@ public class RequestProcessor extends Thread {
      * <b>Must</b> be called ahead of start().
      * <p>
      *
-     * @param server
-     * @param requestQueue
-     * @param selectorQueue
+     * @param server owning server instance
+     * @param requestQueue queue of sessions to process
+     * @param selectorQueue queue for selector interest updates
      */
     public void initialize(Server server, RequestQueue requestQueue, SelectorQueue selectorQueue) {
         this.server = server;
@@ -69,11 +72,18 @@ public class RequestProcessor extends Thread {
         this.selectorQueue = selectorQueue;
     }
 
-    //
+    /**
+     * Returns the thread id.
+     *
+     * @return thread id
+     */
     public long getId() {
         return threadId();
     }
 
+    /**
+     * Main processing loop for queued sessions.
+     */
     public void run() {
         log.debug("thread#{} started...", getId());
 
@@ -119,6 +129,13 @@ public class RequestProcessor extends Thread {
         }
     }
 
+    /**
+     * Requests adding interest ops for a selection key.
+     *
+     * @param request request being processed
+     * @param interest interest ops to add
+     * @throws IOException if selector update fails
+     */
     protected void addInterest(Request request, int interest) throws IOException {
         SelectionKey key = request.getKey();
         if (key.isValid()) {
@@ -128,6 +145,13 @@ public class RequestProcessor extends Thread {
         }
     }
 
+    /**
+     * Requests removing interest ops for a selection key.
+     *
+     * @param request request being processed
+     * @param interest interest ops to remove
+     * @throws IOException if selector update fails
+     */
     protected void removeInterest(Request request, int interest) throws IOException {
         SelectionKey key = request.getKey();
         if (key.isValid()) {
@@ -137,6 +161,11 @@ public class RequestProcessor extends Thread {
         }
     }
 
+    /**
+     * Handles inbound read readiness for a request.
+     *
+     * @param request request being processed
+     */
     protected void handleRead(Request request) {
         log.trace("Handling read request: {}", request);
 
@@ -167,6 +196,11 @@ public class RequestProcessor extends Thread {
         }
     }
 
+    /**
+     * Handles outbound write readiness for a request.
+     *
+     * @param request request being processed
+     */
     protected void handleWrite(Request request) {
         log.trace("Handling write request: {}", request);
 
@@ -206,10 +240,20 @@ public class RequestProcessor extends Thread {
         log.info("thread#{} got shutdown signal", getId());
     }
 
+    /**
+     * Returns the thread group holding request processors.
+     *
+     * @return request processor thread group
+     */
     static ThreadGroup getProcessorThreadGroup() {
         return requestProcessorGroup;
     }
 
+    /**
+     * Returns the logger for request processors.
+     *
+     * @return logger instance
+     */
     static public Logger getLog() {
         return log;
     }
