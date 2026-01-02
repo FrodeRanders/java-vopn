@@ -30,42 +30,69 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-/*
- * Implements a data source that does not cache (large) files in memory.
+/**
+ * DataSource implementation that streams data without caching in memory.
  * <p>
- * Is assumed to be used together with a javax.activation.DataHandler (like this)
+ * Intended for use with {@code javax.activation.DataHandler}, for example:
  * <pre>
  *     InputStream is = request.getInputStream();
  *     StreamingDataSource ds = new StreamingDataSource("doc.xml", "text/xml", is);
  *     DataHandler dh = new javax.activation.DataHandler(ds);
  * </pre>
- * <p>
- * Created by Frode Randers at 2012-11-29 15:37
  */
 public class StreamingDataSource implements DataSource {
 
-    private String name;
-    private String mimeType;
-    private InputStream inputStream;
+    private final String name;
+    private final String mimeType;
+    private final InputStream inputStream;
 
+    /**
+     * Creates a streaming datasource.
+     *
+     * @param name datasource name
+     * @param mimeType mime type
+     * @param inputStream input stream to expose
+     */
     public StreamingDataSource(String name, String mimeType, InputStream inputStream) {
         this.name = name;
         this.mimeType = mimeType;
         this.inputStream = inputStream;
     }
 
+    /**
+     * Returns the datasource name.
+     *
+     * @return datasource name
+     */
     public String getName() {
             return name;
     }
 
+    /**
+     * Returns the MIME type.
+     *
+     * @return MIME type
+     */
     public String getContentType() {
         return mimeType;
     }
 
+    /**
+     * Returns the backing input stream.
+     *
+     * @return input stream
+     * @throws IOException if the stream cannot be accessed
+     */
     public InputStream getInputStream() throws IOException {
         return inputStream;
     }
 
+    /**
+     * Output streams are not supported for this datasource.
+     *
+     * @return never returns normally
+     * @throws IOException always throws UnsupportedOperationException
+     */
     public OutputStream getOutputStream() throws IOException {
         throw new UnsupportedOperationException();
     }

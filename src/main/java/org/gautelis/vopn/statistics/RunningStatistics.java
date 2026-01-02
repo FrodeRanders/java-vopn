@@ -30,6 +30,11 @@ public final class RunningStatistics {
     private double max    = Double.NaN;
     private long   total  = 0L; // integral total (where meaningful)
 
+    /**
+     * Adds a numeric sample to the running statistics.
+     *
+     * @param x sample value
+     */
     public void addSample(double x) {
         if (count == 0) {
             min = max = x;
@@ -47,26 +52,57 @@ public final class RunningStatistics {
         m2 += delta * delta2;
     }
 
+    /**
+     * Adds a sample using the elapsed time between two instants.
+     *
+     * @param start start instant
+     * @param end end instant
+     */
     public void addSample(Instant start, Instant end) {
         addSample(end.toEpochMilli() - start.toEpochMilli());
     }
 
+    /**
+     * Returns the number of samples processed.
+     *
+     * @return sample count
+     */
     public long getCount() {
         return count;
     }
 
+    /**
+     * Returns the minimum sample value.
+     *
+     * @return minimum value
+     */
     public double getMin() {
         return min;
     }
 
+    /**
+     * Returns the maximum sample value.
+     *
+     * @return maximum value
+     */
     public double getMax() {
         return max;
     }
 
+    /**
+     * Returns the running mean.
+     *
+     * @return mean value
+     */
     public double getMean() {
         return mean;
     }
 
+    /**
+     * Returns the integer total of samples (rounded per sample).
+     *
+     * @return total value
+     */
     public long getTotal() {
         return total;
     }

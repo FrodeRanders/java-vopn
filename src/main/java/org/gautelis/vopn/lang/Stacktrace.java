@@ -28,13 +28,16 @@ package  org.gautelis.vopn.lang;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintWriter;
 
-/*
- * Description of Stacktrace
- * <p>
- * <p>
- * Created by Frode Randers at 2011-11-04 14:14
+/**
+ * Utility helpers for rendering stack traces and extracting root causes.
  */
 public class Stacktrace {
+    /**
+     * Renders a throwable stack trace as a string.
+     *
+     * @param t throwable to render
+     * @return stack trace string
+     */
 	public static String asString(Throwable t) {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         PrintWriter writer = new PrintWriter(bytes, true);
@@ -45,6 +48,12 @@ public class Stacktrace {
         return bytes.toString();
 	}
 
+    /**
+     * Returns the deepest cause in a throwable chain.
+     *
+     * @param t throwable to inspect
+     * @return deepest cause or the original throwable
+     */
     public static Throwable getBaseCause(Throwable t) {
         Throwable cause = null;
         Throwable c = t.getCause();

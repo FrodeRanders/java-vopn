@@ -34,6 +34,7 @@ import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 /**
@@ -45,6 +46,10 @@ public class FileIO {
 
     /**
      * A nice one: http://thomaswabner.wordpress.com/2007/10/09/fast-stream-copy-using-javanio-channels/
+     *
+     * @param src source channel
+     * @param dest destination channel
+     * @throws IOException if a read or write fails
      */
     public static void fastChannelCopy(final ReadableByteChannel src, final WritableByteChannel dest) throws IOException {
         final ByteBuffer buffer = ByteBuffer.allocateDirect(16 * 1024);
@@ -77,6 +82,10 @@ public class FileIO {
 
     /**
      * Copies a file or a directory (including subdirectories)
+     *
+     * @param src source file or directory
+     * @param dest destination file or directory
+     * @throws IOException if copying fails
      */
     public static void copy(final File src, final File dest) throws IOException {
         if (src.isDirectory()) {
@@ -86,8 +95,10 @@ public class FileIO {
 
             // Copy everything in directory
             String[] children = src.list();
-            for (String child : children) {
-                copy(new File(src, child), new File(dest, child));
+            if (null != children) {
+                for (String child : children) {
+                    copy(new File(src, child), new File(dest, child));
+                }
             }
         } else {
             try (ReadableByteChannel in = Channels.newChannel(new FileInputStream(src))) {
@@ -100,6 +111,11 @@ public class FileIO {
 
     /**
      * Writes from an InputStream to a file
+     *
+     * @param inputStream source stream
+     * @param file destination file
+     * @return destination file
+     * @throws IOException if writing fails
      */
     public static File writeToFile(InputStream inputStream, File file) throws IOException {
 
@@ -115,6 +131,12 @@ public class FileIO {
 
     /**
      * Writes from an InputStream to a temporary file
+     *
+     * @param inputStream source stream
+     * @param prefix temp file prefix
+     * @param suffix temp file suffix
+     * @return created temp file
+     * @throws IOException if writing fails
      */
     public static File writeToTempFile(InputStream inputStream, String prefix, String suffix) throws IOException {
 
@@ -125,22 +147,33 @@ public class FileIO {
 
     /**
      * Writes from a String to a temporary file
+     *
+     * @param buf content to write
+     * @param prefix temp file prefix
+     * @param suffix temp file suffix
+     * @return created temp file
+     * @throws IOException if writing fails
      */
     public static File writeToTempFile(String buf, String prefix, String suffix) throws IOException {
 
-        InputStream is = new ByteArrayInputStream(buf.getBytes("UTF-8"));
+        InputStream is = new ByteArrayInputStream(buf.getBytes(StandardCharsets.UTF_8));
         return writeToTempFile(is, prefix, suffix);
     }
 
     /**
      * Writes a ByteBuffer (internally a series of byte[]) to a temporary file
+     *
+     * @param byteBuffer buffer to write
+     * @param prefix temp file prefix
+     * @param suffix temp file suffix
+     * @return created temp file
+     * @throws IOException if writing fails
      */
     public static File writeToTempFile(ByteBuffer byteBuffer, String prefix, String suffix) throws IOException {
-        File tmpOutputFile = null;
+        File tmpOutputFile = File.createTempFile(prefix, "." + suffix);
 
         try (RandomAccessFile outputRaf = new RandomAccessFile(tmpOutputFile, "rw")) {
             // Create temporary file
-            tmpOutputFile = File.createTempFile(prefix, "." + suffix);
             FileChannel outputChannel = outputRaf.getChannel();
 
             outputChannel.write(byteBuffer);
@@ -154,13 +187,19 @@ public class FileIO {
 
     /**
      * Writes a ByteBuffer (internally a series of byte[]) to a temporary file
+     *
+     * @param byteBuffer buffer to write
+     * @param directory directory for the temp file
+     * @param prefix temp file prefix
+     * @param suffix temp file suffix
+     * @return created temp file
+     * @throws IOException if writing fails
      */
     public static File writeToTempFile(ByteBuffer byteBuffer, File directory, String prefix, String suffix) throws IOException {
-        File tmpOutputFile = null;
+        File tmpOutputFile = File.createTempFile(prefix, "." + suffix, directory);
 
         try (RandomAccessFile outputRaf = new RandomAccessFile(tmpOutputFile, "rw")) {
             // Create temporary file
-            tmpOutputFile = File.createTempFile(prefix, "." + suffix, directory);
             FileChannel outputChannel = outputRaf.getChannel();
 
             outputChannel.write(byteBuffer);
@@ -174,13 +213,18 @@ public class FileIO {
 
     /**
      * Writes a list of byte[] to a temporary file
+     *
+     * @param bytesList list of byte arrays to write
+     * @param prefix temp file prefix
+     * @param suffix temp file suffix
+     * @return created temp file
+     * @throws IOException if writing fails
      */
     public static File writeToTempFile(List<byte[]> bytesList, String prefix, String suffix) throws IOException {
-        File tmpOutputFile = null;
+        File tmpOutputFile = File.createTempFile(prefix, "." + suffix);
 
         try (RandomAccessFile outputRaf = new RandomAccessFile(tmpOutputFile, "rw")) {
             // Create temporary file
-            tmpOutputFile = File.createTempFile(prefix, "." + suffix);
             FileChannel outputChannel = outputRaf.getChannel();
 
             for (byte[] bytes : bytesList) {
@@ -207,6 +251,7 @@ public class FileIO {
      * Removes a file or, if a directory, a directory substructure...
      * <p>
      * @param d a file or a directory
+     * @return {@code true} if the target was deleted or did not exist
      */
     public static boolean delete(File d) {
         if (null == d || !d.exists())
@@ -231,9 +276,10 @@ public class FileIO {
      * Retrieves file from a remote location identified by a URL.
      * <p>
      *
-     * @param url
-     * @return
-     * @throws IOException
+     * @param url remote location
+     * @param keepAlive whether to request keep-alive
+     * @return downloaded temporary file
+     * @throws IOException if download fails
      */
     public static File getRemoteFile(URL url, boolean keepAlive) throws IOException {
         File downloadedFile = File.createTempFile("downloaded-", ".bytes");

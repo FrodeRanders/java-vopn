@@ -87,7 +87,7 @@ public class BasicServer<T extends RequestProcessor> implements Server {
             RequestProcessor processor = loader.createObject(className, pluginClass, /* no dynamic init */ null);
             processor.initialize(this, requestQueue, selectorQueue);
             if (null != consumer) {
-                consumer.accept((T)processor);
+                consumer.accept((T) processor);
             }
             processor.start();
         }

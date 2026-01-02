@@ -97,7 +97,7 @@ public class Database {
     }
 
     // 
-    private static DynamicLoader<DataSource> loader = new DynamicLoader<>("datasource");
+    private static final DynamicLoader<DataSource> loader = new DynamicLoader<>("datasource");
     
     //
     private Database() {
@@ -110,8 +110,7 @@ public class Database {
      * @return a configuration proxy object bound to the provided properties.
      */
     public static Configuration getConfiguration(Properties properties) {
-        Configuration config = ConfigurationTool.bindProperties(Configuration.class, properties);
-        return config;
+        return ConfigurationTool.bindProperties(Configuration.class, properties);
     }
 
     /**
@@ -243,11 +242,16 @@ public class Database {
      * @return a datasource matching the provided configuration.
      * @throws DatabaseException if a suitable driver was not found or could not be instantiated.
      */
-    public static DataSource getDataSource(Configuration config, DataSourcePreparation preparation) throws DatabaseException {
+    public static <T extends DataSource> T getDataSource(
+            Configuration config,
+            DataSourcePreparation<T> preparation
+    ) throws DatabaseException {
         Objects.requireNonNull(preparation, "preparation");
 
         DataSource ds = getDataSource(config);
-        return preparation.prepare(ds, config);
+        @SuppressWarnings("unchecked")
+        T typed = (T) ds;
+        return preparation.prepare(typed, config);
     }
 
     /**
@@ -257,8 +261,8 @@ public class Database {
      * @return Class matching specified parameter class name
      * @throws ClassNotFoundException if no Class matches specified class name
      */
-    public static Class loadDataSource(String className) throws ClassNotFoundException {
-        return loader.createClass(className);
+    public static Class<? extends DataSource> loadDataSource(String className) throws ClassNotFoundException {
+        return (Class<? extends DataSource>) loader.createClass(className);
     }
 
     /**
@@ -268,12 +272,15 @@ public class Database {
      * @param clazz specifies the class from which the object will be drawn.
      * @return datasource
      */
-    public static DataSource createDataSource(String className, Class clazz) throws ClassNotFoundException, ClassCastException {
+    public static DataSource createDataSource(
+            String className,
+            Class<? extends DataSource> clazz
+    ) throws ClassNotFoundException, ClassCastException {
 
         if (!DataSource.class.isAssignableFrom(clazz)) {
             String info = "A " + className + " does not qualify as a " + DataSource.class.getName() + "! ";
 
-            Class candidate = clazz;
+            Class<?> candidate = clazz;
             while (null != candidate) {
                 if (Driver.class.isAssignableFrom(candidate)) {
                     info += "This is a " + Driver.class.getName() + ", which is not quite the same.";

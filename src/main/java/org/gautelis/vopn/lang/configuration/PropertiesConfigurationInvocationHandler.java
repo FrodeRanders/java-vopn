@@ -51,6 +51,11 @@ public class PropertiesConfigurationInvocationHandler implements InvocationHandl
 
     private Collection<ConfigurationTool.ConfigurationResolver> resolvers = new ArrayList<ConfigurationTool.ConfigurationResolver>();
 
+    /**
+     * Creates a handler backed by a properties object.
+     *
+     * @param properties configuration properties
+     */
     public PropertiesConfigurationInvocationHandler(Properties properties) {
         Map<String, String> map = new HashMap<String, String>();
         for (Map.Entry<?,?> entry : properties.entrySet()) {
@@ -59,6 +64,12 @@ public class PropertiesConfigurationInvocationHandler implements InvocationHandl
         resolvers.add(new StringMapConfigurationResolver(map));
     }
 
+    /**
+     * Creates a handler backed by properties and additional resolvers.
+     *
+     * @param properties configuration properties
+     * @param resolvers additional configuration resolvers
+     */
     public PropertiesConfigurationInvocationHandler(
             Properties properties, Collection<ConfigurationTool.ConfigurationResolver> resolvers
     ) {
@@ -70,6 +81,14 @@ public class PropertiesConfigurationInvocationHandler implements InvocationHandl
         resolvers.add(new StringMapConfigurationResolver(map));
     }
 
+    /**
+     * Resolves configuration values for proxy method invocations.
+     *
+     * @param proxy proxy instance
+     * @param method configuration method
+     * @param params invocation parameters
+     * @return resolved value
+     */
     public Object invoke(Object proxy, Method method, Object[] params) {
         if ("toString".equals(method.getName())) {
             return DESCRIPTION;

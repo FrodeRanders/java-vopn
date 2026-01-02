@@ -31,6 +31,11 @@ package org.gautelis.vopn.db.utils;
  * Created by Frode Randers at 2011-11-04 14:14
  */
 public class ManagerException extends Exception {
+    /**
+     * Creates a manager exception with a message.
+     *
+     * @param msg error message
+     */
     public ManagerException(String msg) {
         super(msg);
     }

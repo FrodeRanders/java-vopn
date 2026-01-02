@@ -86,10 +86,10 @@ public class DynamicInvoker {
      * @param parameterTypes an array of parameter types (Class) matching parameters array
      * @throws ClassNotFoundException - if method is not found, method is not public, parameters does not match, etc.
      */
-    public void invoke(String className, String methodName, Object[] parameters, Class[] parameterTypes)
+    public void invoke(String className, String methodName, Object[] parameters, Class<?>[] parameterTypes)
         throws Throwable {
 
-        Class clazz = createClass(className);
+        Class<?> clazz = createClass(className);
         Object object = createObject(className, clazz);
         callMethodOn(clazz, object, methodName, parameters, parameterTypes);
     }
@@ -97,8 +97,8 @@ public class DynamicInvoker {
     /**
      * Dynamically loads the named class (fully qualified classname).
      */
-    private Class createClass(String className) throws ClassNotFoundException {
-        Class clazz;
+    private Class<?> createClass(String className) throws ClassNotFoundException {
+        Class<?> clazz;
         try {
             URLClassLoader classLoader = URLClassLoader.newInstance(new URL[]{root.toURI().toURL()});
             if (log.isDebugEnabled()) {
@@ -140,10 +140,10 @@ public class DynamicInvoker {
     /**
      * Dynamically creates an object
      */
-    public Object createObject(String className, Class clazz) throws ClassNotFoundException {
+    public Object createObject(String className, Class<?> clazz) throws ClassNotFoundException {
         Object object;
         try {
-            object = clazz.newInstance();
+            object = clazz.getDeclaredConstructor().newInstance();
 
         } catch (InstantiationException ie) {
             String info = "Could not create " + description + " object: " + className
@@ -163,6 +163,16 @@ public class DynamicInvoker {
                     + ". The specified object classname does not refer to the proper type: ";
             info += cce.getMessage();
             throw new ClassNotFoundException(info, cce);
+
+        } catch (NoSuchMethodException nsme) {
+            String info = "Could not determine constructor for class " + className;
+            info += ": " + nsme.getMessage();
+            throw new ClassNotFoundException(info, nsme);
+
+        } catch (InvocationTargetException ite) {
+            String info = "Could not create instance of class " + className;
+            info += ": " + ite.getMessage();
+            throw new ClassNotFoundException(info, ite);
         }
 
         return object;
@@ -171,7 +181,7 @@ public class DynamicInvoker {
     /**
      * Dynamically calls a method
      */
-    private Object callMethodOn(Class clazz, Object object, String methodName, Object[] parameters, Class[] parameterTypes)
+    private Object callMethodOn(Class<?> clazz, Object object, String methodName, Object[] parameters, Class[] parameterTypes)
         throws Throwable {
 
         try {

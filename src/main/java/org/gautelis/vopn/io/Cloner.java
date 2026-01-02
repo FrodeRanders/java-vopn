@@ -49,8 +49,8 @@ public class Cloner {
      * <p>
      * @param original original object to clone
      * @return cloned object
-     * @throws IOException
-     * @throws ClassNotFoundException
+     * @throws IOException if serialization fails
+     * @throws ClassNotFoundException if the class cannot be deserialized
      */
     public static <T> T clone(T original) throws IOException, ClassNotFoundException {
         T object;

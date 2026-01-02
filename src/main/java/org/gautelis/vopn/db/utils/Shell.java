@@ -37,10 +37,22 @@ public class Shell {
 
     private final Manager manager;
 
+    /**
+     * Creates a SQL shell bound to a manager.
+     *
+     * @param manager database manager
+     */
     public Shell(Manager manager) {
         this.manager = manager;
     }
 
+    /**
+     * Starts a simple SQL REPL using the provided streams.
+     *
+     * @param is input stream for user commands
+     * @param os output stream for responses
+     * @throws IOException if terminal IO fails
+     */
     public void prompt(InputStream is, OutputStream os) throws IOException {
         final String PROMPT = "SQL> ";
 
@@ -54,7 +66,7 @@ public class Shell {
         while (true) {
             try {
                 String cmd = reader.readLine(PROMPT);
-                if (null != cmd && (cmd = cmd.trim()).length() > 0) {
+                if (null != cmd && !(cmd = cmd.trim()).isEmpty()) {
                     if ("exit".equalsIgnoreCase(cmd)) {
                         out.println();
                         out.flush();
@@ -73,7 +85,7 @@ public class Shell {
 
             } catch (Throwable t) {
                 String msg = t.getMessage();
-                if (null == msg || msg.length() == 0) {
+                if (null == msg || msg.isEmpty()) {
                     msg = t.getClass().getSimpleName();
                 }
                 out.println("error: " + msg);
@@ -82,8 +94,15 @@ public class Shell {
         }
     }
 
+    /**
+     * Executes a single SQL statement and prints results to the writer.
+     *
+     * @param screenWidth terminal width used for formatting
+     * @param sql SQL statement to execute
+     * @param out output writer
+     */
     public void execute(int screenWidth, String sql, PrintWriter out) {
-        if (null == sql || sql.length() == 0) {
+        if (null == sql || sql.isEmpty()) {
             return;
         }
 
@@ -91,7 +110,7 @@ public class Shell {
             try (Statement stmt = conn.createStatement()) {
 
                 boolean success = manager.execute(stmt, sql, out, /* accept failure? */ false);
-                while (success) {
+                while (success) { /* success is not modified below this line */
                     int updateCount = stmt.getUpdateCount();
                     if (updateCount > 0) {
                         out.println("Rows affected: " + updateCount);

@@ -30,44 +30,72 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 
-/*
- * Implements a data source that caches (possibly large) buffers of data in memory.
+/**
+ * DataSource implementation backed by an in-memory {@link StringBuffer}.
  * <p>
- * Is assumed to be used together with a javax.activation.DataHandler (like this)
+ * Intended for use with {@code javax.activation.DataHandler}, for example:
  * <pre>
  *     StringBuffer buf = new StringBuffer();
  *     buf.append("123456...");
  *     StringBufferDataSource ds = new StringBufferDataSource("data", "binary/octet-stream", buf);
  *     DataHandler dh = new javax.activation.DataHandler(ds);
  * </pre>
- * <p>
- * Created by Frode Randers at 2013-01-23 00:33
  */
 public class StringBufferDataSource implements DataSource {
 
-    private String name;
-    private String mimeType;
-    private StringBuffer buffer;
+    private final String name;
+    private final String mimeType;
+    private final StringBuffer buffer;
 
+    /**
+     * Creates a datasource backed by a StringBuffer.
+     *
+     * @param name datasource name
+     * @param mimeType MIME type
+     * @param buffer buffer containing data
+     */
     public StringBufferDataSource(String name, String mimeType, StringBuffer buffer) {
         this.name = name;
         this.mimeType = mimeType;
         this.buffer = buffer;
     }
 
+    /**
+     * Returns the datasource name.
+     *
+     * @return datasource name
+     */
     public String getName() {
             return name;
     }
 
+    /**
+     * Returns the MIME type.
+     *
+     * @return MIME type
+     */
     public String getContentType() {
         return mimeType;
     }
 
+    /**
+     * Returns an input stream over the buffer contents.
+     *
+     * @return input stream
+     * @throws IOException if encoding fails
+     */
     public InputStream getInputStream() throws IOException {
-        return new ByteArrayInputStream(buffer.toString().getBytes("UTF-8"));
+        return new ByteArrayInputStream(buffer.toString().getBytes(StandardCharsets.UTF_8));
     }
 
+    /**
+     * Output streams are not supported for this datasource.
+     *
+     * @return never returns normally
+     * @throws IOException always throws UnsupportedOperationException
+     */
     public OutputStream getOutputStream() throws IOException {
         throw new UnsupportedOperationException();
     }

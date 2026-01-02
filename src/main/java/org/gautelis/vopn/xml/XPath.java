@@ -34,31 +34,69 @@ import org.jaxen.JaxenException;
 import java.util.LinkedList;
 import java.util.List;
 
-/*
- * Description of XPath
- * <p>
- * <p>
- * Created by Frode Randers at 2012-04-11 21:50
+/**
+ * XPath helper for Axiom nodes with namespace support.
  */
 public class XPath {
     private Namespaces namespaces;
 
+    /**
+     * Creates an XPath helper with namespace mappings.
+     *
+     * @param namespaces namespace mappings
+     */
     public XPath(Namespaces namespaces) {
         this.namespaces = namespaces;
     }
 
+    /**
+     * Evaluates an XPath expression and returns the text value.
+     *
+     * @param element element to search
+     * @param expression XPath expression
+     * @return text content
+     * @throws XmlException if the expression fails or no text is found
+     */
     public String getTextFrom(OMNode element, String expression) throws XmlException {
         return getTextFrom(element, namespaces, expression, /* accept failure? */ false);
     }
 
+    /**
+     * Evaluates an XPath expression and returns the text value.
+     *
+     * @param element element to search
+     * @param expression XPath expression
+     * @param acceptFailure whether to return {@code null} instead of throwing
+     * @return text content or {@code null}
+     * @throws XmlException if the expression fails and acceptFailure is false
+     */
     public String getTextFrom(OMNode element, String expression, boolean acceptFailure) throws XmlException {
         return getTextFrom(element, namespaces, expression, acceptFailure);
     }
 
+    /**
+     * Evaluates an XPath expression and returns the text value.
+     *
+     * @param element element to search
+     * @param namespaces namespace mappings
+     * @param expression XPath expression
+     * @return text content
+     * @throws XmlException if the expression fails or no text is found
+     */
     public static String getTextFrom(OMNode element, Namespaces namespaces, String expression) throws XmlException {
         return getTextFrom(element, namespaces, expression, /* accept failure? */ false);
     }
 
+    /**
+     * Evaluates an XPath expression and returns the text value.
+     *
+     * @param element element to search
+     * @param namespaces namespace mappings
+     * @param expression XPath expression
+     * @param acceptFailure whether to return {@code null} instead of throwing
+     * @return text content or {@code null}
+     * @throws XmlException if the expression fails and acceptFailure is false
+     */
     public static String getTextFrom(OMNode element, Namespaces namespaces, String expression, boolean acceptFailure) throws XmlException {
         try {
             AXIOMXPath xpath = new AXIOMXPath(expression);
@@ -92,18 +130,54 @@ public class XPath {
      * Upon failure to find element, the default behaviour is to throw an exception.
      */
 
+    /**
+     * Evaluates an XPath expression and returns a single element.
+     *
+     * @param element element to search
+     * @param expression XPath expression
+     * @return matching element
+     * @throws XmlException if the expression fails or no element is found
+     */
     public OMElement getElementFrom(OMNode element, String expression) throws XmlException {
         return getElementFrom(element, namespaces, expression, /* accept failure? */ false);
     }
 
+    /**
+     * Evaluates an XPath expression and returns a single element.
+     *
+     * @param element element to search
+     * @param expression XPath expression
+     * @param acceptFailure whether to return {@code null} instead of throwing
+     * @return matching element or {@code null}
+     * @throws XmlException if the expression fails and acceptFailure is false
+     */
     public OMElement getElementFrom(OMNode element, String expression, boolean acceptFailure) throws XmlException {
         return getElementFrom(element, namespaces, expression, acceptFailure);
     }
 
+    /**
+     * Evaluates an XPath expression and returns a single element.
+     *
+     * @param element element to search
+     * @param namespaces namespace mappings
+     * @param expression XPath expression
+     * @return matching element
+     * @throws XmlException if the expression fails or no element is found
+     */
     public static OMElement getElementFrom(OMNode element, Namespaces namespaces, String expression) throws XmlException {
         return getElementFrom(element, namespaces, expression, /* accept failure? */ false);
     }
 
+    /**
+     * Evaluates an XPath expression and returns a single element.
+     *
+     * @param element element to search
+     * @param namespaces namespace mappings
+     * @param expression XPath expression
+     * @param acceptFailure whether to return {@code null} instead of throwing
+     * @return matching element or {@code null}
+     * @throws XmlException if the expression fails and acceptFailure is false
+     */
     public static OMElement getElementFrom(OMNode element, Namespaces namespaces, String expression, boolean acceptFailure) throws XmlException {
         try {
             AXIOMXPath xpath = new AXIOMXPath(expression);
@@ -132,18 +206,54 @@ public class XPath {
     /*
      * Upon failure to find elements, the default behaviour is just to return an empty list of elements
      */
+    /**
+     * Evaluates an XPath expression and returns matching elements.
+     *
+     * @param element element to search
+     * @param expression XPath expression
+     * @return list of matching elements (possibly empty)
+     * @throws XmlException if the expression fails
+     */
     public List<OMElement> getElementsFrom(OMNode element, String expression) throws XmlException {
         return getElementsFrom(element, namespaces, expression, /* accept failure? */ true);
     }
 
+    /**
+     * Evaluates an XPath expression and returns matching elements.
+     *
+     * @param element element to search
+     * @param expression XPath expression
+     * @param acceptFailure whether to return empty list on failure
+     * @return list of matching elements (possibly empty)
+     * @throws XmlException if the expression fails and acceptFailure is false
+     */
     public List<OMElement> getElementsFrom(OMNode element, String expression, boolean acceptFailure) throws XmlException {
         return getElementsFrom(element, namespaces, expression, acceptFailure);
     }
 
+    /**
+     * Evaluates an XPath expression and returns matching elements.
+     *
+     * @param element element to search
+     * @param namespaces namespace mappings
+     * @param expression XPath expression
+     * @return list of matching elements (possibly empty)
+     * @throws XmlException if the expression fails
+     */
     public static List<OMElement> getElementsFrom(OMNode element, Namespaces namespaces, String expression) throws XmlException {
         return getElementsFrom(element, namespaces, expression, /* accept failure? */ true);
     }
 
+    /**
+     * Evaluates an XPath expression and returns matching elements.
+     *
+     * @param element element to search
+     * @param namespaces namespace mappings
+     * @param expression XPath expression
+     * @param acceptFailure whether to return empty list on failure
+     * @return list of matching elements (possibly empty)
+     * @throws XmlException if the expression fails and acceptFailure is false
+     */
     public static List<OMElement> getElementsFrom(OMNode element, Namespaces namespaces, String expression, boolean acceptFailure) throws XmlException {
         try {
             AXIOMXPath xpath = new AXIOMXPath(expression);

@@ -20,7 +20,7 @@ package org.gautelis.vopn.server;
 /**
  * Base class for selector interest update tasks.
  */
-abstract class SelectorTask {
+public abstract class SelectorTask {
     private final Request request;
     private final int interest;
 

@@ -25,17 +25,15 @@
  */
 package  org.gautelis.vopn.statistics;
 
-/*
- * Calculates statistics based on a Moving Average (MA) algorithm over a set of data points.
+/**
+ * Calculates statistics based on a moving-average algorithm over a data series.
  * <pre>
  * (defun running-average (avg new n)
  *    "Calculate new average given previous average over n data points"
  *    (/ (+ new (* avg n)) (1+ n)))
  * </pre>
- * Created by Frode Randers at 2012-09-21 14:29
- * Amended by Göran Lindqvist at 2012-09-22 17:26
  *
- * @deprecated Use RunningStatistics instead.
+ * @deprecated Use {@link RunningStatistics} instead.
  */
 @Deprecated
 public class MovingAverage {
@@ -49,9 +47,17 @@ public class MovingAverage {
     private long count = 0L;
     private double _pwrSumAverage = 0.0; // computational use
 
+    /**
+     * Creates an empty moving average.
+     */
     public MovingAverage() {
     }
 
+    /**
+     * Returns the number of samples processed.
+     *
+     * @return sample count
+     */
     public long getCount() {
         return count;
     }

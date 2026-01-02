@@ -34,20 +34,25 @@ import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringReader;
 
-/*
- * Description of Deserializer.
+/**
+ * Deserializes XML content into JAXB-annotated objects.
  * <p>
- * Deserializes an XML node hierarchy into an object. The class of that object need to have the JAXB annotations:
+ * Objects must be annotated with:
  * <pre>
- * @XmlRootElement  ???
- * @XmlAccessorType(XmlAccessType.FIELD)
- * set on the type (class)
+ * '@XmlRootElement'
+ * '@XmlAccessorType(XmlAccessType.FIELD)'
  * </pre>
- * <p>
- * Created by Frode Randers at 2013-02-17 10:43
  */
 public class Deserializer {
 
+    /**
+     * Deserializes a DOM node into an object.
+     *
+     * @param clazz JAXB-annotated class
+     * @param node DOM node to unmarshal
+     * @return deserialized object
+     * @throws JAXBException if unmarshalling fails
+     */
     public static Object xml2Obj(Class<?> clazz, Node node)  throws JAXBException {
         JAXBContext pContext = JAXBContext.newInstance(clazz);
         Unmarshaller unmarshaller = pContext.createUnmarshaller();
@@ -55,6 +60,14 @@ public class Deserializer {
         return unmarshaller.unmarshal(node);
     }
 
+    /**
+     * Deserializes XML from a reader into an object.
+     *
+     * @param clazz JAXB-annotated class
+     * @param xml reader providing XML
+     * @return deserialized object
+     * @throws JAXBException if unmarshalling fails
+     */
     public static Object xml2Obj(Class<?> clazz, Reader xml)  throws JAXBException {
         JAXBContext pContext = JAXBContext.newInstance(clazz);
         Unmarshaller unmarshaller = pContext.createUnmarshaller();
@@ -62,11 +75,27 @@ public class Deserializer {
         return unmarshaller.unmarshal(xml);
     }
 
+    /**
+     * Deserializes XML from a string into an object.
+     *
+     * @param clazz JAXB-annotated class
+     * @param xml XML string
+     * @return deserialized object
+     * @throws JAXBException if unmarshalling fails
+     */
     public static Object xml2Obj(Class<?> clazz, String xml)  throws JAXBException {
         StringReader reader = new StringReader(xml);
         return xml2Obj(clazz, reader);
     }
 
+    /**
+     * Deserializes XML from an input stream into an object.
+     *
+     * @param clazz JAXB-annotated class
+     * @param is input stream providing XML
+     * @return deserialized object
+     * @throws JAXBException if unmarshalling fails
+     */
     public static Object xml2Obj(Class<?> clazz, InputStream is)  throws JAXBException {
         JAXBContext pContext = JAXBContext.newInstance(clazz);
         Unmarshaller unmarshaller = pContext.createUnmarshaller();

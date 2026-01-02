@@ -30,6 +30,12 @@ import java.util.Properties;
  */
 public class PostgreSQL extends Manager {
 
+    /**
+     * Creates a PostgreSQL manager using a pre-configured datasource.
+     *
+     * @param dataSource datasource instance
+     * @param options manager options
+     */
     public PostgreSQL(DataSource dataSource, Options options) {
         super(dataSource, options, ";", /* ignore case? */ false, /* alone on line? */ true);
 
@@ -37,6 +43,14 @@ public class PostgreSQL extends Manager {
         System.out.println("Target database: PostgreSQL");
     }
 
+    /**
+     * Creates a PostgreSQL manager using configuration properties.
+     *
+     * @param properties database configuration properties
+     * @param options manager options
+     * @param preparer datasource preparation callback
+     * @throws Exception if initialization fails
+     */
     public PostgreSQL(Properties properties, Options options, PrepareDataSource preparer) throws Exception {
         super(preparer, properties, options, ";", /* ignore case? */ false, /* alone on line? */ true);
 
@@ -47,11 +61,11 @@ public class PostgreSQL extends Manager {
     /**
      * Creates datasource.
      * <p>
-     * @param applicationName
-     * @param config
-     * @return
-     * @throws DatabaseException
-     * @throws ClassCastException
+     * @param applicationName application name to store on the datasource
+     * @param config database configuration
+     * @return configured datasource
+     * @throws DatabaseException if a driver cannot be loaded
+     * @throws ClassCastException if the datasource type is unexpected
      */
     public static DataSource getDataSource(
             String applicationName,

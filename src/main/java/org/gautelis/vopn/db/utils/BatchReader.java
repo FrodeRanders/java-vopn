@@ -41,6 +41,12 @@ public class BatchReader {
     private Characteristics characteristics = null;
     private Options options = null;
 
+    /**
+     * Creates a batch reader with parsing options and batch separator characteristics.
+     *
+     * @param options reader options
+     * @param characteristics batch separator characteristics
+     */
     public BatchReader(Options options, Characteristics characteristics) {
         this.options = options;
         this.characteristics = characteristics;
@@ -50,6 +56,10 @@ public class BatchReader {
     /**
      * Reads an SQL-script and identifies individual statements.
      * The batch separator handling is dependent on the database manager
+     *
+     * @param reader SQL script reader
+     * @return list of SQL statements
+     * @throws Exception if batch separator rules are unsupported or parsing fails
      */
     public List<String> readFile(Reader reader) throws Exception {
         try {
@@ -143,14 +153,14 @@ public class BatchReader {
         List<String> sql = new Vector<String>();
 
         try (BufferedReader in = new BufferedReader(reader)) {
-            StringBuffer data = new StringBuffer();
+            StringBuilder data = new StringBuilder();
 
             String tmp;
             while ((tmp = in.readLine()) != null) {
                 tmp = tmp.trim();
 
                 // ignore comment lines
-                if (tmp.length() > 0 && !tmp.startsWith("--")) {
+                if (!tmp.isEmpty() && !tmp.startsWith("--")) {
 
                     // ignore trailing comments
                     int pos;
@@ -162,10 +172,10 @@ public class BatchReader {
                     // ignoring case
                     if (tmp.equalsIgnoreCase(characteristics.batchSeparator)) {
                         // store
-                        if (data.length() > 0)
+                        if (!data.isEmpty())
                             sql.add(data.toString());
 
-                        data = new StringBuffer();
+                        data = new StringBuilder();
                     } else {
                         // accumulate
                         data.append(tmp).append(" ");
@@ -182,14 +192,14 @@ public class BatchReader {
         List<String> sql = new Vector<String>();
 
         try (BufferedReader in = new BufferedReader(reader)) {
-            StringBuffer data = new StringBuffer();
+            StringBuilder data = new StringBuilder();
 
             String tmp;
             while ((tmp = in.readLine()) != null) {
                 tmp = tmp.trim();
 
                 // ignore comment lines
-                if (tmp.length() > 0 && !tmp.startsWith("--")) {
+                if (!tmp.isEmpty() && !tmp.startsWith("--")) {
 
                     // ignore trailing comments
                     int pos;
@@ -201,10 +211,10 @@ public class BatchReader {
                     // considering case
                     if (tmp.equals(characteristics.batchSeparator)) {
                         // store
-                        if (data.length() > 0)
+                        if (!data.isEmpty())
                             sql.add(data.toString());
 
-                        data = new StringBuffer();
+                        data = new StringBuilder();
                     } else {
                         // accumulate
                         data.append(tmp).append(" ");
@@ -221,14 +231,14 @@ public class BatchReader {
         List<String> sql = new Vector<String>();
 
         try (BufferedReader in = new BufferedReader(reader)) {
-            StringBuffer data = new StringBuffer();
+            StringBuilder data = new StringBuilder();
 
             String tmp;
             while ((tmp = in.readLine()) != null) {
                 tmp = tmp.trim();
 
                 // ignore comment lines
-                if (tmp.length() > 0 && !tmp.startsWith("--")) {
+                if (!tmp.isEmpty() && !tmp.startsWith("--")) {
 
                     // ignore trailing comments
                     int pos;
@@ -246,10 +256,10 @@ public class BatchReader {
                         data.append(tmp).append(" ");
 
                         // store
-                        if (data.length() > 0)
+                        if (!data.isEmpty())
                             sql.add(data.toString());
 
-                        data = new StringBuffer();
+                        data = new StringBuilder();
                     } else {
                         // accumulate
                         data.append(tmp).append(" ");

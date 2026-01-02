@@ -40,10 +40,21 @@ public class StringMapConfigurationResolver implements ConfigurationTool.Configu
 
     private final Map<String, String> map;
 
+    /**
+     * Creates a resolver backed by a string map.
+     *
+     * @param map configuration key/value pairs
+     */
     public StringMapConfigurationResolver(final Map<String, String> map) {
         this.map = map;
     }
 
+    /**
+     * Resolves a configuration value from the map.
+     *
+     * @param name property key
+     * @return resolved value or {@code null} if not found
+     */
     @Override
     public Object resolve(String name) {
         String value = map.get(name);

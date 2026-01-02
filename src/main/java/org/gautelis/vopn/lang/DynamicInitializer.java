@@ -52,5 +52,10 @@ package  org.gautelis.vopn.lang;
  * Created by Frode Randers at 2011-11-04 14:14
  */
 public interface DynamicInitializer<C> {
+    /**
+     * Initializes a dynamically created instance.
+     *
+     * @param dynamicObject instance to initialize
+     */
     void initialize(C dynamicObject);
 }

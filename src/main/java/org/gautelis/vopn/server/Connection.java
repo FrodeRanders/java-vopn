@@ -154,7 +154,7 @@ public final class Connection implements AutoCloseable {
     }
 
     /**
-     * Returns the receive buffer size hint.
+     * Returns the receive-buffer size hint.
      *
      * @return receive buffer size in bytes
      */

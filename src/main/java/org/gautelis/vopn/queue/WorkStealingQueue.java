@@ -81,6 +81,9 @@ public class WorkStealingQueue implements WorkQueue {
         log.trace("Starting work queue...");
     }
 
+    /**
+     * Requests all workers to stop.
+     */
     public void stop() {
         log.trace("Stopping work queue...");
 

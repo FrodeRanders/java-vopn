@@ -39,11 +39,8 @@ import java.util.Map;
 import java.util.Vector;
 import java.util.zip.CRC32;
 
-/*
- * Description of MultiDigestInputStream
- * <p>
- * <p>
- * Created by Frode Randers at 2012-02-29 10:12
+/**
+ * InputStream that tracks multiple message digests and optional CRC32.
  */
 public class MultiDigestInputStream extends FilterInputStream {
 
@@ -54,6 +51,11 @@ public class MultiDigestInputStream extends FilterInputStream {
 
     private long size = 0L;
 
+    /**
+     * Creates a stream that computes CRC32, MD5, SHA-1, and SHA-512 by default.
+     *
+     * @param is input stream to wrap
+     */
     public MultiDigestInputStream(InputStream is) {
         super(is);
 
@@ -66,16 +68,17 @@ public class MultiDigestInputStream extends FilterInputStream {
             digestList.add(MessageDigest.getInstance("MD5"));
             digestList.add(MessageDigest.getInstance("SHA-1"));
             digestList.add(MessageDigest.getInstance("SHA-512"));
-        } catch (NoSuchAlgorithmException ignore) {
-        }
+
+        } catch (NoSuchAlgorithmException ignore) {}
+
         digests = digestList.toArray(new MessageDigest[digestList.size()]); // may be empty if exception
     }
 
     /**
      * This is the preferred constructor
      * <p>
-     * @param algorithms
-     * @param is
+     * @param algorithms digest algorithm names (e.g. SHA-256, CRC32)
+     * @param is input stream to wrap
      */
     public MultiDigestInputStream(String[] algorithms, InputStream is) {
         super(is);
@@ -94,12 +97,17 @@ public class MultiDigestInputStream extends FilterInputStream {
     }
 
 
+    /**
+     * Returns the computed digests keyed by algorithm name.
+     *
+     * @return map of algorithm name to digest bytes
+     */
     public Map<String,byte[]> getDigests() {
         Map<String, byte[]> map = new HashMap<String, byte[]>();
 
         // Handle CRC32
         if (null != crc32) {
-            byte b[] = new byte[8];
+            byte[] b = new byte[8];
             ByteBuffer buf = ByteBuffer.wrap(b);
             buf.putLong(crc32.getValue());
             map.put("CRC32", b);
@@ -113,15 +121,31 @@ public class MultiDigestInputStream extends FilterInputStream {
         return map;
     }
 
+    /**
+     * Returns the number of bytes read so far.
+     *
+     * @return byte count
+     */
     public long getSize() {
         return size;
     }
 
+    /**
+     * Mark/reset is not supported to keep digest state consistent.
+     *
+     * @return {@code false}
+     */
     @Override
     public boolean markSupported() {
         return false; // Very important!!!
     }
 
+    /**
+     * Reads a single byte and updates digest state.
+     *
+     * @return byte value or -1 on EOF
+     * @throws IOException if reading fails
+     */
     @Override
     public int read() throws IOException {
         int b = super.read();
@@ -147,6 +171,13 @@ public class MultiDigestInputStream extends FilterInputStream {
         return b;
     }
 
+    /**
+     * Reads bytes into a buffer and updates digest state.
+     *
+     * @param bytes destination buffer
+     * @return number of bytes read or -1 on EOF
+     * @throws IOException if reading fails
+     */
     @Override
     public int read(byte[] bytes) throws IOException {
         int actualLength = super.read(bytes);
@@ -172,6 +203,15 @@ public class MultiDigestInputStream extends FilterInputStream {
         return actualLength;
     }
 
+    /**
+     * Reads bytes into a buffer range and updates digest state.
+     *
+     * @param bytes destination buffer
+     * @param off offset in the buffer
+     * @param len max number of bytes to read
+     * @return number of bytes read or -1 on EOF
+     * @throws IOException if reading fails
+     */
     @Override
     public int read(byte[] bytes, int off, int len) throws IOException {
         int actualLength = super.read(bytes, off, len);

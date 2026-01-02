@@ -34,19 +34,24 @@ import org.jaxen.JaxenException;
 
 import java.util.*;
 
-/*
- * Description of Namespaces
- * <p>
- * <p>
- * Created by Frode Randers at 2012-04-11 21:50
+/**
+ * Namespace registry for use with Axiom elements and XPath.
  */
 public class Namespaces {
     private final Map<String, OMNamespace> namespaces = new HashMap<>();
 
+    /**
+     * Creates an empty namespace registry.
+     */
     public Namespaces() {
         // No default namespaces defined yet...
     }
 
+    /**
+     * Creates a registry from an iterator of namespaces.
+     *
+     * @param nsit namespace iterator
+     */
     public Namespaces(Iterator<OMNamespace> nsit) {
         while (nsit.hasNext()) {
             OMNamespace ns = nsit.next();
@@ -54,12 +59,24 @@ public class Namespaces {
         }
     }
 
+    /**
+     * Creates a registry from a prefix-to-URI map.
+     *
+     * @param namespaces prefix-to-URI mappings
+     */
     public Namespaces(Map<String,String> namespaces) {
         for (String prefix : namespaces.keySet()) {
             defineNamespace(namespaces.get(prefix), prefix);
         }
     }
 
+    /**
+     * Defines and registers a namespace.
+     *
+     * @param uri namespace URI
+     * @param prefix namespace prefix
+     * @return created namespace
+     */
     public OMNamespace defineNamespace(String uri, String prefix) {
         OMFactory factory = OMAbstractFactory.getOMFactory();
         OMNamespace namespace = factory.createOMNamespace(uri, prefix);
@@ -67,22 +84,44 @@ public class Namespaces {
         return namespace;
     }
 
+    /**
+     * Declares all namespaces on an Axiom element.
+     *
+     * @param element element to update
+     */
     public void applyNamespacesOn(OMElement element) {
         for (OMNamespace ns : namespaces.values()) {
             element.declareNamespace(ns);
         }
     }
 
+    /**
+     * Adds all namespaces to an XPath expression.
+     *
+     * @param xpath XPath expression to update
+     * @throws JaxenException if namespace registration fails
+     */
     public void applyNamespacesOn(AXIOMXPath xpath) throws JaxenException {
         for (OMNamespace ns : namespaces.values()) {
             xpath.addNamespace(ns.getPrefix(), ns.getNamespaceURI());
         }
     }
 
+    /**
+     * Returns the namespace registered for a prefix.
+     *
+     * @param prefix namespace prefix
+     * @return namespace or {@code null}
+     */
     public OMNamespace get(String prefix) {
         return namespaces.get(prefix);
     }
 
+    /**
+     * Returns an unmodifiable view of all registered namespaces.
+     *
+     * @return namespace map
+     */
     public Map<String, OMNamespace> getNamespaces() {
         return Collections.unmodifiableMap(namespaces);
     }

@@ -140,7 +140,7 @@ public class DynamicLoader<C> extends Hashtable<String, C> {
      */
     public C load(String className) throws ClassNotFoundException {
 
-        Class clazz = createClass(className);
+        Class<?> clazz = createClass(className);
         return createObject(className, clazz);
     }
 
@@ -191,13 +191,13 @@ public class DynamicLoader<C> extends Hashtable<String, C> {
      * the method assignKey(String key) - if it exists.
      */       
     public void load(Properties map, DynamicInitializer<C> di, boolean assignKey) throws ClassNotFoundException {
-        Iterator keys = map.keySet().iterator();
+        Iterator<?> keys = map.keySet().iterator();
         while (keys.hasNext()) {
             String key = (String) keys.next();
             String _className = map.getProperty(key);
             String className = (_className != null ? _className.trim() : null);
 
-            if (null == className || className.length() == 0) {
+            if (null == className || className.isEmpty()) {
                 String info = "Misconfiguration? No class name specified for " + description + " " + key;
                 info += ": Check the configuration!";
                 log.warn(info);
@@ -248,7 +248,7 @@ public class DynamicLoader<C> extends Hashtable<String, C> {
      */
     public C load(String className, DynamicInitializer<C> di) throws ClassNotFoundException {
 
-        Class clazz = createClass(className);
+        Class<?> clazz = createClass(className);
         return createObject(className, clazz, di);
     }
 
@@ -256,7 +256,7 @@ public class DynamicLoader<C> extends Hashtable<String, C> {
      * Dynamically loads the named class (fully qualified classname).
      */
     public Class createClass(String className) throws ClassNotFoundException {
-        Class clazz;
+        Class<?> clazz;
         try {
             clazz = Class.forName(className);
             return clazz;
@@ -287,10 +287,10 @@ public class DynamicLoader<C> extends Hashtable<String, C> {
      * Supports the use of a dynamic initializer
      * (see {@link  org.gautelis.vopn.lang.DynamicInitializer}&lt;C&gt;)
      */
-    public C createObject(String className, Class clazz, DynamicInitializer<C> di) throws ClassNotFoundException {
+    public C createObject(String className, Class<?> clazz, DynamicInitializer<C> di) throws ClassNotFoundException {
         C object;
         try {
-            object = (C) clazz.newInstance();
+            object = (C) clazz.getDeclaredConstructor().newInstance();
 
         } catch (InstantiationException ie) {
             String info = "Could not create " + description + " object: " + className
@@ -310,6 +310,16 @@ public class DynamicLoader<C> extends Hashtable<String, C> {
                     + ". The specified object classname does not refer to the proper type: ";
             info += cce.getMessage();
             throw new ClassNotFoundException(info, cce);
+
+        } catch (NoSuchMethodException nsme) {
+            String info = "Could not determine constructor for class " + className;
+            info += ": " + nsme.getMessage();
+            throw new ClassNotFoundException(info, nsme);
+
+        } catch (InvocationTargetException ite) {
+            String info = "Could not create instance of class " + className;
+            info += ": " + ite.getMessage();
+            throw new ClassNotFoundException(info, ite);
         }
 
         // Initialize object
@@ -326,7 +336,7 @@ public class DynamicLoader<C> extends Hashtable<String, C> {
      * @param clazz the class template from which an object is wrought.
      * @throws ClassNotFoundException if class could not be found.
      */
-    public C createObject(String className, Class clazz) throws ClassNotFoundException {
+    public C createObject(String className, Class<?> clazz) throws ClassNotFoundException {
         return createObject(className, clazz, /* no dynamic init */ null);
     }
 
@@ -337,13 +347,11 @@ public class DynamicLoader<C> extends Hashtable<String, C> {
      * @param parameterTypes an array of parameter types for the method.
      * @throws NoSuchMethodException if method is not found on object.
      */
-    public Method createMethod(C object, String methodName, Class[] parameterTypes) throws NoSuchMethodException {
-        Class clazz = object.getClass();
+    public Method createMethod(C object, String methodName, Class<?>[] parameterTypes) throws NoSuchMethodException {
+        Class<?> clazz = object.getClass();
 
         try {
-            @SuppressWarnings("unchecked")
-            Method method = clazz.getMethod(methodName, parameterTypes);
-            return method;
+            return clazz.getMethod(methodName, parameterTypes);
 
         } catch (NoSuchMethodException nsme) {
             String info = "The specified class " + clazz.getName();
@@ -384,12 +392,12 @@ public class DynamicLoader<C> extends Hashtable<String, C> {
         throws Throwable {
 
         // Dynamically determine parameter types
-        Class[] parameterTypes = new Class[parameters.length];
+        Class<?>[] parameterTypes = new Class[parameters.length];
         for (int i=0; i < parameters.length; i++) {
             parameterTypes[i] = parameters[i].getClass();
         }
 
-        Class clazz = object.getClass();
+        Class<?> clazz = object.getClass();
         try {
             Method method = clazz.getMethod(methodName, parameterTypes);
             method.invoke(object, parameters);
@@ -443,10 +451,10 @@ public class DynamicLoader<C> extends Hashtable<String, C> {
      * @param parameterTypes - an array of parameter types (Class) matching parameters array
      * @throws ClassNotFoundException - if method is not found, method is not public, parameters does not match, etc.
      */
-    public void callMethodOn(C object, String methodName, Object[] parameters, Class[] parameterTypes)
+    public void callMethodOn(C object, String methodName, Object[] parameters, Class<?>[] parameterTypes)
         throws Throwable {
 
-        Class clazz = object.getClass();
+        Class<?> clazz = object.getClass();
         try {
             Method method = clazz.getMethod(methodName, parameterTypes);
             method.invoke(object, parameters);

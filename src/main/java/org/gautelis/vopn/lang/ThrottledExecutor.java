@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 /**
- * Created by froran on 2016-02-03.
+ * Executes work in a throttled loop with simple progress reporting.
  */
 public class ThrottledExecutor {
     private static final NumberFormat dec2Format = NumberFormat.getNumberInstance();
@@ -46,20 +46,34 @@ public class ThrottledExecutor {
     private final List<String> shutdownRequests;
     private final PrintWriter out;
 
-    public class StatusContext {
+    /**
+     * Status object used by the work callback to report outcome.
+     */
+    public static class StatusContext {
         private boolean finished = false;
         private Boolean success = null;
         private String[] failureInfo = null;
 
+        /**
+         * Marks the current unit as successful.
+         */
         public void success() {
             success = true;
         }
 
+        /**
+         * Marks the current unit as failed with optional details.
+         *
+         * @param info failure details
+         */
         public void failure(String... info) {
             success = false;
             failureInfo = info;
         }
 
+        /**
+         * Requests that execution stop after the current unit.
+         */
         public void finished() {
             finished = true;
         }
@@ -89,6 +103,13 @@ public class ThrottledExecutor {
                 IGNORE_REQUESTS, new PrintWriter(System.out));
     }
 
+    /**
+     * Creates an executor with throttling limits and accepted error count.
+     *
+     * @param maxUnitsProcessedPerMinute max average units per minute
+     * @param maxUnitsProcessedInSequence max units to process in one run
+     * @param numberOfErrorsAccepted number of allowed failures
+     */
     public ThrottledExecutor(
             final long maxUnitsProcessedPerMinute,
             final long maxUnitsProcessedInSequence,
@@ -98,6 +119,14 @@ public class ThrottledExecutor {
                 IGNORE_REQUESTS, IGNORE_REQUESTS, new PrintWriter(System.out));
     }
 
+    /**
+     * Creates an executor with throttling limits and custom output.
+     *
+     * @param maxUnitsProcessedPerMinute max average units per minute
+     * @param maxUnitsProcessedInSequence max units to process in one run
+     * @param numberOfErrorsAccepted number of allowed failures
+     * @param out output writer for status
+     */
     public ThrottledExecutor(
             final long maxUnitsProcessedPerMinute,
             final long maxUnitsProcessedInSequence,
@@ -108,6 +137,15 @@ public class ThrottledExecutor {
                 IGNORE_REQUESTS, IGNORE_REQUESTS, out);
     }
 
+    /**
+     * Creates an executor with throttling limits and shutdown triggers.
+     *
+     * @param maxUnitsProcessedPerMinute max average units per minute
+     * @param maxUnitsProcessedInSequence max units to process in one run
+     * @param numberOfErrorsAccepted number of allowed failures
+     * @param shutdownRequests list of shutdown requests
+     * @param out output writer for status
+     */
     public ThrottledExecutor(
             final long maxUnitsProcessedPerMinute,
             final long maxUnitsProcessedInSequence,
@@ -118,6 +156,16 @@ public class ThrottledExecutor {
         this(maxUnitsProcessedPerMinute, maxUnitsProcessedInSequence, numberOfErrorsAccepted, shutdownRequests, shutdownRequests, out);
     }
 
+    /**
+     * Creates an executor with explicit synchronization and shutdown controls.
+     *
+     * @param maxUnitsProcessedPerMinute max average units per minute
+     * @param maxUnitsProcessedInSequence max units to process in one run
+     * @param numberOfErrorsAccepted number of allowed failures
+     * @param semaphore synchronization object used for wait/notify
+     * @param shutdownRequests list of shutdown requests
+     * @param out output writer for status
+     */
     public ThrottledExecutor(
             final long maxUnitsProcessedPerMinute,
             final long maxUnitsProcessedInSequence,
@@ -164,6 +212,12 @@ public class ThrottledExecutor {
             s.success();
         });
      */
+    /**
+     * Executes the provided callback until limits are reached or shutdown occurs.
+     *
+     * @param block work callback receiving a status context
+     * @return number of units processed
+     */
     public long execute(Consumer<StatusContext> block) {
         long numUnitsProcessed = 0L;
 
@@ -180,7 +234,7 @@ public class ThrottledExecutor {
             statusContext.reset();
 
             synchronized (semaphore) {
-                if (shutdownRequests.size() > 0) {
+                if (!shutdownRequests.isEmpty()) {
                     String info = "Shutting down processing due to request: " + shutdownRequests.remove(0);
                     out.println(info);
                     inform(numUnitsProcessed, averageTPU, averageDelay);
@@ -214,7 +268,7 @@ public class ThrottledExecutor {
                 }
             }
             synchronized (semaphore) {
-                if (shutdownRequests.size() > 0) {
+                if (!shutdownRequests.isEmpty()) {
                     String info = "Shutting down processing due to request: " + shutdownRequests.remove(0);
                     out.println(info);
                     inform(numUnitsProcessed, averageTPU, averageDelay);

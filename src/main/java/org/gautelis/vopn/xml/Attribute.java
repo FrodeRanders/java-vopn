@@ -31,46 +31,114 @@ import org.apache.axiom.om.OMNamespace;
 
 import javax.xml.namespace.QName;
 
-/*
- * Description of Attribute
- * <p>
- * <p>
- * Created by Frode Randers at 2012-04-11 21:50
+/**
+ * Helper for reading attributes from Axiom elements with optional namespaces.
  */
 public class Attribute {
     private final Namespaces namespaces;
 
+    /**
+     * Creates an attribute helper with namespace mappings.
+     *
+     * @param namespaces namespace mappings
+     */
     public Attribute(Namespaces namespaces) {
         this.namespaces = namespaces;
     }
 
     //
+    /**
+     * Reads an attribute value with the configured namespaces.
+     *
+     * @param element element to inspect
+     * @param name attribute local name
+     * @return attribute value
+     * @throws XmlException if the attribute is missing
+     */
     public String getValueFrom(OMElement element, String name) throws XmlException {
         return getValueFrom(element, namespaces, name);
     }
 
+    /**
+     * Reads an attribute value, optionally accepting missing attributes.
+     *
+     * @param element element to inspect
+     * @param name attribute local name
+     * @param acceptFailure whether to return {@code null} if missing
+     * @return attribute value or {@code null}
+     * @throws XmlException if the attribute is missing and acceptFailure is false
+     */
     public String getValueFrom(OMElement element, String name, boolean acceptFailure) throws XmlException {
 	return getValueFrom(element, namespaces, null, name, acceptFailure);
     }
 
+    /**
+     * Reads an attribute value using explicit namespaces.
+     *
+     * @param element element to inspect
+     * @param namespaces namespace mappings
+     * @param name attribute local name
+     * @return attribute value
+     * @throws XmlException if the attribute is missing
+     */
     public static String getValueFrom(OMElement element, Namespaces namespaces, String name) throws XmlException {
         return getValueFrom(element, namespaces, null, name, /* accept fail? */ false);
     }
 
     //
+    /**
+     * Reads a namespaced attribute value with the configured namespaces.
+     *
+     * @param element element to inspect
+     * @param namespacePrefix namespace prefix
+     * @param name attribute local name
+     * @return attribute value
+     * @throws XmlException if the attribute is missing
+     */
     public String getValueFrom(OMElement element, String namespacePrefix, String name) throws XmlException {
         return getValueFrom(element, namespaces, namespacePrefix, name);
     }
 
+    /**
+     * Reads a namespaced attribute value, optionally accepting missing attributes.
+     *
+     * @param element element to inspect
+     * @param namespacePrefix namespace prefix
+     * @param name attribute local name
+     * @param acceptFailure whether to return {@code null} if missing
+     * @return attribute value or {@code null}
+     * @throws XmlException if the attribute is missing and acceptFailure is false
+     */
     public String getValueFrom(OMElement element, String namespacePrefix, String name, boolean acceptFailure) throws XmlException {
         return getValueFrom(element, namespaces, namespacePrefix, name, acceptFailure);
     }
 
+    /**
+     * Reads a namespaced attribute value using explicit namespaces.
+     *
+     * @param element element to inspect
+     * @param namespaces namespace mappings
+     * @param namespacePrefix namespace prefix
+     * @param name attribute local name
+     * @return attribute value
+     * @throws XmlException if the attribute is missing
+     */
     public static String getValueFrom(OMElement element, Namespaces namespaces, String namespacePrefix, String name) throws XmlException {
         return getValueFrom(element, namespaces, namespacePrefix, name, /* accept fail? */ false);
     }
 
     //
+    /**
+     * Reads an attribute value with explicit namespace handling.
+     *
+     * @param element element to inspect
+     * @param namespaces namespace mappings
+     * @param namespacePrefix namespace prefix
+     * @param name attribute local name
+     * @param acceptFail whether to return {@code null} if missing
+     * @return attribute value or {@code null}
+     * @throws XmlException if the attribute is missing and acceptFail is false
+     */
     public static String getValueFrom(OMElement element, Namespaces namespaces, String namespacePrefix, String name, boolean acceptFail) throws XmlException {
         OMAttribute attrib;
         if (null != namespacePrefix && !namespacePrefix.isEmpty()) {
