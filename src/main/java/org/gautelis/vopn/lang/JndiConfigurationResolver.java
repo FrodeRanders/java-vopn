@@ -43,14 +43,28 @@ public class JndiConfigurationResolver implements ConfigurationTool.Configuratio
 
     private final String jndiEnvironment;
 
+    /**
+     * Creates a resolver using the default JNDI environment.
+     */
     public JndiConfigurationResolver() {
         this.jndiEnvironment = DEFAULT_JNDI_ENVIRONMENT;
     }
 
+    /**
+     * Creates a resolver using a custom JNDI environment root.
+     *
+     * @param jndiEnvironment JNDI base path
+     */
     public JndiConfigurationResolver(final String jndiEnvironment) {
         this.jndiEnvironment = jndiEnvironment;
     }
 
+    /**
+     * Resolves a configuration value from the JNDI tree.
+     *
+     * @param name property key
+     * @return resolved value or {@code null} if not found
+     */
     @Override
     public Object resolve(String name) {
         try {

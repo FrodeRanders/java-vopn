@@ -53,17 +53,38 @@ public class Date {
         return df.format(time);
     }
 
+    /**
+     * Formats a date using the specified locale.
+     *
+     * @param date date to format
+     * @param locale locale to use
+     * @return formatted date string
+     */
     public static String date2String(java.util.Date date, Locale locale) {
         DateFormat df = DateFormat.getDateInstance(dateStyle, locale);
         return df.format(date);
     }
 
+    /**
+     * Parses a date string using the specified locale.
+     *
+     * @param date date string
+     * @param locale locale to use
+     * @return parsed date
+     * @throws ParseException if parsing fails
+     */
     public static java.util.Date string2Date(String date, Locale locale)
             throws ParseException {
         DateFormat df = DateFormat.getDateInstance(dateStyle, locale);
         return df.parse(date);
     }
 
+    /**
+     * Returns the date format pattern for the locale.
+     *
+     * @param locale locale to use
+     * @return date format pattern
+     */
     public static String toPattern(Locale locale) {
         SimpleDateFormat sdf;
 
@@ -86,7 +107,7 @@ public class Date {
 
         dbDate = null;
         try {
-            if (date == null || date.equals("")) {
+            if (date == null || date.isEmpty()) {
                 return false;
             }
 
@@ -111,6 +132,7 @@ public class Date {
      * Converts the users input date value to java.sql.Date
      *
      * @param date Date to convert
+     * @param locale locale to use
      * @return The converted date in java.sql.date format
      */
     public static java.sql.Date convertDate(String date, Locale locale) {
@@ -118,7 +140,7 @@ public class Date {
         java.util.Date dbDate = null;
         java.sql.Date sqldate = null;
         try {
-            if (date == null || date.equals("")) {
+            if (date == null || date.isEmpty()) {
                 return null;
             }
 

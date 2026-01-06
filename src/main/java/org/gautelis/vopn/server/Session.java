@@ -26,6 +26,10 @@ import java.nio.channels.SocketChannel;
 import java.util.LinkedList;
 import java.util.Queue;
 
+/**
+ * Tracks state for a connected client, including pending writes and
+ * authentication metadata.
+ */
 public class Session {
     private static final Logger log = LoggerFactory.getLogger(Session.class);
 
@@ -44,6 +48,13 @@ public class Session {
     // Authentication state
     private boolean authenticated = false;
 
+    /**
+     * Creates a new session bound to a selection key.
+     *
+     * @param key selection key for the socket channel
+     * @param server owning server instance
+     * @throws Exception if the connection cannot be initialized
+     */
     /* package visible only */ Session(SelectionKey key, Server server) throws Exception {
         this.key = key;
 
@@ -58,26 +69,57 @@ public class Session {
         }
     }
 
+    /**
+     * Queues data to be written back to the client.
+     *
+     * @param data buffer containing outgoing bytes
+     */
     public void queueWrite(ByteBuffer data) {
         pendingWrites.add(data);
     }
 
+    /**
+     * Returns the queue of pending writes.
+     *
+     * @return queue of byte buffers
+     */
     public Queue<ByteBuffer> getPendingWrites() {
         return pendingWrites;
     }
 
+    /**
+     * Returns the selection key for this session.
+     *
+     * @return selection key
+     */
     public SelectionKey getKey() {
         return key;
     }
 
+    /**
+     * Returns the connection tied to this session.
+     *
+     * @return connection instance
+     */
     public Connection getConnection() {
         return connection;
     }
 
+    /**
+     * Returns the user id for this session if authenticated.
+     *
+     * @return user id or {@code null}
+     */
     public String getUserId() {
         return userId;
     }
 
+    /**
+     * Marks this session as authenticated.
+     *
+     * @param userId user identifier
+     * @param credentials credentials used during authentication
+     */
     void authenticate(String userId, String credentials) {
         this.userId = userId;
         this.credentials = credentials;
@@ -86,6 +128,11 @@ public class Session {
         authenticated = true;
     }
 
+    /**
+     * Returns whether the session has been authenticated.
+     *
+     * @return {@code true} if authenticated
+     */
     public boolean isAuthenticated() {
         return authenticated;
     }

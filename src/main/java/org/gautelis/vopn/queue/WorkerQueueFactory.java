@@ -30,6 +30,9 @@ public class WorkerQueueFactory {
 
      //* {@link WorkStealingQueue multiple queues with workers stealing from each others queues}.
 
+    /**
+     * Supported queue types.
+     */
     public enum Type
     {
         Simple,
@@ -44,16 +47,10 @@ public class WorkerQueueFactory {
      * @return a worker queue
      */
 	public static WorkQueue getWorkQueue(Type type, int nThreads) {
-		switch(type) {
-			case Simple:
-				return new SimpleWorkQueue(nThreads);
-			
-            case WorkStealing:
-				return new WorkStealingQueue(nThreads);
-
-			case Multi:
-            default:
-				return new MultiWorkQueue(nThreads);
-		}
+        return switch (type) {
+            case Simple -> new SimpleWorkQueue(nThreads);
+            case WorkStealing -> new WorkStealingQueue(nThreads);
+            default -> new MultiWorkQueue(nThreads);
+        };
 	}
 }

@@ -41,20 +41,26 @@ import java.io.ByteArrayOutputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 
-/*
- * Description of Serializer.
+/**
+ * Serializes JAXB-annotated objects to XML strings or DOM documents.
  * <p>
- * Serializes any object into XML (String) that has the JAXB annotations:
+ * Objects must be annotated with:
  * <pre>
- * @XmlRootElement
- * @XmlAccessorType(XmlAccessType.FIELD)
- * set on the type (class)
+ * '@XmlRootElement'
+ * '@XmlAccessorType(XmlAccessType.FIELD)'
  * </pre>
- * <p>
- * Created by Frode Randers at 2013-01-27 23:21
  */
 public class Serializer {
 
+    /**
+     * Serializes an object to UTF-16 XML using DOM LS.
+     *
+     * @param clazz JAXB-annotated class
+     * @param o object to serialize
+     * @return XML string in UTF-16
+     * @throws JAXBException if serialization fails
+     * @throws ParserConfigurationException if DOM cannot be created
+     */
     public static String obj2XmlUtf16(Class<?> clazz, Object o)  throws JAXBException, ParserConfigurationException {
         Document doc = obj2Doc(clazz, o);
 
@@ -111,6 +117,15 @@ public class Serializer {
         return baos.toString(StandardCharsets.UTF_8);
     }
 
+    /**
+     * Serializes an object into a DOM document.
+     *
+     * @param clazz JAXB-annotated class
+     * @param o object to serialize
+     * @return DOM document
+     * @throws JAXBException if serialization fails
+     * @throws ParserConfigurationException if DOM cannot be created
+     */
     public static Document obj2Doc(Class<?> clazz, Object o) throws JAXBException, ParserConfigurationException {
         JAXBContext pContext = JAXBContext.newInstance(clazz);
 

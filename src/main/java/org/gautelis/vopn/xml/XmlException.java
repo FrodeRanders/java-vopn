@@ -25,17 +25,25 @@
  */
 package  org.gautelis.vopn.xml;
 
-/*
- * Description of XmlException
- * <p>
- * <p>
- * Created by Frode Randers at 2012-04-11 21:50
+/**
+ * Exception type for XML parsing and lookup errors.
  */
 public class XmlException extends Exception {
+    /**
+     * Creates an XmlException with a message.
+     *
+     * @param s error message
+     */
     public XmlException(String s) {
         super(s);
     }
 
+    /**
+     * Creates an XmlException with a message and cause.
+     *
+     * @param s error message
+     * @param t underlying cause
+     */
     public XmlException(String s, Throwable t) {
         super(s, t);
     }

@@ -49,6 +49,12 @@ public class DynamicCompiler {
 
     final private File workDirectory;
 
+    /**
+     * Creates a compiler that writes artifacts to a temporary subdirectory.
+     *
+     * @param workingDirectory parent directory for compiler output
+     * @throws IOException if the temporary directory cannot be created
+     */
     public DynamicCompiler(File workingDirectory) throws IOException {
         // Create working directory (usual workaround)
         workDirectory = File.createTempFile("compiler-", "-output", workingDirectory);
@@ -61,18 +67,30 @@ public class DynamicCompiler {
         }
     }
 
+    /**
+     * Returns the compiler output directory.
+     *
+     * @return output directory
+     */
     public File getDirectory() {
         return workDirectory;
     }
 
+    /**
+     * Compiles in-memory source code.
+     *
+     * @param name class name
+     * @param code source code
+     * @param diagnose diagnostic output buffer
+     * @return {@code true} if compilation succeeded
+     */
     public boolean compile(String name, StringBuilder code, StringBuilder diagnose) {
         JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
         DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<JavaFileObject>();
 
         JavaFileObject file = new JavaSourceFromString(name, code);
 
-        Iterable<? extends JavaFileObject> compilationUnits = Arrays.asList(file);
-        List<String> optionList = new ArrayList<String>();
+        Iterable<? extends JavaFileObject> compilationUnits = List.of(file);
 
         // The compiler's classpath includes the runtime's classpath, but
         // extended with the local work directory of the compiler
@@ -80,23 +98,21 @@ public class DynamicCompiler {
         classPath += (System.getProperty("os.name").toLowerCase().contains("win")) ? ";" : ":"; // This is silly!
         classPath += workDirectory.getAbsolutePath();
 
-        optionList.addAll(
-            Arrays.asList(
-                    "-classpath", classPath,       // Classpath also contains workDirectory
-                    "-d", workDirectory.getPath(), // Compiler output goes here
-                    "-s", workDirectory.getPath(), // Compiler output goes here
-                    "-proc:none",
-                    "-Xlint",
-                    "-verbose"
-            )
-        );
+        List<String> optionList = new ArrayList<>(Arrays.asList(
+                "-classpath", classPath,       // Classpath also contains workDirectory
+                "-d", workDirectory.getPath(), // Compiler output goes here
+                "-s", workDirectory.getPath(), // Compiler output goes here
+                "-proc:none",
+                "-Xlint",
+                "-verbose"
+        ));
 
         //Writer writer = new BufferedWriter(new PrintWriter(System.out)); // TODO!
         Writer writer = null;
         JavaCompiler.CompilationTask task = compiler.getTask(writer, null, diagnostics, optionList, null, compilationUnits);
 
         boolean success = task.call();
-        for (Diagnostic diagnostic : diagnostics.getDiagnostics()) {
+        for (Diagnostic<?> diagnostic : diagnostics.getDiagnostics()) {
             diagnose.append(diagnostic.getKind()).append(": ")
                     .append(diagnostic.getCode()).append(" ")
                     //.append(diagnostic.getPosition()).append(" ")
@@ -109,7 +125,7 @@ public class DynamicCompiler {
         return success;
     }
 
-    private class JavaSourceFromString extends SimpleJavaFileObject {
+    private static class JavaSourceFromString extends SimpleJavaFileObject {
         final StringBuilder code;
 
         public JavaSourceFromString(String name, StringBuilder code) {
@@ -123,4 +139,3 @@ public class DynamicCompiler {
         }
     }
 }
-

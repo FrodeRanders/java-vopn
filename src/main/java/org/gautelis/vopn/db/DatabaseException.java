@@ -31,11 +31,22 @@ package org.gautelis.vopn.db;
  * Created by Frode Randers at 2011-11-04 14:14
  */
 public class DatabaseException extends Exception {
-	public DatabaseException(String msg) {
-		super(msg);
-	}
-	
-	public DatabaseException(String msg, Throwable t) {
-		super(msg, t);
-	}
+    /**
+     * Creates a database exception with a message.
+     *
+     * @param msg error message
+     */
+    public DatabaseException(String msg) {
+        super(msg);
+    }
+
+    /**
+     * Creates a database exception with a message and root cause.
+     *
+     * @param msg error message
+     * @param t underlying cause
+     */
+    public DatabaseException(String msg, Throwable t) {
+        super(msg, t);
+    }
 }

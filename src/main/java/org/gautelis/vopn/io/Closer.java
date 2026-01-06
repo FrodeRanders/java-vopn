@@ -34,6 +34,11 @@ import java.io.Closeable;
  */
 public class Closer {
 
+    /**
+     * Closes a Closeable, suppressing any thrown exceptions.
+     *
+     * @param c closeable instance
+     */
     public static <T extends Closeable> void close(T c) {
         try {
             if (null != c)

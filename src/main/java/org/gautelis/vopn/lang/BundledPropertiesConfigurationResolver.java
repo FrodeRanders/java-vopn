@@ -62,6 +62,13 @@ public class BundledPropertiesConfigurationResolver implements ConfigurationTool
 
     private final Properties properties;
 
+    /**
+     * Loads bundled properties from the provided classpath resource.
+     *
+     * @param clazz class used to locate the resource
+     * @param bundledFileName resource path to a .properties or XML file
+     * @throws IOException if the resource cannot be read
+     */
     public BundledPropertiesConfigurationResolver(Class<?> clazz, String bundledFileName) throws IOException {
         properties = new Properties();
 
@@ -86,6 +93,12 @@ public class BundledPropertiesConfigurationResolver implements ConfigurationTool
         }
     }
 
+    /**
+     * Resolves a configuration value from the bundled properties.
+     *
+     * @param name property key
+     * @return resolved value or {@code null} if not found
+     */
     @Override
     public Object resolve(String name) {
         String value = properties.getProperty(name);

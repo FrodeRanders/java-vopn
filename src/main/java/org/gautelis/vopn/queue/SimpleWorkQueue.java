@@ -37,7 +37,7 @@ public class SimpleWorkQueue implements WorkQueue {
     
     private final Object lock = new Object();
     
-    /* 
+    /*
      * constructor to initiate worker threads and queue associated with it
      */
     /* package visible only */ SimpleWorkQueue(int nThreads)
@@ -47,6 +47,9 @@ public class SimpleWorkQueue implements WorkQueue {
         threads = new PoolWorker[nThreads];
     }
     
+    /**
+     * Starts the worker threads.
+     */
     public void start() {
     	for (int i=0; i<nThreads; i++) {
             threads[i] = new PoolWorker();
@@ -56,6 +59,9 @@ public class SimpleWorkQueue implements WorkQueue {
         log.trace("Starting work queue...");
     }
 
+    /**
+     * Requests all workers to stop.
+     */
     public void stop() {
         log.trace("Stopping work queue...");
 

@@ -28,11 +28,8 @@ package  org.gautelis.vopn.lang;
 import java.math.BigInteger;
 import java.text.NumberFormat;
 
-/*
- * Description of TimeDelta
- * <p>
- * <p>
- * Created by Frode Randers at 2013-01-10 00:56
+/**
+ * Formats time deltas into human-readable approximations.
  */
 public class TimeDelta {
 
@@ -52,6 +49,12 @@ public class TimeDelta {
 
     private static NumberFormat dec2Format = NumberFormat.getNumberInstance();
 
+    /**
+     * Formats a duration in milliseconds to a human-readable string.
+     *
+     * @param milliseconds duration in milliseconds
+     * @return human readable string
+     */
     public static String asHumanApproximate(BigInteger milliseconds) {
         dec2Format.setMaximumFractionDigits(0);
 
@@ -90,6 +93,12 @@ public class TimeDelta {
         return result.trim();
     }
 
+    /**
+     * Formats a duration in milliseconds to a human-readable string.
+     *
+     * @param milliseconds duration in milliseconds
+     * @return human readable string
+     */
     public static String asHumanApproximate(long milliseconds) {
         return asHumanApproximate(BigInteger.valueOf(milliseconds));
     }

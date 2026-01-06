@@ -21,8 +21,8 @@ package org.gautelis.vopn.server;
  * Represents a wish (task) for removing interest.
  * Issued by a request processor thread, put on the SelectorQueue
  * and picked up by the main server thread.
- */class SubtractiveSelectorTask extends SelectorTask
-{
+ */
+class SubtractiveSelectorTask extends SelectorTask {
     /**
      * Creates a subtractive selector task.
      * @param request in question (just served)

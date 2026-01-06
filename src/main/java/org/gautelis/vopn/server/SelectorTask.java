@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025-2026 Frode Randers
+ * Copyright (C) 2025 Frode Randers
  * All rights reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,23 +17,46 @@
  */
 package org.gautelis.vopn.server;
 
-abstract class SelectorTask
-{
+/**
+ * Base class for selector interest update tasks.
+ */
+public abstract class SelectorTask {
     private final Request request;
     private final int interest;
 
+    /**
+     * Creates a selector task for a request and interest mask.
+     *
+     * @param request request owning the selection key
+     * @param interest interest ops to add or remove
+     */
     SelectorTask(Request request, int interest) {
         this.request = request;
         this.interest = interest;
     }
 
+    /**
+     * Returns the request tied to this task.
+     *
+     * @return request instance
+     */
     Request getRequest() {
         return request;
     }
 
+    /**
+     * Returns the selection key interest mask.
+     *
+     * @return interest ops
+     */
     int getInterest() {
         return interest;
     }
 
+    /**
+     * Returns whether this task adds or removes interest.
+     *
+     * @return {@code true} if additive
+     */
     abstract boolean isAdditive();
 }

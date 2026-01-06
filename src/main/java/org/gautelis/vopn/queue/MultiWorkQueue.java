@@ -52,6 +52,9 @@ public class MultiWorkQueue implements WorkQueue {
         }
     }
 
+    /**
+     * Starts the worker threads.
+     */
     public void start() {
         for (int i = 0; i < nThreads; i++) {
             threads[i] = new PoolWorker(i);
@@ -60,6 +63,9 @@ public class MultiWorkQueue implements WorkQueue {
         log.trace("Starting work queue...");
     }
 
+    /**
+     * Requests all workers to stop.
+     */
     public void stop() {
         log.trace("Stopping work queue...");
 

@@ -17,13 +17,30 @@
  */
 package org.gautelis.vopn.server;
 
+/**
+ * Server lifecycle contract used by the request processors.
+ */
 public interface Server {
 
+    /**
+     * Requests a graceful shutdown of the server.
+     *
+     * @param reason human-readable shutdown reason
+     */
     void requestShutdown(String reason);
 
+    /**
+     * Starts the server event loop.
+     */
     void start();
 
+    /**
+     * Hook invoked when the server is stopping.
+     */
     void stopping();
 
+    /**
+     * Hook invoked after the server has stopped.
+     */
     void stopped();
 }

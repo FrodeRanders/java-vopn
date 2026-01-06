@@ -40,10 +40,13 @@ import java.sql.SQLException;
  public class LocalDatabase {
     private static final String JDBC_DRIVER = "org.apache.derby.jdbc.EmbeddedDriver";
 
+    /**
+     * Loads the embedded Derby JDBC driver.
+     */
     public static void startup() {
         // Load the Derby JDBC driver
         try {
-            Class.forName(JDBC_DRIVER).newInstance();
+            Class.forName(JDBC_DRIVER).getDeclaredConstructor().newInstance();
 
         } catch (Exception e) {
             String info = "Could not load JDBC driver for Derby: ";
@@ -52,6 +55,9 @@ import java.sql.SQLException;
         }
     }
 
+    /**
+     * Attempts a clean shutdown of the embedded Derby engine.
+     */
     public static void shutdown() {
         try {
             DriverManager.getConnection("jdbc:derby:;shutdown=true");
@@ -75,23 +81,32 @@ import java.sql.SQLException;
         }
     }
 
+    /**
+     * Executes a DDL statement, ignoring "already exists" for Derby.
+     *
+     * @param conn active JDBC connection
+     * @param ddl DDL statement to execute
+     * @throws SQLException if the DDL fails with a non-ignorable error
+     */
     public static void createObject(Connection conn, String ddl) throws SQLException {
-        PreparedStatement pStmt = null;
-        try {
-            pStmt = conn.prepareStatement(ddl);
+        try (PreparedStatement pStmt = conn.prepareStatement(ddl)) {
             pStmt.executeUpdate();
 
         } catch (SQLException sqle) {
             // We explicitly choose to accept that an object, such as
             // a table, already exists.
-            if (! "X0Y32".equals(sqle.getSQLState())) {
+            if (!"X0Y32".equals(sqle.getSQLState())) {
                 throw sqle;
             }
-        } finally {
-            if (pStmt != null) pStmt.close();
         }
     }
 
+    /**
+     * Opens a connection to the local embedded database, creating it if needed.
+     *
+     * @return JDBC connection to the local database
+     * @throws SQLException if the connection cannot be opened
+     */
     public static Connection getConnection() throws SQLException {
         return DriverManager.getConnection("jdbc:derby:localdb;create=true");
     }

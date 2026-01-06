@@ -73,6 +73,12 @@ public class GeneralizedConfigurationInvocationHandler implements InvocationHand
         this.resolvers.add(new DefaultResolver(map));
     }
 
+    /**
+     * Creates a handler with additional resolvers, falling back to the provided map.
+     *
+     * @param map default values map
+     * @param resolvers additional configuration resolvers
+     */
     public GeneralizedConfigurationInvocationHandler(
             Map<String, Object> map,
             Collection<ConfigurationTool.ConfigurationResolver> resolvers
@@ -81,6 +87,14 @@ public class GeneralizedConfigurationInvocationHandler implements InvocationHand
         this.resolvers.add(new DefaultResolver(map));
     }
 
+    /**
+     * Resolves configuration values for proxy method invocations.
+     *
+     * @param proxy proxy instance
+     * @param method configuration method
+     * @param params invocation parameters
+     * @return resolved value
+     */
     @Override
     public Object invoke(Object proxy, Method method, Object[] params) {
         if ("toString".equals(method.getName())) {

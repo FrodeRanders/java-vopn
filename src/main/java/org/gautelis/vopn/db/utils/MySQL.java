@@ -39,6 +39,13 @@ import java.util.Properties;
  */
 public class MySQL extends Manager {
 
+    /**
+     * Creates a MySQL manager using a pre-configured datasource.
+     *
+     * @param dataSource datasource instance
+     * @param options manager options
+     * @throws Exception if initialization fails
+     */
     public MySQL(DataSource dataSource, Options options) throws Exception {
         super(dataSource, options, "//.");
 
@@ -46,6 +53,14 @@ public class MySQL extends Manager {
         System.out.println("Target database: MySQL");
     }
 
+    /**
+     * Creates a MySQL manager using configuration properties.
+     *
+     * @param properties database configuration properties
+     * @param options manager options
+     * @param preparer datasource preparation callback
+     * @throws Exception if initialization fails
+     */
     public MySQL(Properties properties, Options options, PrepareDataSource preparer) throws Exception {
         super(preparer, properties, options, "//.");
 
@@ -53,6 +68,15 @@ public class MySQL extends Manager {
         System.out.println("Target database: MySQL");
     }
 
+    /**
+     * Builds a pooled datasource based on the provided configuration.
+     *
+     * @param applicationName application name to store on the datasource
+     * @param config database configuration
+     * @return configured datasource
+     * @throws DatabaseException if a driver cannot be loaded
+     * @throws ClassCastException if the datasource type is unexpected
+     */
     public static DataSource getDataSource(
             String applicationName,
             Database.Configuration config
@@ -63,22 +87,22 @@ public class MySQL extends Manager {
         dataSource.setDriverClassName(config.driver());
 
         String database = config.database();
-        if (null != database && database.length() > 0) {
+        if (null != database && !database.isEmpty()) {
             dataSource.addConnectionProperty("databaseName", database);
         }
 
         String user = config.user();
-        if (null != user && user.length() > 0) {
+        if (null != user && !user.isEmpty()) {
             dataSource.setUsername(user);
         }
 
         String password = config.password();
-        if (null != password && password.length() > 0) {
+        if (null != password && !password.isEmpty()) {
             dataSource.setPassword(password);
         }
 
         String url = config.url();
-        if (null != url && url.length() > 0) {
+        if (null != url && !url.isEmpty()) {
             dataSource.setUrl(url);
         }
 
@@ -90,4 +114,3 @@ public class MySQL extends Manager {
         return dataSource;
     }
 }
-

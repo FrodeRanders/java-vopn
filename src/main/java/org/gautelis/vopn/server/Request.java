@@ -19,21 +19,45 @@ package org.gautelis.vopn.server;
 
 import java.nio.channels.SelectionKey;
 
+/**
+ * Lightweight wrapper that exposes the session and its connection details
+ * while a request is being processed.
+ */
 public class Request {
     private final Session session;
 
+    /**
+     * Creates a request wrapper for the given session.
+     *
+     * @param session active session for the incoming request
+     */
     /* package visible only */ Request(Session session) {
         this.session = session;
     }
 
+    /**
+     * Returns the connection associated with this request.
+     *
+     * @return active connection
+     */
     public Connection getConnection() {
         return session.getConnection();
     }
 
+    /**
+     * Returns the selection key for the underlying channel.
+     *
+     * @return selection key
+     */
     public SelectionKey getKey() {
         return session.getKey();
     }
 
+    /**
+     * Returns the session that owns this request.
+     *
+     * @return session instance
+     */
     public Session getSession() {
         return session;
     }

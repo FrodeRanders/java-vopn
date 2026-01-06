@@ -20,12 +20,41 @@ package org.gautelis.vopn.queue;
 import java.io.Closeable;
 import java.io.IOException;
 
+/**
+ * Queue abstraction for running tasks across worker threads.
+ */
 public interface WorkQueue extends Closeable {
-	void start();
+    /**
+     * Starts worker threads.
+     */
+    void start();
+
+    /**
+     * Signals worker threads to stop.
+     */
     void stop();
-	boolean execute(Runnable t);
-	boolean isEmpty();
-	long size();
+
+    /**
+     * Enqueues a task for execution.
+     *
+     * @param t runnable task
+     * @return {@code true} if the task was accepted
+     */
+    boolean execute(Runnable t);
+
+    /**
+     * Returns whether the queue is empty.
+     *
+     * @return {@code true} if no pending tasks
+     */
+    boolean isEmpty();
+
+    /**
+     * Returns the number of queued tasks.
+     *
+     * @return queue size
+     */
+    long size();
 
     default void close() throws IOException { stop(); }
 }

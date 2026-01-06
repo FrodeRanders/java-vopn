@@ -43,7 +43,16 @@ import java.util.Properties;
  * Created by Frode Randers at 2011-11-04 14:14
  */
 public abstract class Manager {
+    /**
+     * Callback used to apply vendor-specific configuration to a datasource.
+     */
     public interface PrepareDataSource {
+        /**
+         * Applies vendor-specific settings to a datasource.
+         *
+         * @param ds datasource to configure
+         * @param configuration database configuration
+         */
         void prepare(DataSource ds, Database.Configuration configuration);
     }
 
@@ -116,7 +125,8 @@ public abstract class Manager {
 
     /**
      * Returns the internal DataSource, in case operations should continue after Manager ceases its work.
-     * @return
+     *
+     * @return configured datasource
      */
     public DataSource getDataSource() {
         return dataSource;
@@ -124,6 +134,11 @@ public abstract class Manager {
 
     /**
      * Executes any SQL script file
+     *
+     * @param name script name for logging
+     * @param sqlCode reader providing SQL
+     * @param out writer for output
+     * @throws Exception if execution fails
      */
     public void execute(String name, Reader sqlCode, PrintWriter out) throws Exception {
         runScript(name, sqlCode, out);
@@ -131,6 +146,9 @@ public abstract class Manager {
 
     /**
      * Check if file exists
+     *
+     * @param filename file path
+     * @return {@code true} if the file exists
      */
     protected boolean fileExist(String filename) {
         File file = new File(filename);
@@ -169,8 +187,10 @@ public abstract class Manager {
     /**
      * Executes an SQL statement.
      *
-     * @param sqlStatement
-     * @throws Exception
+     * @param sqlStatement SQL to execute
+     * @param out output writer
+     * @param acceptFailure whether to accept known benign failures
+     * @throws Exception if execution fails
      */
     protected void execute(String sqlStatement, PrintWriter out, boolean acceptFailure) throws Exception {
 
@@ -381,8 +401,12 @@ public abstract class Manager {
 
     public void shutdown() {}
 
+    /**
+     * Returns a simple interactive SQL shell over this manager.
+     *
+     * @return shell instance
+     */
     public Shell getShell() {
         return new Shell(this);
     }
 }
-

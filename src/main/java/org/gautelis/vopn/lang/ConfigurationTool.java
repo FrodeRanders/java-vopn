@@ -118,6 +118,12 @@ public class ConfigurationTool {
 
 
     public interface ConfigurationResolver {
+        /**
+         * Resolves a configuration value by name.
+         *
+         * @param name property key
+         * @return resolved value or {@code null} if not found
+         */
         Object resolve(String name);
     }
 
@@ -137,6 +143,13 @@ public class ConfigurationTool {
         }
     }
 
+    /**
+     * Binds a configuration interface to default values.
+     *
+     * @param clazz configuration interface
+     * @param defaultValues default values map
+     * @return proxy implementation of the configuration interface
+     */
     @SuppressWarnings("unchecked")
     public static <T> T bind(Class<T> clazz, Map<String, Object> defaultValues) {
         ArrayList<Class<?>> interfaces = new ArrayList<>();
@@ -149,6 +162,14 @@ public class ConfigurationTool {
         );
     }
 
+    /**
+     * Binds a configuration interface to default values and resolvers.
+     *
+     * @param clazz configuration interface
+     * @param defaultValues default values map
+     * @param resolvers configuration resolvers to consult
+     * @return proxy implementation of the configuration interface
+     */
     @SuppressWarnings("unchecked")
     public static <T> T bind(Class<T> clazz, Map<String, Object> defaultValues, Collection<ConfigurationResolver> resolvers) {
         ArrayList<Class<?>> interfaces = new ArrayList<>();
@@ -162,6 +183,13 @@ public class ConfigurationTool {
     }
 
 
+    /**
+     * Binds a configuration interface to a properties object.
+     *
+     * @param clazz configuration interface
+     * @param properties configuration properties
+     * @return proxy implementation of the configuration interface
+     */
     @SuppressWarnings("unchecked")
     public static <T> T bindProperties(Class<T> clazz, Properties properties) {
         ArrayList<Class<?>> interfaces = new ArrayList<>();
@@ -183,6 +211,14 @@ public class ConfigurationTool {
         );
     }
 
+    /**
+     * Binds a configuration interface to properties and resolvers.
+     *
+     * @param clazz configuration interface
+     * @param properties configuration properties
+     * @param resolvers configuration resolvers to consult
+     * @return proxy implementation of the configuration interface
+     */
     @SuppressWarnings("unchecked")
     public static <T> T bindProperties(Class<T> clazz, Properties properties, Collection<ConfigurationResolver> resolvers) {
         ArrayList<Class<?>> interfaces = new ArrayList<>();
@@ -195,6 +231,12 @@ public class ConfigurationTool {
         );
     }
 
+    /**
+     * Binds a configuration interface to the globally registered properties.
+     *
+     * @param clazz configuration interface
+     * @return proxy implementation of the configuration interface
+     */
     @SuppressWarnings("unchecked")
     public static <T> T bindProperties(Class<T> clazz) {
         synchronized(lock) {
@@ -233,6 +275,13 @@ public class ConfigurationTool {
         return properties;
     }
 
+    /**
+     * Loads properties from a file, supporting both .properties and .xml.
+     *
+     * @param propertiesFile properties file
+     * @return loaded properties
+     * @throws IOException if the file cannot be read
+     */
     public static Properties load(File propertiesFile) throws IOException {
         InputStream is = null;
         try {
@@ -243,10 +292,25 @@ public class ConfigurationTool {
         }
     }
 
+    /**
+     * Loads properties from a file path.
+     *
+     * @param path properties file path
+     * @return loaded properties
+     * @throws IOException if the file cannot be read
+     */
     public static Properties load(String path) throws IOException {
         return load(new File(path));
     }
 
+    /**
+     * Loads properties from a classpath resource.
+     *
+     * @param clazz class used to locate the resource
+     * @param resourceName resource path
+     * @return loaded properties
+     * @throws IOException if the resource cannot be read
+     */
     public static Properties loadFromResource(Class<?> clazz, String resourceName) throws IOException {
         InputStream is = null;
         try {
@@ -257,6 +321,11 @@ public class ConfigurationTool {
         }
     }
 
+    /**
+     * Registers a global properties object used by {@link #bindProperties(Class)}.
+     *
+     * @param properties properties to register
+     */
     public static void useGlobalConfiguration(Properties properties) {
         synchronized(lock) {
             globalProperties = properties;
@@ -265,8 +334,9 @@ public class ConfigurationTool {
 
     /**
      * Looks up (configuration) resources in JNDI or system environment.
-     * @param resourceName
-     * @return
+     *
+     * @param resourceName property name to look up
+     * @return resolved value or {@code null} if not found
      */
     public static String lookup(String resourceName) {
         String resource = null;

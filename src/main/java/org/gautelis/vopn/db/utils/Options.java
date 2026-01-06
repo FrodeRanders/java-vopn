@@ -35,14 +35,28 @@ public class Options {
 
     public static final Options DEFAULT = new Options();
 
+    /**
+     * Creates default options with debug disabled.
+     */
     public Options() {
     }
 
+    /**
+     * Enables or disables debug output.
+     *
+     * @param value {@code true} to enable debug output
+     * @return this instance for chaining
+     */
     public Options setDebug(boolean value) {
         this.debug = value;
         return this;
     }
 
+    /**
+     * Returns shared default options.
+     *
+     * @return default options instance
+     */
     public static Options getDefault() {
         return DEFAULT;
     }

@@ -27,6 +27,12 @@ import org.slf4j.LoggerFactory;
 public class SystemPropertiesConfigurationResolver implements ConfigurationTool.ConfigurationResolver {
     private static final Logger log = LoggerFactory.getLogger(SystemPropertiesConfigurationResolver.class);
 
+    /**
+     * Resolves a configuration value from JVM system properties.
+     *
+     * @param name property key
+     * @return resolved value or {@code null} if not found
+     */
     @Override
     public Object resolve(String name) {
         String value = System.getProperty(name);

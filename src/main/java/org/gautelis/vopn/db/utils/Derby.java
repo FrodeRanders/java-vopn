@@ -42,6 +42,12 @@ import java.util.Properties;
  */
 public class Derby extends Manager {
 
+    /**
+     * Creates a Derby manager using a pre-configured datasource.
+     *
+     * @param dataSource datasource instance
+     * @param options manager options
+     */
     public Derby(DataSource dataSource, Options options) {
         super(dataSource, options, ";", /* ignore case? */ false, /* alone on line? */ false);
 
@@ -49,6 +55,14 @@ public class Derby extends Manager {
         System.out.println("Target database: Derby");
     }
 
+    /**
+     * Creates a Derby manager using configuration properties.
+     *
+     * @param properties database configuration properties
+     * @param options manager options
+     * @param preparer datasource preparation callback
+     * @throws Exception if initialization fails
+     */
     public Derby(Properties properties, Options options, PrepareDataSource preparer) throws Exception {
         super(preparer, properties, options, ";", /* ignore case? */ false, /* alone on line? */ false);
 
@@ -56,6 +70,9 @@ public class Derby extends Manager {
         System.out.println("Target database: Derby");
     }
 
+    /**
+     * Attempts a clean shutdown of the embedded Derby engine.
+     */
     public void shutdown() {
         try {
             DriverManager.getConnection("jdbc:derby:;shutdown=true");
@@ -79,6 +96,15 @@ public class Derby extends Manager {
         }
     }
 
+    /**
+     * Builds an embedded Derby datasource based on the provided configuration.
+     *
+     * @param applicationName application name to store on the datasource
+     * @param config database configuration
+     * @return configured datasource
+     * @throws DatabaseException if a driver cannot be loaded
+     * @throws ClassCastException if the datasource type is unexpected
+     */
     public static DataSource getDataSource(
             String applicationName,
             Database.Configuration config

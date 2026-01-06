@@ -30,11 +30,8 @@ import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
 import java.util.Locale;
 
-/*
- * Description of Number
- * <p>
- * <p>
- * Created by Frode Randers at 2012-02-29 10:10
+/**
+ * Utility functions for formatting numbers and sizes.
  */
 public class Number {
 
@@ -50,6 +47,13 @@ public class Number {
 
     private static NumberFormat dec2Format = NumberFormat.getNumberInstance();
 
+    /**
+     * Formats byte counts using IEC units (KiB, MiB, GiB).
+     *
+     * @param bytes byte count
+     * @param separator optional separator between value and unit
+     * @return human readable string
+     */
     public static String asHumanApproximate(long bytes, String... separator) {
         dec2Format.setMaximumFractionDigits(0);
 
@@ -74,6 +78,12 @@ public class Number {
     private static final DecimalFormatSymbols usSymbols = new DecimalFormatSymbols(Locale.US);
     private static final DecimalFormatSymbols seSymbols = new DecimalFormatSymbols(Locale.forLanguageTag("se"));
 
+    /**
+     * Rounds a number to two decimals using locale-aware formatting.
+     *
+     * @param d value to round
+     * @return rounded value
+     */
     public static double roundTwoDecimals(double d) {
         // TODO - fix this!
         DecimalFormat formatter = new DecimalFormat("#.##", seSymbols); // Swedish
