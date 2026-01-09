@@ -149,7 +149,9 @@ public class MultiDigestInputStream extends FilterInputStream {
     @Override
     public int read() throws IOException {
         int b = super.read();
-        ++size;
+        if (b >= 0) {
+            ++size;
+        }
 
         if (b >= 0) {
             // Update digests
@@ -180,27 +182,7 @@ public class MultiDigestInputStream extends FilterInputStream {
      */
     @Override
     public int read(byte[] bytes) throws IOException {
-        int actualLength = super.read(bytes);
-        size += actualLength;
-
-        if (actualLength > 0) {
-            // Update digests
-            if (null != crc32) {
-                try {
-                    crc32.update(bytes, /* offset */ 0, actualLength);
-                }
-                catch (ArrayIndexOutOfBoundsException aioob) {
-                    Throwable baseCause = Stacktrace.getBaseCause(aioob);
-                    String info = "Failed to update CRC32 digest: " + baseCause.getMessage();
-                    throw new IOException(info, aioob);
-                }
-            }
-            for (MessageDigest digest : digests) {
-                digest.update(bytes, /* offset */ 0, actualLength);
-            }
-        }
-
-        return actualLength;
+        return read(bytes, 0, bytes.length);
     }
 
     /**
@@ -215,9 +197,8 @@ public class MultiDigestInputStream extends FilterInputStream {
     @Override
     public int read(byte[] bytes, int off, int len) throws IOException {
         int actualLength = super.read(bytes, off, len);
-        size += actualLength;
-
         if (actualLength > 0) {
+            size += actualLength;
             // Update digests
             if (null != crc32) {
                 try {
