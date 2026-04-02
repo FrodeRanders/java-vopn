@@ -94,6 +94,12 @@ public class ThrottledExecutor {
         }
     }
 
+    /**
+     * Creates an executor with throttling limits and no tolerated failures.
+     *
+     * @param maxUnitsProcessedPerMinute max average units per minute
+     * @param maxUnitsProcessedInSequence max units to process in one run
+     */
     public ThrottledExecutor(
             final long maxUnitsProcessedPerMinute,
             final long maxUnitsProcessedInSequence

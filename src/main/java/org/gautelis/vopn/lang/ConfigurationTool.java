@@ -117,6 +117,10 @@ public class ConfigurationTool {
     public static final String JNDI_ENVIRONMENT = "java:comp/env";
 
 
+    /**
+     * Resolves configuration values from a specific source such as properties,
+     * system properties, environment variables, or JNDI.
+     */
     public interface ConfigurationResolver {
         /**
          * Resolves a configuration value by name.
@@ -265,6 +269,14 @@ public class ConfigurationTool {
         return path.toLowerCase().endsWith(".xml");
     }
 
+    /**
+     * Loads properties from an input stream.
+     *
+     * @param is source stream containing either Java properties or properties XML
+     * @param isXML whether the stream should be parsed with {@link Properties#loadFromXML(InputStream)}
+     * @return loaded properties
+     * @throws IOException if the stream cannot be read or parsed
+     */
     public static Properties load(InputStream is, boolean isXML) throws IOException {
         Properties properties = new Properties();
         if (isXML) {

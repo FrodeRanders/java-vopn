@@ -37,9 +37,9 @@ import java.util.Collection;
 import java.util.Map;
 
 /**
- * Description of GeneralizedConfigurationInvocationHandler:
- * <p>
- * Created by Frode Randers at 2013-01-19 12:55
+ * Invocation handler used by {@link ConfigurationTool} for map-backed configuration proxies.
+ * It resolves values through one or more {@link ConfigurationTool.ConfigurationResolver}
+ * instances and converts them to the declared method return types.
  */
 public class GeneralizedConfigurationInvocationHandler implements InvocationHandler {
     private static final String DESCRIPTION =
@@ -69,6 +69,11 @@ public class GeneralizedConfigurationInvocationHandler implements InvocationHand
         }
     }
 
+    /**
+     * Creates a handler backed by the provided default values.
+     *
+     * @param map default values map
+     */
     public GeneralizedConfigurationInvocationHandler(Map<String, Object> map) {
         this.resolvers.add(new DefaultResolver(map));
     }
@@ -93,7 +98,7 @@ public class GeneralizedConfigurationInvocationHandler implements InvocationHand
      * @param proxy proxy instance
      * @param method configuration method
      * @param params invocation parameters
-     * @return resolved value
+     * @return resolved value for the invoked method
      */
     @Override
     public Object invoke(Object proxy, Method method, Object[] params) {

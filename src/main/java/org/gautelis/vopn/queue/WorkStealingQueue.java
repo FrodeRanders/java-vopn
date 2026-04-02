@@ -72,6 +72,9 @@ public class WorkStealingQueue implements WorkQueue {
     	return null;
     }
     
+    /**
+     * Starts the worker threads.
+     */
     public void start() {
     	for (int i=0; i<nThreads; i++) {
             threads[i] = new PoolWorker(i);
@@ -93,10 +96,11 @@ public class WorkStealingQueue implements WorkQueue {
         log.trace("Work queue stopped");
     }
 
-    /* 
-     * Executes the given task in the future.
-     * Queues the task and notifies the waiting thread. Also it makes
-     * the Work assigner to wait if the queued task reaches to threshold
+    /**
+     * Enqueues a task on the next worker deque in round-robin order.
+     *
+     * @param r task to execute
+     * @return {@code true} if the task was queued
      */
     @SuppressWarnings("unchecked")
     public boolean execute(Runnable r) {
@@ -118,8 +122,10 @@ public class WorkStealingQueue implements WorkQueue {
         return false;
     }
 
-    /*
-     * Checks whether queue is empty (or not)
+    /**
+     * Returns whether all worker deques are currently empty.
+     *
+     * @return {@code true} if no tasks are queued
      */
     public boolean isEmpty() {
         synchronized (queues) {
@@ -132,8 +138,10 @@ public class WorkStealingQueue implements WorkQueue {
         return true;
     }
 
-    /*
-     * Returns size of work queue
+    /**
+     * Returns the total number of queued tasks across all worker deques.
+     *
+     * @return current queue size
      */
     public long size() {
         long _size = 0L;

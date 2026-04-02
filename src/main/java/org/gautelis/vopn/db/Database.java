@@ -521,14 +521,8 @@ public class Database {
         });
     }
 
-    /**
-     * Manages call to Statement.executeWithDD(), providing support for deadlock
-     * detection and statement reruns.
-     * <p/>
-     * Accepts Statement, PreparedStatement and CallableStatement arguments.
-     * <p/>
-     * We do not expect any result sets from this call.
-     *
+    /*
+     * Legacy implementation retained for reference:
     public static void execute(final Statement stmt, final String sql) throws SQLException {
         executeWithDD(() -> {
             for (int i = 0, updateCount; i < 255; i++) {
@@ -572,7 +566,8 @@ public class Database {
                 }
             }
         });
-    }*/
+    }
+     */
 
     /**
      * Manages call to PreparedStatement.executeQuery(), providing support for deadlock
@@ -653,6 +648,10 @@ public class Database {
         });
     }
 
+    /**
+     * Manages call to PreparedStatement.executeUpdate(), providing support for deadlock
+     * detection and statement reruns.
+     */
     public static int executeUpdate(final PreparedStatement stmt) throws SQLException {
         return updateWithDD(() -> {
             int rows = stmt.executeUpdate();
