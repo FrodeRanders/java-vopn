@@ -40,16 +40,16 @@
     <properties>
         <maven.compiler.release>25</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <slf4j.version>2.0.17</slf4j.version>
-        <log4j.version>2.25.4</log4j.version>
+        <slf4j.version>2.0.18</slf4j.version>
+        <log4j.version>2.26.0</log4j.version>
         <derby.version>10.17.1.0</derby.version>
-        <postgresql.version>42.7.10</postgresql.version>
+        <postgresql.version>42.7.12</postgresql.version>
         <antlr4.version>4.13.2</antlr4.version>
         <axiom.version>2.0.0</axiom.version>
-        <jaxen.version>2.0.1</jaxen.version>
-        <jline.version>3.30.6</jline.version>
+        <jaxen.version>2.0.6</jaxen.version>
+        <jline.version>4.2.1</jline.version>
         <jaxb.api.version>2.3.1</jaxb.api.version>
-        <jaxb.runtime.version>4.0.7</jaxb.runtime.version>
+        <jaxb.runtime.version>4.0.9</jaxb.runtime.version>
         <javax.activation.version>1.1.1</javax.activation.version>
     </properties>
 
@@ -220,7 +220,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>
-                <version>3.0.0-M3</version>
+                <version>3.6.3</version>
                 <executions>
                     <execution>
                         <goals><goal>enforce</goal></goals>
@@ -241,12 +241,11 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.8.1</version>
+                <version>3.15.0</version>
                 <configuration>
                     <source>25</source>
                     <target>25</target>
                     <release>${maven.compiler.release}</release>
-
                     <maxmem>1024m</maxmem>
                     <encoding>UTF-8</encoding>
                 </configuration>
@@ -254,7 +253,7 @@
 	        <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
-                <version>3.2.1</version>
+                <version>3.4.0</version>
                 <executions>
                     <execution>
                         <id>attach-sources</id>
@@ -267,10 +266,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
-                <version>3.3.2</version>
-                <configuration>
-                    <source>8</source>
-                </configuration>
+                <version>3.12.0</version>
                 <executions>
                     <execution>
                         <id>attach-javadocs</id>
@@ -282,7 +278,7 @@
             </plugin>
             <plugin>
                 <artifactId>maven-clean-plugin</artifactId>
-                <version>3.4.0</version>
+                <version>3.5.0</version>
                 <configuration>
                     <filesets>
                         <fileset>
@@ -300,10 +296,35 @@
 
     <profiles>
         <profile>
-            <id>java11</id>
+            <id>java11</id> <!-- expected not to compile right now -->
             <properties>
                 <maven.compiler.release>11</maven.compiler.release>
             </properties>
+        </profile>
+
+        <profile>
+            <id>java8</id> <!-- expected not to compile right now -->
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-compiler-plugin</artifactId>
+                        <version>3.15.0</version>
+                        <configuration>
+                            <source>1.8</source>
+                            <target>1.8</target>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <version>3.12.0</version>
+                        <configuration>
+                            <source>8</source>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
         </profile>
 
         <profile>
